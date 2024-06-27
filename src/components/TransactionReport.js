@@ -24,6 +24,7 @@ import {
   Text,
   Wrap,
   Radio,
+  useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { ChevronDownIcon } from "@chakra-ui/icons";
@@ -44,6 +45,8 @@ const TransactionReport = () => {
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
   const [selectPayment, setSelectPayment] = useState("All");
   const [selectTally, setSelectTally] = useState("All");
+  const[render, setRender] =useState(false);
+  const toast =useToast();
 
   const [currentDate, setCurrentDate] = useState(
     new Date().toISOString().split("T")[0]
@@ -153,8 +156,8 @@ const TransactionReport = () => {
     setSelectedEndDate(null);
     setSelectPayment("All");
     setSelectTally("All");
-
-    setSelectedStatusEndDate(null);
+    setSelectedEndDate("");
+    setSelectedStatusEndDate("");
   };
   useEffect(() => {
     const blocks = getUniqueValues("blockName").filter(
@@ -186,9 +189,178 @@ const TransactionReport = () => {
   );
 
   // Temprary
-  const handleTallyButtonClick = (index) => {
-    setTalliedStatus({ ...talliedStatus, [index]: true });
+//   const handleTallyButtonClick = async (props) => {
+//     console.log("tallydata", props);
+
+//     const url = "http://localhost/backend_lms/TransactionTally.php";
+//     const data = {
+//         id: props.id,
+//     };
+
+//     try {
+//         const response = await axios.post(url, data, {
+//             headers: {
+//                 'Content-Type': 'application/json'
+//             }
+//         });
+
+//         if (response && response.data && response.data.status === "success") {
+//             console.log(" successfully:", response.data.message);
+//             toast({
+//                 title: "Tally successfully!",
+//                 status: "success",
+//                 duration: 3000,
+//                 isClosable: true,
+//             });
+//             setRender((prev) => !prev);
+//         } else {
+//             console.error("Error :", response.data.message);
+//             toast({
+//                 title: "Error ",
+//                 status: "error",
+//                 duration: 3000,
+//                 isClosable: true,
+//             });
+//         }
+//     } catch (error) {
+//         console.error("Error in handleTally:", error);
+//         toast({
+//             title: "Error",
+//             status: "error",
+//             duration: 3000,
+//             isClosable: true,
+//         });
+//     }
+// };
+
+// const ThandleNotTally = async (props) => {
+//   console.log("tallydata", props);
+
+//   const url = "http://localhost/backend_lms/ReUpdateTransactionTally.php";
+//   const formData = new FormData();
+
+//   formData.append("id", props.id);
+//   formData.append("TallyStatus", "Not Tallied");
+
+//   try {
+//     const response = await axios.post(url, formData);
+
+//     if (response && response.data && response.data.status === "success") {
+//       console.log(" successfully:", response.data.message);
+//       toast({
+//         title: " Not Tally successfully!",
+//         status: "success",
+//         duration: 3000,
+//         isClosable: true,
+//       });
+//       setRender((prev) => !prev);
+//     } else {
+//       console.error("Error :", response.data.message);
+//       toast({
+//         title: "Error ",
+//         status: "error",
+//         duration: 3000,
+//         isClosable: true,
+//       });
+//     }
+//   } catch (error) {
+//     console.error("Error in handleEdit:", error);
+//     toast({
+//       title: "Error",
+//       status: "error",
+//       duration: 3000,
+//       isClosable: true,
+//     });
+//   }
+// };
+
+const handleTally = async (props) => {
+  console.log("tallydata", props);
+
+  const url = "http://localhost/backend_lms/TransactionTally.php";
+  const data = {
+      id: props.id,
   };
+
+  try {
+      const response = await axios.post(url, data, {
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      });
+
+      if (response && response.data && response.data.status === "success") {
+          console.log(" successfully:", response.data.message);
+          toast({
+              title: "Tally successfully!",
+              status: "success",
+              duration: 3000,
+              isClosable: true,
+          });
+          setRender((prev) => !prev);
+      } else {
+          console.error("Error :", response.data.message);
+          toast({
+              title: "Error ",
+              status: "error",
+              duration: 3000,
+              isClosable: true,
+          });
+      }
+  } catch (error) {
+      console.error("Error in handleTally:", error);
+      toast({
+          title: "Error",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+      });
+  }
+};
+const handleNotTally = async (props) => {
+  console.log("tallydata", props);
+
+  const url = "http://localhost/backend_lms/ReUpdateTransactionTally.php";
+  const formData = new FormData();
+
+  formData.append("id", props.id);
+  formData.append("TallyStatus", "Not Tallied");
+
+  try {
+    const response = await axios.post(url, formData);
+
+    if (response && response.data && response.data.status === "success") {
+      console.log(" successfully:", response.data.message);
+      toast({
+        title: " Not Tally successfully!",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+      setRender((prev) => !prev);
+    } else {
+      console.error("Error :", response.data.message);
+      toast({
+        title: "Error ",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  } catch (error) {
+    console.error("Error in handleEdit:", error);
+    toast({
+      title: "Error",
+      status: "error",
+      duration: 3000,
+      isClosable: true,
+    });
+  }
+};
+
+useEffect(() => {
+  loadTransaction();
+}, [render]);
 
   return (
     <>
@@ -466,7 +638,7 @@ const TransactionReport = () => {
             <Input
               _hover={{ cursor: "pointer" }}
               type="date"
-              value={selectedEndDate || currentDate}
+              value={selectedEndDate }
               onChange={(e) => setSelectedEndDate(e.target.value)}
             />
           </Box>
@@ -499,7 +671,7 @@ const TransactionReport = () => {
             </Box>
             <Input
               type="date"
-              value={selectedStatusEndDate || currentDate}
+              value={selectedStatusEndDate }
               onChange={(e) => setSelectedStatusEndDate(e.target.value)}
               _hover={{ cursor: "pointer" }}
             />
@@ -808,21 +980,30 @@ const TransactionReport = () => {
                       <Td border="1px solid black" p={"10px"}>
                         {data.remarks}
                       </Td>
-                      <Td border="1px solid black" p={"10px"}>
-                        {data.TallyStatus}
-                      </Td>
-                      <Td border="1px solid black" p={"10px"}>
-                        <Button
-                          w={"100px"}
-                          bg={"rgb(34, 195, 94)"}
-                          onClick={() => {
-                            handleTallyButtonClick(index);
-                          }}
-                          h={"30px"}
+                      <Td
+                          border="1px solid black"
+                          textAlign={"right"}
+                          style={{ color: "red" }}
                         >
-                          Tally
-                        </Button>
-                      </Td>
+                          {data.TallyStatus}
+                        </Td>
+                        <Td border="1px solid black">
+                          {data.TallyStatus === "Tallied" ? (
+                            <Button
+                              colorScheme="teal"
+                              onClick={() => handleNotTally(data)}
+                            >
+                              Not Tally
+                            </Button>
+                          ) : (
+                            <Button
+                              colorScheme="teal"
+                              onClick={() => handleTally(data)}
+                            >
+                              Tally
+                            </Button>
+                          )}
+                        </Td>
                       {/* <Td border="1px solid black" p={"10px"}>{data.amount}</Td> */}
                     </Tr>
                   ))}

@@ -80,6 +80,11 @@ const [currentDate, setCurrentDate] = useState("")
   const [transferAllBlock, setTransferAllBlock] = useState([]);
   const [transferAllPlot, setTransferAllPlot] = useState([]);
   const [AllPlot, setAllPlot] = useState([]);
+  const [plotStatus, setPlotStatus] = useState('');
+
+
+
+
   useEffect(() => {
     const updatedTransactionData = transactionData.map((res, index) => {
       if (transferredRows.includes(index)) {
@@ -466,6 +471,59 @@ const [currentDate, setCurrentDate] = useState("")
       console.log("Please Select Proper Input");
     }
   };
+
+
+
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  // useEffect(() => {
+  //   const fetchPlotStatus = async () => {
+  //     const url = 'http://localhost/backend_lms/getQuery.php';
+  //     const query = `SELECT plotStatus FROM plot WHERE plotNo = '${plotName}';`;
+      
+  //     let fData = new FormData();
+  //     fData.append('query', query);
+
+  //     try {
+  //       const response = await axios.post(url, fData);
+  //       const status = response.data[0].plotStatus; // Assuming the response is an array of objects
+  //       setPlotStatus(status);
+  //     } catch (error) {
+  //       console.log(error.toJSON());
+  //     }
+  //   };
+
+  //   fetchPlotStatus();
+  // }, [plotName]);
+
+  // const updatePlotStatus = async (newStatus) => {
+  //   const url = 'http://localhost/backend_lms/setQuery.php';
+  //   const query = `UPDATE plot SET plotStatus = '${newStatus}' WHERE plotNo = '${plotName}';`;
+
+  //   let fData = new FormData();
+  //   fData.append('query', query);
+
+  //   try {
+  //     await axios.post(url, fData);
+  //     setPlotStatus(newStatus);
+  //     console.log(`Plot status updated to ${newStatus}.`);
+  //   } catch (error) {
+  //     console.log(error.toJSON());
+  //   }
+  // };
+
+  // const handleButtonClick = () => {
+  //   if (plotStatus === 'Registered') {
+  //     updatePlotStatus('Booked');
+  //   } else if (plotStatus === 'Booked') {
+  //     updatePlotStatus('Registered');
+  //   }
+  // };
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
   const onRegistry = async () => {
     const userConfirmed = window.confirm(
       "Do you really want to registry this plot?"
@@ -574,6 +632,12 @@ const [currentDate, setCurrentDate] = useState("")
       console.log(error.toJSON());
     }
   };
+
+
+
+
+
+
 
     const[registryDate,setRegistryDate] = useState();
 
@@ -2438,6 +2502,7 @@ const [currentDate, setCurrentDate] = useState("")
                     size={"sm"}
                     onClick={onRegistry}
                     className="hide-on-print"
+                    // onClick={handleButtonClick}
                   >
                     Registry
                   </Button>

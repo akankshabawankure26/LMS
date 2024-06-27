@@ -40,6 +40,7 @@ import { ChevronDownIcon } from "@chakra-ui/icons";
 
 const BookingStatus = () => {
   const [bookings, setBooking] = useState([]);
+  const [temp, setTemp] = useState([])
   const [status, setStatus] = useState([]);
   const [date, setDate] = useState([]);
   const [onholdPlot, setOnholdPlot] = useState({})
@@ -166,6 +167,7 @@ if(selectedProject.length>0){
         // "https://lkgexcel.com/backend/getplot.php"
       );
       setBooking(response.data);
+      setTemp(response.data);
       setCount(filteredBookings.length)
       // console.log("booking", response.data)
       setLoading(false);
@@ -189,17 +191,40 @@ if(selectedProject.length>0){
     return `${day}${month}${year}`;
   };
 
-  const handleFind = () => {
-    console.log("this is selected date",selectedFromDate);
-    console.log("From Date:",formatDate1(selectedFromDate));
-    console.log("To Date:",formatDate1(selectedToDate));
-// console.log("status",status)
-    // Example filter logic (commented out)
-    // const filterArray = status.filter(item => item.bookingDate >= selectedFromDate && item.bookingDate <= selectedToDate);
-    // setBooking(filterArray);
-  };
+  // Function to compare two objects (assuming they match by id)
+  const objectsMatch = (obj1, obj2) => obj1.projectName === obj2.projectName && obj1.blockName === obj2.blockName && obj1.plotNo === obj2.plotNo;
+  
+    const handleFind = () => {
+      let fromDate = Number(formatDate(selectedFromDate))
+      let toDate = Number(formatDate(selectedToDate))
+  
+      console.log("*",fromDate)
+      console.log("*",toDate)
+  
+  // Modify the array using map
+  const modifyData = status.map((el) => ({
+    ...el,
+    bookingDate: Number(formatDate1(el.bookingDate))
+  }));
+  console.log(modifyData)
+   const newData = modifyData.filter((el)=> fromDate<= +(el.bookingDate) && toDate>= +(el.bookingDate))
+   console.log("this is new data", newData);
+  
+  //  setBooking(newData)
+      // let finalDate = newData.filter((item)=> status.includes(item.id))
+      // console.log("finalDate",finalDate);
+  
+      // Filter array1 to get objects that match in array2
+  const filteredArray = temp.filter(obj1 => 
+    newData.some(obj2 => objectsMatch(obj1, obj2))
+  );
+  console.log("finalDate", filteredArray);
+  setBooking(filteredArray)
+  setSelectedToDate("")
+  setSelectedFromDate("")
+    };
 
-console.log("selectedFromDate",selectedFromDate);
+
 
   
   const getUniqueValues = (key) => {
@@ -234,6 +259,7 @@ const plotStatus = getUniqueValues("plotStatus");
 
 
   const clearFilters = () => {
+    fetchData();
     setSelectedFromDate("");
     setSelectedToDate("");
     setSelectedProject([]);
@@ -585,28 +611,37 @@ const plotStatus = getUniqueValues("plotStatus");
               ))}
             </MenuList>
           </Menu>
-          <Box display={"flex"}>
+
+
+
+
+        <Box display={"flex"}>
             <Text mt={2}>From:</Text>
             <Input
               type="date"
               placeholder="Search From Date"
               w={"auto"}
               ml={"2%"}
-              // value={selectedFromDate}
+              value={selectedFromDate}
               onChange={(event) => setSelectedFromDate(event.target.value)}
             />
-            <Text mt={2} ml={2}>To:</Text>
+            <Text mt={2} ml={2}>
+              To:
+            </Text>
             <Input
               type="date"
               // value={selectedToDate}
               placeholder="Search to Date"
               w={"auto"}
               ml={"2%"}
-              // value={selectedToDate}
+              value={selectedToDate}
               onChange={(event) => setSelectedToDate(event.target.value)}
             />
-          <Button onClick={handleFind}>Find</Button>
-          </Box>
+            <Button onClick={handleFind}>Find</Button>
+</Box>
+
+
+
           <Button ml={2} onClick={clearFilters} colorScheme="red">
             Clear Filters
           </Button>

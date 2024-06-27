@@ -140,6 +140,7 @@ const BookingList = () => {
     .sort((a, b) => new Date(b.date) - new Date(a.date));
 
   const clearFilters = () => {
+    setSelectedEndDate("")
     setSelectedProject([]);
     setSelectedBlock([]);
     setSelectedPlot([]);
@@ -688,7 +689,7 @@ const handleNotTally = async (props) => {
             <Input
               type="date"
               id="enddate"
-              value={selectedEndDate || currentDate}
+              value={selectedEndDate }
               onChange={(e) => setSelectedEndDate(e.target.value)}
             />
           </Box>
