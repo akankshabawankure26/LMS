@@ -35,7 +35,7 @@ import { useData } from "../Context";
 import DeleteConfirmationDialog from "./DeleteConfirmationDialog";
 import { Link } from "react-router-dom";
 const PaymentTransaction = () => {
-
+const [currentDate, setCurrentDate] = useState("")
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const { constructionData, setConstructionData } = useData();
   const [displa, setdisplay] = useState(false);
@@ -1317,6 +1317,8 @@ const PaymentTransaction = () => {
     statusDate: "",
     remarks: "",
   });
+
+  ////////////////////////////////////////////////////////////////
   const handleEditChange = (e) => {
     const { name, value } = e.target;
     setEditFormData((prevData) => ({ ...prevData, [name]: value }));
@@ -1337,7 +1339,7 @@ const PaymentTransaction = () => {
       remarks: project.remarks,
     });
   };
-
+/////////////////////////////////////////////////////////////////////////////////
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     const url = "http://localhost/backend_lms/editpayment.php";
@@ -1745,6 +1747,26 @@ const PaymentTransaction = () => {
     navigate("/brokertransaction", { state: { constructionData } });
   };
   const navigate = useNavigate();
+
+
+  useEffect(() => {
+    const fetchDate = async () => {
+      try {
+        const response = await fetch('http://worldtimeapi.org/api/timezone/Etc/UTC');
+        const data = await response.json();
+        const utcDate = new Date(data.utc_datetime);
+        const formattedDate = utcDate.toISOString().split('T')[0];
+        setCurrentDate(formattedDate);
+      } catch (error) {
+        console.error('Error fetching date:', error);
+      }
+    };
+
+    fetchDate();
+  }, []);
+
+
+
   return (
     <Box display={"flex"} height={"100vh"} maxW={"100vw"} ref={componentRef}>
       <Box flex={"20%"} borderRight={"1px solid grey"}>
@@ -2496,6 +2518,7 @@ const PaymentTransaction = () => {
                       id="date"
                       required
                       type="date"
+                      value={currentDate}
                       // w={"60%"}
                     />
                   </Flex>

@@ -357,48 +357,46 @@ const BookingList = () => {
 };
 
 
-  const handleNotTally = async (props) => {
-    console.log("tallydata", props);
+const handleNotTally = async (props) => {
+  console.log("tallydata", props);
 
-    // const url = "https://lkgexcel.com/backend/editplot.php";
-    const url = "http://localhost/backend_lms/updateTallyStatus.php";
-    const formData = new FormData();
+  const url = "http://localhost/backend_lms/ReUpdateTally.php";
+  const formData = new FormData();
 
-    formData.append("id", props.id);
-    formData.append("TallyStatus", "Not Tally");
+  formData.append("id", props.id);
+  formData.append("TallyStatus", "Not Tallied");
 
-    try {
-      const response = await axios.post(url, formData);
+  try {
+    const response = await axios.post(url, formData);
 
-      if (response && response.data && response.data.status === "success") {
-        console.log(" successfully:", response.data.message);
-        toast({
-          title: " Not Tally successfully!",
-          status: "success",
-          duration: 3000,
-          isClosable: true,
-        });
-        setRender((prev) => !prev);
-        // fetchDataPlot();
-      } else {
-        console.error("Error :", response.data.message);
-        toast({
-          title: "Error ",
-          status: "error",
-          duration: 3000,
-          isClosable: true,
-        });
-      }
-    } catch (error) {
-      console.error("Error in handleEdit:", error);
+    if (response && response.data && response.data.status === "success") {
+      console.log(" successfully:", response.data.message);
       toast({
-        title: "Error",
+        title: " Not Tally successfully!",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+      setRender((prev) => !prev);
+    } else {
+      console.error("Error :", response.data.message);
+      toast({
+        title: "Error ",
         status: "error",
         duration: 3000,
         isClosable: true,
       });
     }
-  };
+  } catch (error) {
+    console.error("Error in handleEdit:", error);
+    toast({
+      title: "Error",
+      status: "error",
+      duration: 3000,
+      isClosable: true,
+    });
+  }
+};
 
   useEffect(() => {
     loadBooking();
