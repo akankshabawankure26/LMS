@@ -45,7 +45,7 @@ const AddPlot = () => {
   const [plot, setPlot] = useState([]);
   const [selectedProject, setSelectedProject] = useState("");
   const [availableRateUpdate, setAvailableRateUpdate] = useState([]);
-
+  const [updatedRates, setUpdatedRates] = useState({});
   const [formData, setFormData] = useState({
     projectName: "",
     blockName: "",
@@ -391,40 +391,48 @@ const AddPlot = () => {
 
 
   const handleupdatePlotRate = async() => {
-
+    const availablePlot = currentItems.filter((item) => item.plotStatus === "Available");
+    console.log("availablePlot", availablePlot);
+    
+    if (availablePlot.length > 0) {
+        let projectname = availablePlot[0].projectName;
+        let blockname = availablePlot[0].blockName;
 
         const url = "http://localhost/backend_lms/editPlotRate.php";
-    const formData = new FormData();
-
-    formData.append("ratePerSqft", updatePlotRate);
+        const formData = new FormData();
+        formData.append("projectName", projectname);
+        formData.append("blockName", blockname);
+        formData.append("ratePerSqft", updatePlotRate);
     
-      try {
-        
-        const response = await axios.post(url,formData);
+        try {
+            const response = await axios.post(url, formData);
 
-        if (response && response.data && response.data.status === "success") {
-          console.log("Plot ratePerSqft successfully:",response.data.message);
-          toast({
-            title: "Rate Per Sqft Updated successfully!",
-            status: "success",
-            duration: 3000,
-            isClosable: true,
-          })
+            if (response && response.data && response.data.status === "success") {
+                console.log("Plot ratePerSqft successfully:", response.data.message);
+                toast({
+                    title: "Rate Per Sqft Updated successfully!",
+                    status: "success",
+                    duration: 3000,
+                    isClosable: true,
+                });
+                fetchDataPlot();
+                // fetchDataProject();
+                // fetchDataBlock();
 
-          fetchDataProject();
-          fetchDataPlot();
-          fetchDataBlock();
-          // window.location.reload();
+                setUpdatedRates(prev => ({
+                  ...prev,
+                  [`${projectname}-${blockname}`]: true
+              }));
+            
+            }
+        } catch (error) {
+            console.log(error);
         }
+    } else {
+        console.log("No available plot found.");
+    }
+};
 
-
-      } catch (error) {
-
-        console.log(error);
-        
-      }   
-  
-  };
 
 
 
@@ -451,6 +459,7 @@ const AddPlot = () => {
                 value={formData.projectName}
                 onChange={handleChange}
                 placeholder="Select Project"
+                id="projectName"
                 required
               >
                 {projects.map((project) => (
@@ -682,7 +691,23 @@ const AddPlot = () => {
 
                   <Td>{plotItem.areaSqft}</Td>
                   <Td>{plotItem.areaSqmt}</Td>
-                  <Td>{plotItem.ratePerSqft}</Td>
+
+
+                  
+              
+              {
+                <Td style={{ backgroundColor: updatedRates[`${plotItem.projectName}-${plotItem.blockName}`] ? "pink" : "white" }}>{plotItem.ratePerSqft }</Td>
+                
+                }
+               
+                
+                
+                
+
+
+
+
+
                   <Td>{plotItem.plotType}</Td>
                   <Td>
                     {plotItem.plotStatus === "Booked" && (

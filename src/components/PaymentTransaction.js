@@ -844,6 +844,7 @@ const [currentDate, setCurrentDate] = useState("")
   };
 
   const setData = async (plotName) => {
+    
     let query =
       "SELECT * FROM booking where blockName = '" +
       blockName +
@@ -1807,8 +1808,9 @@ const [currentDate, setCurrentDate] = useState("")
   const handleContractorButtonClick = () => {
     navigate("/contractortransaction", { state: { constructionData } });
   };
-  const handleBrokerButtonClick = () => {
+  const handleBrokerButtonClick = (e) => {
     navigate("/brokertransaction", { state: { constructionData } });
+    
   };
   const navigate = useNavigate();
 
@@ -1829,6 +1831,19 @@ const [currentDate, setCurrentDate] = useState("")
     fetchDate();
   }, []);
 
+  useEffect(()=> {
+  const filterPlot = plotData?.filter((item)=> item.plotNo === plotName)
+ 
+  if(filterPlot.length>=0){
+    console.log("bkf", filterPlot[0]?.plotStatus);
+    setPlotStatus(filterPlot[0]?.plotStatus)
+  }
+  },[plotName])
+
+console.log("currentPlot", currentPlot);
+console.log("plot", plotData);
+console.log("plotName", plotName);
+console.log("plotStatus", plotStatus);
 
 
   return (
@@ -2497,7 +2512,16 @@ const [currentDate, setCurrentDate] = useState("")
             <VStack>
               {showButtons && (
                 <>
-                  <Button
+                 
+{plotStatus === "Registered" ?  <Button
+                    colorScheme="gray"
+                    size={"sm"}
+                    // onClick={onRegistry}
+                    className="hide-on-print"
+                    // onClick={handleButtonClick}
+                  >
+                    UnRegistered
+                  </Button> :  <Button
                     colorScheme="gray"
                     size={"sm"}
                     onClick={onRegistry}
@@ -2505,7 +2529,8 @@ const [currentDate, setCurrentDate] = useState("")
                     // onClick={handleButtonClick}
                   >
                     Registry
-                  </Button>
+                  </Button> }
+
                   <Button
                     size={"sm"}
                     onClick={cancelPlot}

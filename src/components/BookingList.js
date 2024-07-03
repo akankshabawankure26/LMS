@@ -38,6 +38,9 @@ const BookingList = () => {
   const [selectedType, setSelectedType] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedEndDate, setSelectedEndDate] = useState(null);
+  const [selectedStatusEndDate,setSelectStatusEndDate] = useState(null);
+
+  const [selectedStatusDate,setSelectStatusDate]= useState(null);
   const [plotsData, setPlotsData] = useState([]);
   const [constructionApplicable, setConstructionApplicable] = useState("All");
   const [constructors, setConstructors] = useState([]);
@@ -402,7 +405,7 @@ const handleNotTally = async (props) => {
   useEffect(() => {
     loadBooking();
   }, [render]);
-
+console.log("filter...",filteredBookings);
   return (
     <>
       <Center>
@@ -693,6 +696,36 @@ const handleNotTally = async (props) => {
               onChange={(e) => setSelectedEndDate(e.target.value)}
             />
           </Box>
+          <Box display={"flex"} mb={4}>
+            <FormLabel
+              textAlign={"center"}
+              fontSize={"17px"}
+              minWidth={"fit-content"}
+              mt={"5px"}
+            >
+              Registry Date:
+            </FormLabel>
+            <Box display="flex" alignItems="center">
+              <Text marginRight="4px">From</Text>
+              <Text marginRight="4px">:</Text>
+            </Box>
+            <Input
+              type="date"
+              id="date"
+              value={selectedStatusDate || ""}
+              onChange={(e) => setSelectStatusDate(e.target.value)}
+            />
+            <Box display={"flex"} alignItems={"center"}>
+              <Text mr={"4px"}>To</Text>
+              <Text mr={"4px"}>:</Text>
+            </Box>
+            <Input
+              type="date"
+              id="enddate"
+              value={selectedStatusEndDate }
+              onChange={(e) => setSelectStatusEndDate(e.target.value)}
+            />
+          </Box>
           <Button ml={2} onClick={clearFilters} colorScheme="red">
             Clear Filters
           </Button>
@@ -867,6 +900,7 @@ const handleNotTally = async (props) => {
                     <Th border="1px solid black" color={"white"}>
                       remarks
                     </Th>
+                    
                     <Th border="1px solid black" color={"white"}>
                       registryDate
                     </Th>
@@ -994,13 +1028,14 @@ const handleNotTally = async (props) => {
                           {data.cashAmountPayable}
                         </Td>
                         <Td border="1px solid black">{data.remarks}</Td>
-                        <Td color={"white"} border="1px solid black">
+                        <Td color={"black"} border="1px solid black">
                           {data.registryDate}
                         </Td>
                         <Td
                           border="1px solid black"
                           textAlign={"right"}
-                          style={{ color: "red" }}
+                          style={{ color: "white" }}
+                          backgroundColor={data.TalliedStatus==="Tallied" ?  "green":"red"}
                         >
                           {data.TalliedStatus}
                         </Td>

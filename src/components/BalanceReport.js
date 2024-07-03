@@ -263,6 +263,7 @@
     });
 
         console.log("this is date",filteredBookings);
+        console.log("this is registryDate", date);
 
 
 
@@ -929,9 +930,6 @@
                                   {stat.plotStatus}
                                 </Badge>
                               </Td>
-                              {stat.plotStatus === "Registered" &&
-                              date.length > 0 ? (
-                                date.map((rd, index) => (
                                   <Td
                                     key={index}
                                     border="1px solid black"
@@ -939,18 +937,8 @@
                                     className="print"
                                     textAlign={"center"}
                                   >
-                                    {rd.registryDate} 
+                                    {date[0].registryDate} 
                                   </Td>
-                                ))
-                              ) : (
-                                <Td
-                                  border="1px solid black"
-                                  textAlign={"center"}
-                                  className="print"
-                                >
-                                  ----
-                                </Td>
-                              )}
                             </React.Fragment>
                           ))}
                       </Tr>

@@ -578,9 +578,13 @@ const plotStatus = getUniqueValues("plotStatus");
             </MenuList>
           </Menu>
    {/* plot status filter */}
+
+
+
+
    <Menu>
             <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-              Select Plots status
+           Plots status
             </MenuButton>
             <MenuList>
               <MenuItem>
@@ -660,10 +664,13 @@ const plotStatus = getUniqueValues("plotStatus");
           />
         </Center>
       ) : !selectedProject.length>0 ? <Heading textAlign={"center"} position={"relative"} top={100}>Select Project first</Heading> :  (
-    <> <FormLabel fontWeight={700} >Total Booking : ({filteredBookings.length})</FormLabel> <Box  w={"100%"}> <Table variant="simple"  w={"100%"} colorScheme="blue">
+    <> <FormLabel fontWeight={700} >Total Booking : ({filteredBookings.length})</FormLabel> <Box  w={"100%"}> 
+    
+    
+    <Table variant="simple"  w={"100%"} colorScheme="blue">
   
 
-  <Thead>
+    <Thead>
       <Tr bg="gray.800" >
       <Th color="white" bg={"white"}></Th>
       <Th color="white"  bg={"white"}></Th>
@@ -673,7 +680,7 @@ const plotStatus = getUniqueValues("plotStatus");
         <Th color="white">{totalAreamt}</Th>
       
       </Tr>
-    </Thead>
+     </Thead>
     
     <Thead>
       <Tr bg="gray.800" >
@@ -745,21 +752,13 @@ const plotStatus = getUniqueValues("plotStatus");
                 <Td>{book.bookingDate}</Td>
                 <Td>{book.customerName}</Td>
                 <Td>{book.customerContact}</Td>
+                <Td>
+           {book.registryDate}
+          </Td> 
               </React.Fragment>
             ))
             }
-           <Td>
-            {plotItem.plotStatus === "Registered" && (
-              <span>
-                {date.map((rd, index) => (
-                  <React.Fragment key={index}>
-                    <span>{rd.registryDate}</span>
-                    {index !== date.length - 1 && ", "}
-                  </React.Fragment>
-                ))}
-              </span>
-            )}
-          </Td> 
+          
         </Tr>
       ))}
     </Tbody>

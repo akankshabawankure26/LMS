@@ -26,7 +26,6 @@ import axios from "axios";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 
 const BrokerLedger = () => {
-
   const [transaction, setTransaction] = useState([]);
   const [selectedProject, setSelectedProject] = useState([]);
   const [selectedContractor, setSelectedContractor] = useState([]);
@@ -46,15 +45,14 @@ const BrokerLedger = () => {
     }
   };
 
-   const formatDate = (dateString) => {
-     const date = new Date(dateString);
-     const day = String(date.getDate()).padStart(2, "0");
-     const month = String(date.getMonth() + 1).padStart(2, "0");
-     const year = date.getFullYear();
-     console.log('xxxxxxxxx',day,month,year)
-     return `${day}-${month}-${year}`;
-   };
-
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    console.log("xxxxxxxxx", day, month, year);
+    return `${day}-${month}-${year}`;
+  };
 
   const loadTransaction = async () => {
     let query = "SELECT * FROM brokerTransaction;";
@@ -103,7 +101,7 @@ const BrokerLedger = () => {
         selectedBlock.includes(item.blockName)) &&
       (!selectedPlot.length ||
         selectedPlot.includes("Select All") ||
-        selectedPlot.includes(item.plotNo))    &&
+        selectedPlot.includes(item.plotNo)) &&
       (!plotStatus.length ||
         plotStatus.includes("Select All") ||
         plotStatus.includes(item.plotNo))
@@ -145,7 +143,6 @@ const BrokerLedger = () => {
   let finalPable = 0;
   let finalPaid = 0;
 
-
   filteredBookings.forEach((obj) => {
     finalBalance += parseInt(obj.totalBalance);
     finalPable += parseInt(obj.totalPayable);
@@ -155,11 +152,6 @@ const BrokerLedger = () => {
   console.log("Final Balance:", finalBalance);
   console.log("Final Payable:", finalPable);
   console.log("Final Paid:", finalPaid);
-
-
-
-
-
 
   return (
     <>
@@ -344,7 +336,6 @@ const BrokerLedger = () => {
                   </Checkbox>
                 </MenuItem>
               ))}
-              
             </MenuList>
           </Menu>
           <Button ml={2} onClick={clearFilters} colorScheme="red">
@@ -368,25 +359,39 @@ const BrokerLedger = () => {
             </Text>
             <Table variant="simple" size={"md"}>
               <TableContainer>
-
-
-                              
                 <Thead>
-                  <Tr bg="gray.800" >
-                  <Th color="white" bg={"white"}></Th>
-                  <Th color="white"  bg={"white"}></Th>
-                  <Th color="white" bg={"white"}></Th>
-                  <Th color="white" bg={"white"}></Th>
-                  <Th color="white" bg={"white"}></Th>
-                  <Th color="white" bg={"white"}></Th>
-                  <Th color="white" bg={"white"}></Th>
-                  <Th color="white"> {selectedContractor.length>0 ? <p style={{ color: "yellow" }}>{finalPable}</p> : "0"} </Th>
-                  <Th color="white">{selectedContractor.length>0 ? <p style={{ color: "yellow" }}>{finalPaid}</p> : "0"}   </Th>
-                  <Th color="white">{selectedContractor.length>0 ? <p style={{ color: "yellow" }}>{finalBalance}</p> : "0"}   </Th>
-
-                </Tr>
+                  <Tr bg="gray.800">
+                    <Th color="white" bg={"white"}></Th>
+                    <Th color="white" bg={"white"}></Th>
+                    <Th color="white" bg={"white"}></Th>
+                    <Th color="white" bg={"white"}></Th>
+                    <Th color="white" bg={"white"}></Th>
+                    <Th color="white" bg={"white"}></Th>
+                    <Th color="white" bg={"white"}></Th>
+                    <Th color="white">
+                      {" "}
+                      {selectedContractor.length > 0 ? (
+                        <p style={{ color: "yellow" }}>{finalPable}</p>
+                      ) : (
+                        "0"
+                      )}{" "}
+                    </Th>
+                    <Th color="white">
+                      {selectedContractor.length > 0 ? (
+                        <p style={{ color: "yellow" }}>{finalPaid}</p>
+                      ) : (
+                        "0"
+                      )}{" "}
+                    </Th>
+                    <Th color="white">
+                      {selectedContractor.length > 0 ? (
+                        <p style={{ color: "yellow" }}>{finalBalance}</p>
+                      ) : (
+                        "0"
+                      )}{" "}
+                    </Th>
+                  </Tr>
                 </Thead>
-
 
                 <Thead>
                   <Tr border="1px solid black" bg={"#121212"}>
@@ -433,7 +438,7 @@ const BrokerLedger = () => {
                         }}
                       >
                         <p>Total Payable</p>
-                      
+
                         {/* <p style={{ color: "yellow" }}>{finalPable}</p> */}
                       </div>
                     </Th>
@@ -447,7 +452,7 @@ const BrokerLedger = () => {
                         }}
                       >
                         <p>Total Paid</p>
-                       
+
                         {/* <p style={{ color: "yellow" }}>{finalPaid}</p> */}
                       </div>
                     </Th>
@@ -461,7 +466,7 @@ const BrokerLedger = () => {
                         }}
                       >
                         <p>Total Bal</p>
-                       
+
                         {/* <p style={{ color: "yellow" }}>{finalBalance}</p> */}
                       </div>
                     </Th>
@@ -475,34 +480,35 @@ const BrokerLedger = () => {
                   </Tr>
                 </Thead>
                 <Tbody>
-                  {selectedContractor.length>0 && filteredBookings.map((data, index) => (
-                    <Tr key={data.srNo}>
-                      <Td border="1px solid black">{index + 1}</Td>
-                      <Td border="1px solid black">{data.broker}</Td>
-                      <Td border="1px solid black">{data.projectName}</Td>
-                      <Td border="1px solid black">{data.blockName}</Td>
-                      <Td border="1px solid black">{data.plotNo}</Td>
-                      <Td border="1px solid black">{data.plotstatus}</Td>
-                      <Td border="1px solid black">{data.RegistryDate}</Td>
-                      {/* <Td border="1px solid black">
+                  {selectedContractor.length > 0 &&
+                    filteredBookings.map((data, index) => (
+                      <Tr key={data.srNo}>
+                        <Td border="1px solid black">{index + 1}</Td>
+                        <Td border="1px solid black">{data.broker}</Td>
+                        <Td border="1px solid black">{data.projectName}</Td>
+                        <Td border="1px solid black">{data.blockName}</Td>
+                        <Td border="1px solid black">{data.plotNo}</Td>
+                        <Td border="1px solid black">{data.plotstatus}</Td>
+                        <Td border="1px solid black">{data.RegistryDate}</Td>
+                        {/* <Td border="1px solid black">
                         {formatDate(data.transactionDate)}
                       </Td> */}
 
-                      {/* <Td border="1px solid black">
+                        {/* <Td border="1px solid black">
                         {formatDate(data.transactionDate)}
                       </Td> */}
-                      {/* <Td border="1px solid black">{data.netAmount}</Td>
+                        {/* <Td border="1px solid black">{data.netAmount}</Td>
                       <Td border="1px solid black">{data.brokerage}</Td> */}
 
-                      {/* <Td border="1px solid black">{data.amount}</Td> */}
-                      <Td border="1px solid black">{data.totalPayable}</Td>
-                      <Td border="1px solid black">{data.totalPaid}</Td>
-                      <Td border="1px solid black">{data.totalBalance}</Td>
-                      {/* <Td border="1px solid black">{data.cheq}</Td> */}
+                        {/* <Td border="1px solid black">{data.amount}</Td> */}
+                        <Td border="1px solid black">{data.totalPayable}</Td>
+                        <Td border="1px solid black">{data.totalPaid}</Td>
+                        <Td border="1px solid black">{data.totalBalance}</Td>
+                        {/* <Td border="1px solid black">{data.cheq}</Td> */}
 
-                      {/* <Td border="1px solid black">{data.remarks}</Td> */}
-                    </Tr>
-                  ))}
+                        {/* <Td border="1px solid black">{data.remarks}</Td> */}
+                      </Tr>
+                    ))}
                 </Tbody>
               </TableContainer>
             </Table>

@@ -48,6 +48,8 @@ const TransactionReport = () => {
   const[render, setRender] =useState(false);
   const toast =useToast();
 
+
+
   const [currentDate, setCurrentDate] = useState(
     new Date().toISOString().split("T")[0]
   );
@@ -141,7 +143,8 @@ const TransactionReport = () => {
         (selectedStatus[0] === "All" ||
           selectedStatus.includes(item.transactionStatus)) &&
         (selectPayment === "All" || item.paymentType === selectPayment) &&
-        (selectTally === "All" || item.tallyStatus === selectTally)
+        (selectTally === "All" || item.TallyStatus === selectTally
+        )
       );
     })
     .sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -361,7 +364,7 @@ const handleNotTally = async (props) => {
 useEffect(() => {
   loadTransaction();
 }, [render]);
-
+console.log("erter", filteredBookings);
   return (
     <>
       <Center>
@@ -588,7 +591,7 @@ useEffect(() => {
               <MenuItem>
                 <Radio
                   isChecked={selectTally === "tally"}
-                  onChange={() => handleTalliedChange("tallied")}
+                  onChange={() => handleTalliedChange("Tallied")}
                   flexGrow={1}
                 >
                   Tallied
@@ -596,8 +599,8 @@ useEffect(() => {
               </MenuItem>
               <MenuItem>
                 <Radio
-                  isChecked={selectTally === "notTallied"}
-                  onChange={() => handleTalliedChange("notTallied")}
+                  isChecked={selectTally === "Not Tallied"}
+                  onChange={() => handleTalliedChange("Not Tallied")}
                   flexGrow={1}
                 >
                   Not Tallied
@@ -983,7 +986,8 @@ useEffect(() => {
                       <Td
                           border="1px solid black"
                           textAlign={"right"}
-                          style={{ color: "red" }}
+                          style={{ color: "white" }}
+                          backgroundColor={data.TallyStatus==="Tallied" ?  "green":"red"}
                         >
                           {data.TallyStatus}
                         </Td>

@@ -21,11 +21,12 @@ import {
   ModalCloseButton,
   Button,
   useToast,
+  Center,
 } from "@chakra-ui/react";
 import { useData } from "../Context";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 
 const BrokerTransaction = () => {
   const { constructionData } = useData();
@@ -50,6 +51,7 @@ const BrokerTransaction = () => {
     remarks: "",
     date: "",
   });
+  let navigate =useNavigate()
   const loadBrokerAmounts = async () => {
     const { projectName, blockName, brokerName, plotNo } = constructionData;
 
@@ -376,6 +378,13 @@ const BrokerTransaction = () => {
     }
   };
 
+  
+const handleBack =()=>{
+  const { projectName, blockName, plotNo } = constructionData;
+  console.log("constructionData",{projectName, blockName, plotNo});
+  // localStorage
+// navigate("/PaymentTransaction")
+}
 
 
 
@@ -387,7 +396,6 @@ const BrokerTransaction = () => {
     loadTransaction();
     loadBrokerAmounts();
   }, []);
-
   return (
     <Box display={"flex"} height={"80vh"} maxW={"100vw"}>
       <Box flex={"15%"} borderRight={"1px solid grey"}>
@@ -404,12 +412,12 @@ const BrokerTransaction = () => {
           <Text fontSize={"18px"} fontWeight={"semibold"}>
             Plot No :- {constructionData.plotNo}
           </Text>
-          <Text fontSize={"18px"} fontWeight={"semibold"}>
+          {/* <Text fontSize={"18px"} fontWeight={"semibold"}>
             Net Amount :- {netAmount}
           </Text>
           <Text fontSize={"18px"} fontWeight={"semibold"}>
             Brokerage (%) :- {brokerageValue}
-          </Text>
+          </Text> */}
           <Text fontSize={"18px"} fontWeight={"semibold"}>
             Total Payable :- {totalPayable}
           </Text>
@@ -419,6 +427,15 @@ const BrokerTransaction = () => {
           <Text fontSize={"18px"} fontWeight={"semibold"}>
             Amount Balance :- {amountBalance}
           </Text>
+         
+         <Button 
+          colorScheme="teal"
+          onClick={() => handleBack()}
+
+          >Go Back
+
+          </Button>
+      
          
         </VStack>
 
@@ -505,6 +522,9 @@ const BrokerTransaction = () => {
         <Table variant="simple" marginTop={"20px"} size="sm">
           <Thead>
             <Tr bg={"#121212"} color={"whitesmoke"}>
+            <Th color={"white"} border="1px solid black">
+                SrNo
+              </Th>
               <Th color={"white"} border="1px solid black">
                 Broker
               </Th>
@@ -517,11 +537,13 @@ const BrokerTransaction = () => {
               <Th color={"white"} border="1px solid black">
                 Plot
               </Th>
-              <Th color={"white"} border="1px solid black">
+              {/* <Th color={"white"} border="1px solid black">
                 Net Amount
               </Th>
               <Th color={"white"} border="1px solid black">
                 Brokerage
+              </Th> */} <Th color={"white"} border="1px solid black">
+                Date
               </Th>
               <Th color={"white"} border="1px solid black">
                 Amount
@@ -529,9 +551,7 @@ const BrokerTransaction = () => {
               <Th color={"white"} border="1px solid black">
                 Cheq
               </Th>
-              <Th color={"white"} border="1px solid black">
-                Date
-              </Th>
+             
               <Th color={"white"} border="1px solid black">
                 Remarks
               </Th>
