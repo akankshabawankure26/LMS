@@ -35,7 +35,7 @@ import { useData } from "../Context";
 import DeleteConfirmationDialog from "./DeleteConfirmationDialog";
 import { Link } from "react-router-dom";
 const PaymentTransaction = () => {
-const [currentDate, setCurrentDate] = useState("")
+
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const { constructionData, setConstructionData } = useData();
   const [displa, setdisplay] = useState(false);
@@ -81,6 +81,8 @@ const [currentDate, setCurrentDate] = useState("")
   const [transferAllPlot, setTransferAllPlot] = useState([]);
   const [AllPlot, setAllPlot] = useState([]);
   const [plotStatus, setPlotStatus] = useState('');
+  const[renderData,setrenderData]= useState([])
+
 
 
 
@@ -94,6 +96,8 @@ const [currentDate, setCurrentDate] = useState("")
     });
     setTransactionData(updatedTransactionData);
   }, [transferredRows]);
+
+
   const transferTransactions = () => {
     const transferredTransactions = transactionData.filter((transaction) => {
       return (
@@ -118,7 +122,11 @@ const [currentDate, setCurrentDate] = useState("")
       `Transactions from ${projectName}, ${blockName}, ${plotName} have been transferred to ${transferAllProjectName}, ${transferAllBlockName}, ${transferAllPlotName}`
     );
   };
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
   const confirmTransferAll = () => {
+
     const isConfirmed = window.confirm(
       "Are you sure you want to transfer all transactions?"
     );
@@ -136,6 +144,11 @@ const [currentDate, setCurrentDate] = useState("")
       });
     }
   };
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
   const loadContractor = async () => {
     let query = "SELECT * FROM contractor;";
     // alert(query);
@@ -350,13 +363,15 @@ const [currentDate, setCurrentDate] = useState("")
       if (response && response.data) {
         if (response.data.phpresult) {
           setplotData(response.data.phpresult);
-          console.log(response.data.phpresult);
+          console.log("this is ",response.data.phpresult);
         }
       }
     } catch (error) {
       console.log("Please Select Proper Input");
     }
   };
+
+
   const loadTransferPlot = async (bname) => {
     let query =
       "SELECT * FROM plot where blockName = '" +
@@ -471,59 +486,6 @@ const [currentDate, setCurrentDate] = useState("")
       console.log("Please Select Proper Input");
     }
   };
-
-
-
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  // useEffect(() => {
-  //   const fetchPlotStatus = async () => {
-  //     const url = 'http://localhost/backend_lms/getQuery.php';
-  //     const query = `SELECT plotStatus FROM plot WHERE plotNo = '${plotName}';`;
-      
-  //     let fData = new FormData();
-  //     fData.append('query', query);
-
-  //     try {
-  //       const response = await axios.post(url, fData);
-  //       const status = response.data[0].plotStatus; // Assuming the response is an array of objects
-  //       setPlotStatus(status);
-  //     } catch (error) {
-  //       console.log(error.toJSON());
-  //     }
-  //   };
-
-  //   fetchPlotStatus();
-  // }, [plotName]);
-
-  // const updatePlotStatus = async (newStatus) => {
-  //   const url = 'http://localhost/backend_lms/setQuery.php';
-  //   const query = `UPDATE plot SET plotStatus = '${newStatus}' WHERE plotNo = '${plotName}';`;
-
-  //   let fData = new FormData();
-  //   fData.append('query', query);
-
-  //   try {
-  //     await axios.post(url, fData);
-  //     setPlotStatus(newStatus);
-  //     console.log(`Plot status updated to ${newStatus}.`);
-  //   } catch (error) {
-  //     console.log(error.toJSON());
-  //   }
-  // };
-
-  // const handleButtonClick = () => {
-  //   if (plotStatus === 'Registered') {
-  //     updatePlotStatus('Booked');
-  //   } else if (plotStatus === 'Booked') {
-  //     updatePlotStatus('Registered');
-  //   }
-  // };
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
   const onRegistry = async () => {
     const userConfirmed = window.confirm(
       "Do you really want to registry this plot?"
@@ -633,22 +595,16 @@ const [currentDate, setCurrentDate] = useState("")
     }
   };
 
-
-
-
-
-
-
     const[registryDate,setRegistryDate] = useState();
 
-    const RegistryDate =  new Date(registryDate).toLocaleDateString('en-GB')
+    // const RegistryDate =  new Date(registryDate).toLocaleDateString('en-GB')
 
 
   const updateRegistryDate = async () => {
 
     const url = "http://localhost/backend_lms/setQuery.php";        
     let query =
-    "UPDATE brokertransaction SET RegistryDate = '" +RegistryDate+ "' WHERE plotNo = '" +
+    "UPDATE brokertransaction SET RegistryDate = '" +registryDate+ "' WHERE plotNo = '" +
     plotName+
     "';"
     console.log("here i am coming 2");
@@ -668,7 +624,7 @@ const [currentDate, setCurrentDate] = useState("")
 
     const url = "http://localhost/backend_lms/setQuery.php";        
     let query =
-    "UPDATE booking SET RegistryDate = '" +RegistryDate+ "' WHERE plotNo = '" +
+    "UPDATE booking SET RegistryDate = '" +registryDate+ "' WHERE plotNo = '" +
     plotName+
     "';"
     
@@ -685,7 +641,7 @@ const [currentDate, setCurrentDate] = useState("")
 
   const loadTransaction = async (plotData) => {
     let query =
-      "SELECT * FROM transaction where blockName = '" +
+      "SELECT * FROM transaction where Status ='Active' AND  blockName  = '" +
       document.getElementById("blockName").value +
       "' AND projectName ='" +
       document.getElementById("projectName").value +
@@ -844,7 +800,7 @@ const [currentDate, setCurrentDate] = useState("")
   };
 
   const setData = async (plotName) => {
-    
+  
     let query =
       "SELECT * FROM booking where blockName = '" +
       blockName +
@@ -852,7 +808,7 @@ const [currentDate, setCurrentDate] = useState("")
       projectName +
       "' AND plotNo ='" +
       plotName +
-      "'  ;";
+      "' AND IsActive='1' ;";
     // alert(query);
     const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
@@ -873,10 +829,11 @@ const [currentDate, setCurrentDate] = useState("")
             brokerName: response.data.phpresult[0]["broker"],
           };
 
-          setConstructionData(constructionData);
+          // setConstructionData(constructionData);
 
           setCurrentPlot(response.data.phpresult);
           console.log(response.data.phpresult);
+
           document.getElementById("plotType").value =
             response.data.phpresult[0]["plotType"];
           document.getElementById("custName").value =
@@ -936,8 +893,6 @@ const [currentDate, setCurrentDate] = useState("")
           document.getElementById("totalPayable").innerHTML =
             response.data.phpresult[0]["totalAmountPayable"];
 
-          document.getElementById("plotStatus").value =
-            plotData[0]["plotStatus"];
 
           loadAmounts(response.data.phpresult);
           loadAmountsBAR();
@@ -948,10 +903,29 @@ const [currentDate, setCurrentDate] = useState("")
           loadTransaction(response.data.phpresult);
         }
       }
+      document.getElementById("plotStatus").value =
+      plotData[0]["plotStatus"];
+      
     } catch (error) {
       console.log("Please Select Proper Input");
     }
   };
+
+  const[mode, setMode] = useState('')
+
+  const selectMode = (e) => {
+    const {name, value} = e.target
+    if(name==="paymentType" && value=="Cash"){
+      document.getElementById("bankMode").value = "none";
+    setMode(value)
+    }else{
+      document.getElementById("bankMode").value = "";
+      setMode("")
+    }
+    
+    
+    }
+
 
   const addPayment = async () => {
     const url = "http://localhost/backend_lms/setQuery.php";
@@ -966,19 +940,37 @@ const [currentDate, setCurrentDate] = useState("")
     const statusDate = document.getElementById("statusDate").value;
     const remarks = document.getElementById("remarks").value;
 
-    if (
-      !date ||
-      !paymentType ||
-      isNaN(amount) ||
-      !bankMode ||
-      !cheqNo ||
-      !bankName ||
-      !transactionStatus ||
-      !statusDate ||
-      !remarks
-    ) {
-      alert("Please fill in all required fields.");
-      return; // Don't submit if any field is empty
+    if (!paymentType || paymentType === "Bank") {
+      if (
+        !date ||
+        isNaN(amount) ||
+        !bankMode ||
+        !cheqNo ||
+        !bankName ||
+        !transactionStatus ||
+        !statusDate ||
+        !remarks
+      ) {
+        alert("Please fill in all required fields.");
+        return; 
+      }
+    }
+
+    if (!paymentType || paymentType === "Cash") {
+
+
+      if (
+        !date ||
+        isNaN(amount) ||
+        !statusDate ||
+        !transactionStatus ||
+        !statusDate ||
+        !remarks
+      ) {
+
+        alert("Please fill in all required fields.");
+        return; 
+      }
     }
 
     try {
@@ -1031,7 +1023,7 @@ const [currentDate, setCurrentDate] = useState("")
         console.log(`Cash Received: ${cashReceived}`);
       }
 
-      const query = `INSERT INTO transaction (id, projectName, blockName, plotno, date, paymentType, amount, bankMode, cheqNo, bankName, transactionStatus, statusDate, remarks, totalBalance, bankBalance, cashBalance, totalReceived, bankReceived, cashReceived) VALUES (NULL, '${plotData[0]["projectName"]}', '${plotData[0]["blockName"]}', '${plotData[0]["plotNo"]}', '${date}', '${paymentType}', '${amount}', '${bankMode}', '${cheqNo}', '${bankName}', '${transactionStatus}', '${statusDate}', '${remarks}', '${totalBalance}', '${bankBalance}', '${cashBalance}', '${totalReceived}', '${bankReceived}', '${cashReceived}');`;
+      const query = `INSERT INTO transaction (id, projectName, blockName, plotno, date, paymentType, amount, bankMode, cheqNo, bankName, transactionStatus, statusDate, remarks, totalBalance, bankBalance, cashBalance, totalReceived, bankReceived, cashReceived) VALUES (NULL, '${projectName}', '${blockName}','${plotName}',  '${date}', '${paymentType}', '${amount}', '${bankMode}', '${cheqNo}', '${bankName}', '${transactionStatus}', '${statusDate}', '${remarks}', '${totalBalance}', '${bankBalance}', '${cashBalance}', '${totalReceived}', '${bankReceived}', '${cashReceived}');`;
 
       const formData = new FormData();
       formData.append("query", query);
@@ -1143,6 +1135,7 @@ const [currentDate, setCurrentDate] = useState("")
     );
 
     // Check if the user confirmed
+    
     if (userConfirmed) {
       const url = "http://localhost/backend_lms/setQuery.php";
       let query =
@@ -1153,8 +1146,19 @@ const [currentDate, setCurrentDate] = useState("")
       const fData = new FormData();
       fData.append("query", query);
 
+
+
+      let query1 =
+        "UPDATE booking SET IsActive  = '0' WHERE plotNo  = '" +
+        plotName + 
+        "'AND IsActive= '1';" ;
+
+      const fData1 = new FormData();
+      fData1.append("query", query1);
+
       try {
         const response = await axios.post(url, fData);
+        const response2 = await axios.post(url, fData1);
 
         // Update transaction status
         const transactionStatusUpdated = await updateTransactionStatus(
@@ -1339,10 +1343,13 @@ const [currentDate, setCurrentDate] = useState("")
 
       let fData = new FormData();
       fData.append("query", query);
+      let query1 = "UPDATE plot SET plotStatus='Available' WHERE plotNo = '" + plotName + "' ;";
 
+      let fData1 = new FormData();
+      fData1.append("query", query1);
       try {
         const response = await axios.post(url, fData);
-
+        const response1 = await axios.post(url, fData1);
         // Show success toast
         toast({
           title: "Plot deleted successfully!",
@@ -1382,8 +1389,6 @@ const [currentDate, setCurrentDate] = useState("")
     statusDate: "",
     remarks: "",
   });
-
-  ////////////////////////////////////////////////////////////////
   const handleEditChange = (e) => {
     const { name, value } = e.target;
     setEditFormData((prevData) => ({ ...prevData, [name]: value }));
@@ -1404,7 +1409,7 @@ const [currentDate, setCurrentDate] = useState("")
       remarks: project.remarks,
     });
   };
-/////////////////////////////////////////////////////////////////////////////////
+
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     const url = "http://localhost/backend_lms/editpayment.php";
@@ -1522,6 +1527,7 @@ const [currentDate, setCurrentDate] = useState("")
     }
   };
   const handleTransferButtonClick = (props, index) => {
+   
     let finalTransferData = { ...props, index: index };
     setTransferData(finalTransferData);
     setIsTransferModalOpen(true);
@@ -1659,15 +1665,10 @@ const [currentDate, setCurrentDate] = useState("")
 
     console.log("formData",formData);
     try {
-      // Send the query to insert the transaction
       const response = await axios.post(url, formData);
 
-      console.log("this is responxe", response);
-
-      // Send the update query to adjust balances
       formData.set("query", updateQuery);
 
-      //  await axios.post(url, formData);
 
       return response.data; // Return the inserted data or success status
     } catch (error) {
@@ -1676,27 +1677,20 @@ const [currentDate, setCurrentDate] = useState("")
     }
   };
 
-  // Function to handle transfer
-  // Function to handle transfer
-  // Function to handle transfer
-  const handleTransfer = async () => {
+  
+  const handleTransfer = async (ID) => {
+    console.log("propsID", ID);
     if (transferData && transactionData[transferData.index]) {
       const selectedRow = transactionData[transferData.index];
       const fromProject =selectedRow.projectName;
       const fromBlock =  selectedRow.blockName;
       const fromPlot =    selectedRow.plotno;
 
-      console.log("this is new1", fromProject);          
-      console.log("this is new2", fromBlock);
-      console.log("this is new3", fromPlot);
 
       setTransferProjectName(selectedRow.projectName);
       setTransferBlockName(selectedRow.blockName);
       setTransferPlotName(selectedRow.plotno);
 
-      console.log("this is new1**********", transferProjectName);          
-      console.log("this is new2**********", transferBlockName);
-      console.log("this is new3*******", transferPlotName);
 
 
       const transferRemark = `Transfer to ${transferProjectName} ${transferBlockName} ${transferPlotName}`;
@@ -1719,7 +1713,6 @@ const [currentDate, setCurrentDate] = useState("")
             remarks: receivedRemark,
           };
 
-          console.log("sssssssssssssssssssssssss",transferredRow);
 
           try {
             await insertTransaction(
@@ -1748,6 +1741,21 @@ const [currentDate, setCurrentDate] = useState("")
             console.error("Error inserting transferred transaction:", error);
             return;
           }
+
+          try {
+            const url = "http://localhost/backend_lms/transferaction.php"
+            let fData = new FormData();
+
+            fData.append("id",ID);
+            fData.append("action",transferRemark);
+        
+
+        const response = await axios.post(url,fData)
+        console.log("response",response);
+
+      } catch (error) {
+        console.log(error);
+      }
         }
 
         const updatedTransactionData = [...transactionData];
@@ -1808,42 +1816,20 @@ const [currentDate, setCurrentDate] = useState("")
   const handleContractorButtonClick = () => {
     navigate("/contractortransaction", { state: { constructionData } });
   };
-  const handleBrokerButtonClick = (e) => {
+  const handleBrokerButtonClick = () => {
     navigate("/brokertransaction", { state: { constructionData } });
-    
   };
   const navigate = useNavigate();
 
+  // useEffect(()=> {
+  //   const filterPlot = plotData?.filter((item)=> item.plotNo === plotName)
+   
+  //   if(filterPlot.length>=0){
+  //     console.log("bkf", filterPlot[0]?.plotStatus);
+  //     setPlotStatus(filterPlot[0]?.plotStatus)
+  //   }
+  //   },[plotName])
 
-  useEffect(() => {
-    const fetchDate = async () => {
-      try {
-        const response = await fetch('http://worldtimeapi.org/api/timezone/Etc/UTC');
-        const data = await response.json();
-        const utcDate = new Date(data.utc_datetime);
-        const formattedDate = utcDate.toISOString().split('T')[0];
-        setCurrentDate(formattedDate);
-      } catch (error) {
-        console.error('Error fetching date:', error);
-      }
-    };
-
-    fetchDate();
-  }, []);
-
-  useEffect(()=> {
-  const filterPlot = plotData?.filter((item)=> item.plotNo === plotName)
- 
-  if(filterPlot.length>=0){
-    console.log("bkf", filterPlot[0]?.plotStatus);
-    setPlotStatus(filterPlot[0]?.plotStatus)
-  }
-  },[plotName])
-
-console.log("currentPlot", currentPlot);
-console.log("plot", plotData);
-console.log("plotName", plotName);
-console.log("plotStatus", plotStatus);
 
 
   return (
@@ -2512,25 +2498,24 @@ console.log("plotStatus", plotStatus);
             <VStack>
               {showButtons && (
                 <>
-                 
-{plotStatus === "Registered" ?  <Button
-                    colorScheme="gray"
-                    size={"sm"}
-                    // onClick={onRegistry}
-                    className="hide-on-print"
-                    // onClick={handleButtonClick}
-                  >
-                    UnRegistered
-                  </Button> :  <Button
+                {plotStatus=== "Registered"? 
+                <Button
+                colorScheme="gray"
+                size={"sm"}
+                onClick={onRegistry}
+                className="hide-on-print"
+              >
+                UnRegistry
+              </Button> :
+                  <Button
                     colorScheme="gray"
                     size={"sm"}
                     onClick={onRegistry}
                     className="hide-on-print"
-                    // onClick={handleButtonClick}
                   >
                     Registry
-                  </Button> }
-
+                  </Button>
+                }
                   <Button
                     size={"sm"}
                     onClick={cancelPlot}
@@ -2608,7 +2593,6 @@ console.log("plotStatus", plotStatus);
                       id="date"
                       required
                       type="date"
-                      value={currentDate}
                       // w={"60%"}
                     />
                   </Flex>
@@ -2623,7 +2607,7 @@ console.log("plotStatus", plotStatus);
                     <FormLabel fontSize={"sm"} margin={0}>
                       Payment Type
                     </FormLabel>
-                    <Select placeholder="Select" id="paymentType" required>
+                    <Select placeholder="Select" name="paymentType" onChange={selectMode}id="paymentType" required>
                       <option value="Cash">Cash</option>
                       <option value="Bank">Bank</option>
                       {/* Add more projects as needed */}
@@ -2835,11 +2819,11 @@ console.log("plotStatus", plotStatus);
                           backgroundColor:
                             res.Status === "Transferred" ? "white" : "inherit",
                           color:
-                            res.Status === "Transferred"
+                          res.action.length>15 
                               ? "#E53E3E"
                               : "inherit",
                           textDecoration:
-                            res.Status === "Transferred"
+                          res.action.length>15 
                               ? "line-through"
                               : "none",
                         }}
@@ -2853,11 +2837,11 @@ console.log("plotStatus", plotStatus);
                           backgroundColor:
                             res.Status === "Transferred" ? "white" : "inherit",
                           color:
-                            res.Status === "Transferred"
+                          res.action.length>15 
                               ? "#E53E3E"
                               : "inherit",
                           textDecoration:
-                            res.Status === "Transferred"
+                          res.action.length>15 
                               ? "line-through"
                               : "none",
                         }}
@@ -2874,11 +2858,11 @@ console.log("plotStatus", plotStatus);
                           backgroundColor:
                             res.Status === "Transferred" ? "white" : "inherit",
                           color:
-                            res.Status === "Transferred"
+                          res.action.length>15 
                               ? "#E53E3E"
                               : "inherit",
                           textDecoration:
-                            res.Status === "Transferred"
+                          res.action.length>15 
                               ? "line-through"
                               : "none",
                         }}
@@ -2892,11 +2876,11 @@ console.log("plotStatus", plotStatus);
                           backgroundColor:
                             res.Status === "Transferred" ? "white" : "inherit",
                           color:
-                            res.Status === "Transferred"
+                          res.action.length>15 
                               ? "#E53E3E"
                               : "inherit",
                           textDecoration:
-                            res.Status === "Transferred"
+                          res.action.length>15 
                               ? "line-through"
                               : "none",
                         }}
@@ -2910,11 +2894,11 @@ console.log("plotStatus", plotStatus);
                           backgroundColor:
                             res.Status === "Transferred" ? "white" : "inherit",
                           color:
-                            res.Status === "Transferred"
+                          res.action.length>15 
                               ? "#E53E3E"
                               : "inherit",
                           textDecoration:
-                            res.Status === "Transferred"
+                          res.action.length>15 
                               ? "line-through"
                               : "none",
                         }}
@@ -2928,11 +2912,11 @@ console.log("plotStatus", plotStatus);
                           backgroundColor:
                             res.Status === "Transferred" ? "white" : "inherit",
                           color:
-                            res.Status === "Transferred"
+                          res.action.length>15 
                               ? "#E53E3E"
                               : "inherit",
                           textDecoration:
-                            res.Status === "Transferred"
+                          res.action.length>15 
                               ? "line-through"
                               : "none",
                         }}
@@ -2946,11 +2930,11 @@ console.log("plotStatus", plotStatus);
                           backgroundColor:
                             res.Status === "Transferred" ? "white" : "inherit",
                           color:
-                            res.Status === "Transferred"
+                          res.action.length>15 
                               ? "#E53E3E"
                               : "inherit",
                           textDecoration:
-                            res.Status === "Transferred"
+                          res.action.length>15 
                               ? "line-through"
                               : "none",
                         }}
@@ -2964,7 +2948,7 @@ console.log("plotStatus", plotStatus);
                           backgroundColor:
                             res.Status === "Transferred" ? "white" : "inherit",
                           color:
-                            res.Status === "Transferred"
+                          res.action.length>15 
                               ? "#E53E3E"
                               : res.transactionStatus === "Clear"
                               ? "#22c35e"
@@ -2976,7 +2960,7 @@ console.log("plotStatus", plotStatus);
                               : "inherit",
                           textDecoration:
                             res.transactionStatus === "Bounced" ||
-                            res.Status === "Transferred"
+                            res.action.length>15 
                               ? "line-through"
                               : "none",
                         }}
@@ -2990,11 +2974,11 @@ console.log("plotStatus", plotStatus);
                           backgroundColor:
                             res.Status === "Transferred" ? "white" : "inherit",
                           color:
-                            res.Status === "Transferred"
+                          res.action.length>15 
                               ? "#E53E3E"
                               : "inherit",
                           textDecoration:
-                            res.Status === "Transferred"
+                          res.action.length>15 
                               ? "line-through"
                               : "none",
                         }}
@@ -3011,23 +2995,25 @@ console.log("plotStatus", plotStatus);
                           backgroundColor:
                             res.Status === "Transferred" ? "white" : "inherit",
                           color:
-                            res.Status === "Transferred"
+                            res.action.length>15 
                               ? "#E53E3E"
                               : "inherit",
                           textDecoration:
-                            res.Status === "Transferred"
+                          res.action.length>15 
                               ? "line-through"
                               : "none",
                         }}
                       >
-                        {res.remarks}
+                       {res.remarks}
                       </Td>
                       {/* Action Cell */}
-                      {showAction && (
-                        <Td
+
+                       {
+                       res.action.length>15 ?  
+                       <Td border="1px solid black">{res.action }</Td>:<Td
                           display={"flex"}
                           gap={"10px"}
-                          border="1px solid black"
+                         border="1px solid black"
                           p={"8px"}
                           className="hide-on-print"
                         >
@@ -3062,7 +3048,8 @@ console.log("plotStatus", plotStatus);
                             onConfirm={deletePayment}
                           />
                         </Td>
-                      )}
+                  }
+                          
                     </tr>
                   ))}
 
@@ -3225,7 +3212,7 @@ console.log("plotStatus", plotStatus);
                   >
                     <ModalOverlay />
                     <ModalContent>
-                      <ModalHeader>
+                      <ModalHeader >
                         Transfer Transactions: {transferData.index + 1}
                       </ModalHeader>
                       <ModalCloseButton />
@@ -3363,9 +3350,9 @@ console.log("plotStatus", plotStatus);
 
                       <ModalFooter>
                         <Button
-                          colorScheme="blue"
+                          colorScheme="red"
                           mr={3}
-                          onClick={handleTransfer}
+                          onClick={()=>handleTransfer(transferData.id)}
                         >
                           Transfer Transaction
                         </Button>

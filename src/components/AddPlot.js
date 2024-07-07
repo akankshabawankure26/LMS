@@ -606,9 +606,12 @@ const AddPlot = () => {
           </VStack> */}
 
           {/* update plot rate start */}
-          <Box display={"flex"} gap={5}>
+         <Box w={"100%"} bg={"blue.300"} p={2}>
+         <Box display={"flex"} gap={5} w={"30%"}>
             <Input
               type="number"
+              textColor={"white"}
+           bg={"white"}
               w={"100%"}
               placeholder="Enter Plot Rate"
               name="ratePerSqft"
@@ -621,9 +624,10 @@ const AddPlot = () => {
               color={"white"}
               onClick={handleupdatePlotRate}
             >
-              Upadte
+              Update Rate
             </Button>
           </Box>
+         </Box>
           
 
           {/* update plot rate end */}
@@ -803,6 +807,7 @@ const AddPlot = () => {
               <FormControl mb={4}>
                 <FormLabel>Block Name</FormLabel>
                 <Select
+                disabled
                   name="blockName"
                   value={editFormData.blockName}
                   onChange={handleEditPlotChange}
@@ -874,14 +879,15 @@ const AddPlot = () => {
               <FormControl>
                 <FormLabel>Plot Status</FormLabel>
                 <Select
+                disabled
                   name="plotStatus"
                   value={editFormData.plotStatus}
-                  onChange={handleEditPlotChange}
-                  placeholder="Select Plot Status"
+                  // onChange={handleEditPlotChange}
+                  placeholder=" select plot status"
                   required
                 >
-                  <option value="Available">Available</option>
-                  <option value="Not Available">Not Available</option>
+                  <option value={editFormData.plotStatus}>{editFormData.plotStatus}</option>
+                  
                 </Select>
               </FormControl>
             </ModalBody>

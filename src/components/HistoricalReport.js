@@ -42,7 +42,7 @@ const HistoricalReport = () => {
   };
 
   const loadTransaction = async () => {
-    let query = "SELECT * FROM transaction;";
+    let query = "SELECT * FROM transaction WHERE Status = 'Cancelled' ;";
 
     const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();

@@ -28,6 +28,10 @@ import axios, { all } from "axios";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import { isDisabled } from "@testing-library/user-event/dist/utils";
 
+
+
+
+
 const BookingList = () => {
   const [selectedBlock, setSelectedBlock] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -93,6 +97,7 @@ const BookingList = () => {
       if (response && response.data) {
         if (response.data.phpresult) {
           console.log("plot Data : ", response.data.phpresult);
+         
           setPlotsData(response.data.phpresult);
         }
       }
@@ -112,8 +117,12 @@ const BookingList = () => {
   const filteredBookings = plotsData
     .filter((item) => {
       let itemDate = null;
+      let regiDate = null;
       if (item.bookingDate) {
         itemDate = new Date(item.bookingDate).toISOString().split("T")[0];
+      }
+      if (item.registryDate) {
+        regiDate = new Date(item.registryDate).toISOString().split("T")[0];
       }
 
       return (
@@ -133,6 +142,16 @@ const BookingList = () => {
         (!selectedEndDate ||
           !item.bookingDate ||
           itemDate <= selectedEndDate) &&
+
+
+
+        (!selectedStatusDate || !item.registryDate || regiDate >= selectedStatusDate) &&
+        (!selectedStatusEndDate ||
+          !item.registryDate ||
+          regiDate <= selectedStatusEndDate) &&
+
+
+
         (constructionApplicable === "All" ||
           item.constructionApplicable === constructionApplicable) &&
         (selectContructor[0] === "All" ||
@@ -1028,8 +1047,12 @@ console.log("filter...",filteredBookings);
                           {data.cashAmountPayable}
                         </Td>
                         <Td border="1px solid black">{data.remarks}</Td>
-                        <Td color={"black"} border="1px solid black">
-                          {data.registryDate}
+                        <Td border="1px solid black" textAlign={"right"}>
+                          {data.registryDate
+                            ? new Date(data.bookingDate)
+                                .toLocaleDateString("en-GB")
+                                .replace(/\//g, "/")
+                            : ""}
                         </Td>
                         <Td
                           border="1px solid black"

@@ -20,7 +20,10 @@
     const [filteredBlocks, setFilteredBlocks] = useState([]);
     const [filteredPlots, setFilteredPlots] = useState([]);
     const [selectedDate, setSelectedDate] = useState(null);
-    const [selectedStatusDate, setSelectedStatusDate] = useState(null);
+  const [selectedEndDate, setSelectedEndDate] = useState(null);
+  const [selectedStatusEndDate,setSelectStatusEndDate] = useState(null);
+
+  const [selectedStatusDate,setSelectStatusDate]= useState(null);
 
     const [statusOptions, setStatusOptions] = useState([]);
 
@@ -125,6 +128,9 @@
       return [...new Set(transaction.map((item) => item[key]))];
     };
 
+
+    console.log("transaction",transaction);
+
     const projectOptions = getUniqueValues("projectName");
 
   const filteredBookings = transaction.filter(
@@ -184,8 +190,8 @@
       setSelectedProject([]);
       setSelectedBlock([]);
       setSelectedPlot([]);
-      setSelectedDate(null);
-      setSelectedStatusDate(null);
+      setSelectedEndDate(null);
+      setSelectStatusEndDate()
       setSelectedStatus("All");
     };
     useEffect(() => {
@@ -264,6 +270,7 @@
 
         console.log("this is date",filteredBookings);
         console.log("this is registryDate", date);
+        console.log("this is booking", booking);
 
 
 
@@ -271,7 +278,7 @@
       <>
         Status - {selectedStatus}
         <Center>
-          <Heading size={"md"}>Balance Report</Heading>
+          <Heading size={"lg"}>Balance Report</Heading>
         </Center>
         <Box maxW={"100%"} overflowX={"scroll"} marginTop={"2rem"}>
           <Flex
@@ -279,7 +286,9 @@
             p={"30px"}
             pos={"sticky"}
             left={0}
+            flexWrap="wrap"
           >
+            <Box mb={4}>
             <Menu>
               <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
                 Select Projects
@@ -317,6 +326,8 @@
                 ))}
               </MenuList>
             </Menu>
+            </Box>
+            <Box mb={4}>
             <Menu>
               <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
                 Select Blocks
@@ -354,6 +365,8 @@
                 ))}
               </MenuList>
             </Menu>
+            </Box>
+            <Box>
             <Menu>
               <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
                 Select Plots
@@ -387,6 +400,8 @@
                 ))}
               </MenuList>
             </Menu>
+            </Box>
+            <Box mb={4}>
             <Menu>
               <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
                 Select Status
@@ -412,23 +427,73 @@
                 ))}
               </MenuList>
             </Menu>
-            <Box display={"flex"}>
+            </Box>
+            <Box display={"flex"} mb={4}>
               <FormLabel
                 textAlign={"center"}
                 fontSize={"17px"}
                 minWidth={"fit-content"}
                 mt={"5px"}
               >
-                Select Date:
+               Booking Date
               </FormLabel>
+              <Box display="flex" alignItems="center">
+              <Text marginRight="4px">From</Text>
+              <Text marginRight="4px">:</Text>
+              </Box>
               <Input
                 type="date"
                 id="date"
                 value={selectedDate || ""}
                 onChange={(e) => setSelectedDate(e.target.value)}
               />
+            <Box display={"flex"} alignItems={"center"}>
+              <Text mr={"4px"}>To</Text>
+              <Text mr={"4px"}>:</Text>
             </Box>
-            <Box display={"flex"}>
+              <Input
+              type="date"
+              id="enddate"
+              value={selectedEndDate }
+              onChange={(e) => setSelectedEndDate(e.target.value)}
+              />
+            </Box>
+
+            
+            <Box display={"flex"} mb={4}>
+            <FormLabel
+              textAlign={"center"}
+              fontSize={"17px"}
+              minWidth={"fit-content"}
+              mt={"5px"}
+            >
+              Registry Date:
+            </FormLabel>
+            <Box display="flex" alignItems="center">
+              <Text marginRight="4px">From</Text>
+              <Text marginRight="4px">:</Text>
+            </Box>
+            <Input
+              type="date"
+              id="date"
+              value={selectedStatusDate || ""}
+              onChange={(e) => setSelectStatusDate(e.target.value)}
+            />
+            <Box display={"flex"} alignItems={"center"}>
+              <Text mr={"4px"}>To</Text>
+              <Text mr={"4px"}>:</Text>
+            </Box>
+            <Input
+              type="date"
+              id="enddate"
+              value={selectedStatusEndDate }
+              onChange={(e) => setSelectStatusEndDate(e.target.value)}
+            />
+          </Box>
+
+
+            
+            {/* <Box display={"flex"}>
               <FormLabel
                 textAlign={"center"}
                 fontSize={"17px"}
@@ -443,7 +508,7 @@
                 value={selectedStatusDate || ""}
                 onChange={(e) => setSelectedStatusDate(e.target.value)}
               />
-            </Box>
+            </Box> */}
 
             <Button ml={2} onClick={clearFilters} colorScheme="red">
               Clear Filters
@@ -937,7 +1002,7 @@
                                     className="print"
                                     textAlign={"center"}
                                   >
-                                    {date[0].registryDate} 
+                                    {data.date} 
                                   </Td>
                             </React.Fragment>
                           ))}
@@ -956,3 +1021,14 @@
   };
 
   export default BalanceReport;
+
+
+//   <Td
+//   key={index}
+//   border="1px solid black"
+//   p={"11px"}
+//   className="print"
+//   textAlign={"center"}
+// >
+//   {data.registryDate} 
+// </Td>

@@ -30,7 +30,7 @@ const NewBooking = () => {
   const [constructionapplicable, setconstructionapplicable] = useState("No");
   const [broker, setBroker] = useState("");
   const plotTypes = ["Normal", "EWS", "1BHK", "2BHK", "3BHK", "4BHK", "5BHK"]; // Replace with actual plot types
-  const genders = ["Male", "Female", "Other"]; // Replace with actual gender options
+  const genders = ["Male", "Female"]; // Replace with actual gender options
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const toast = useToast();
@@ -72,6 +72,11 @@ const NewBooking = () => {
   };
 
   const onAddBook = async () => {
+    if(!formData.customerName){
+      alert("fill customer name")
+      return 
+    }
+    
     setIsSubmitting(true);
     const url = "http://localhost/backend_lms/setQuery.php";
     let query =
@@ -84,7 +89,7 @@ const NewBooking = () => {
       "', '" +
       document.getElementById("plotType").value +
       "', '" +
-      document.getElementById("customerName").value +
+    document.getElementById("customerName").value +
       "', '" +
       document.getElementById("customerAddress").value +
       "', '" +
@@ -554,8 +559,8 @@ if (document.getElementById("registryGender").value == "Male" && document.getEle
 if (document.getElementById("registryGender").value == "Female" && document.getElementById("discountApplicable").value == "Yes") {
   // setPercent(master[0].registryFemalePercent)
   // console.log("call female", master[0].registryFemalePercent);
-  document.getElementById("discountPercent").value =
-    master[0]?.registryFemalePercent;
+  // document.getElementById("discountPercent").value =
+  //   master[0]?.registryFemalePercent;
 
     document.getElementById("netAmount").value =
     document.getElementById("totalAmount").value -
@@ -795,7 +800,7 @@ if (document.getElementById("registryGender").value == "Female" && document.getE
                 id="customerName"
                 type="text"
                 name="customerName"
-                //onChange={handleChange}
+                onChange={handleChange}
                 required
               />
             </FormControl>
@@ -902,11 +907,11 @@ if (document.getElementById("registryGender").value == "Female" && document.getE
             <FormControl>
               <FormLabel>Discount Percent</FormLabel>
               <Input
-                onChange={updateOnChange}
+                // onChange={updateOnChange}
                 id="discountPercent"
                 type="text"
                 name="discountPercent"
-                //onChange={handleChange}
+                onChange={handleChange}
                 required
               />
             </FormControl>
@@ -938,11 +943,11 @@ if (document.getElementById("registryGender").value == "Female" && document.getE
             <FormControl>
               <FormLabel>Service Amount</FormLabel>
               <Input
-                onChange={updateOnChange}
+                // onChange={updateOnChange}
                 id="serviceAmount"
                 type="number"
                 name="serviceAmount"
-                // onChange={handleChange}
+                onChange={handleChange}
                 required
               />
             </FormControl>
@@ -950,23 +955,23 @@ if (document.getElementById("registryGender").value == "Female" && document.getE
             <FormControl>
               <FormLabel>Maintenance Amount</FormLabel>
               <Input
-                onChange={updateOnChange}
+                // onChange={updateOnChange}
                 id="maintenanceAmount"
                 type="number"
                 name="maintenanceAmount"
                 required
-                // onChange={handleChange}
+                onChange={handleChange}
               />
             </FormControl>
             <FormControl>
               <FormLabel>Misc Amount</FormLabel>
               <Input
-                onChange={updateOnChange}
+                // onChange={updateOnChange}
                 id="miscAmount"
                 type="number"
                 name="miscAmount"
 
-                //onChange={handleChange}
+                onChange={handleChange}
               />
             </FormControl>
             <FormControl>

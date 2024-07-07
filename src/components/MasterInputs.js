@@ -483,14 +483,7 @@ const MasterInputs = () => {
         >
           <Thead>
             <Tr>
-              <Th
-                bg="blue.500"
-                color="white"
-                fontSize="0.8rem"
-                style={{ padding: "10px" }}
-              >
-                Action
-              </Th>
+              
               <Th
                 bg="blue.500"
                 color="white"
@@ -590,11 +583,35 @@ const MasterInputs = () => {
               >
                 Brokerage %
               </Th>
+              <Th
+                bg="blue.500"
+                color="white"
+                fontSize="0.8rem"
+                style={{ padding: "10px" }}
+              >
+                Action
+              </Th>
             </Tr>
           </Thead>
           <Tbody>
             {master.map((master, index) => (
               <Tr key={master.id}>
+               
+                <Td style={{ padding: "9px" }}>{index + 1}</Td>
+                <Td style={{ padding: "9px" }}>{master.projectName}</Td>
+                <Td style={{ padding: "9px" }}>{master.guideline}</Td>
+                <Td style={{ padding: "9px" }}>{master.registryMalePercent}</Td>
+                <Td style={{ padding: "9px" }}>
+                  {master.registryFemalePercent}
+                </Td>
+                <Td style={{ padding: "9px" }}>{master.serviceType}</Td>
+                <Td style={{ padding: "9px" }}>{master.serviceValue}</Td>
+                <Td style={{ padding: "9px" }}>{master.maintenanceType}</Td>
+                <Td style={{ padding: "9px" }}>{master.maintenanceValue}</Td>
+
+                <Td style={{ padding: "9px" }}>{master.miscType}</Td>
+                <Td style={{ padding: "9px" }}>{master.miscValue}</Td>
+                <Td style={{ padding: "9px" }}>{master.brokerageValue}</Td>
                 <Td>
                   <HStack>
                     <Button
@@ -616,21 +633,6 @@ const MasterInputs = () => {
                     />
                   </HStack>
                 </Td>
-                <Td style={{ padding: "9px" }}>{index + 1}</Td>
-                <Td style={{ padding: "9px" }}>{master.projectName}</Td>
-                <Td style={{ padding: "9px" }}>{master.guideline}</Td>
-                <Td style={{ padding: "9px" }}>{master.registryMalePercent}</Td>
-                <Td style={{ padding: "9px" }}>
-                  {master.registryFemalePercent}
-                </Td>
-                <Td style={{ padding: "9px" }}>{master.serviceType}</Td>
-                <Td style={{ padding: "9px" }}>{master.serviceValue}</Td>
-                <Td style={{ padding: "9px" }}>{master.maintenanceType}</Td>
-                <Td style={{ padding: "9px" }}>{master.maintenanceValue}</Td>
-
-                <Td style={{ padding: "9px" }}>{master.miscType}</Td>
-                <Td style={{ padding: "9px" }}>{master.miscValue}</Td>
-                <Td style={{ padding: "9px" }}>{master.brokerageValue}</Td>
               </Tr>
             ))}
           </Tbody>

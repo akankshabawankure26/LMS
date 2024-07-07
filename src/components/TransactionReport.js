@@ -86,7 +86,7 @@ const TransactionReport = () => {
   };
 
   const loadTransaction = async () => {
-    let query = "SELECT * FROM transaction;";
+    let query = "SELECT * FROM transaction where status='Active';";
 
     const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
