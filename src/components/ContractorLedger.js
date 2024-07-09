@@ -100,8 +100,10 @@ const ContractorLedger = () => {
     setSelectedContractor([]);
     setSelectedBlock([]);
     setSelectedPlot([]);
+    
   };
-
+console.log("setSelectedContractor",setSelectedContractor);
+    console.log("setSelectedProject",setSelectedProject);
 
   // const formatDate = (dateString) => {
   //   const date = new Date(dateString);

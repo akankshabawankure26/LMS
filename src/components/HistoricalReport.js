@@ -332,22 +332,22 @@ const HistoricalReport = () => {
                 {filteredBookings.map((data, index) => (
                   <Tr
                     key={data.srNo}
-                    style={{
-                      textDecoration:
-                        data.Status === "Cancelled" ? "line-through" : "none",
-                      color: data.Status === "Cancelled" ? "red" : "inherit",
-                    }}
+                    // style={{
+                    //   textDecoration:
+                    //     data.Status === "Cancelled" ? "line-through" : "none",
+                    //   color: data.Status === "Cancelled" ? "red" : "inherit",
+                    // }}
                   >
                     <Td border="1px solid black">{index + 1}</Td>
                     <Td border="1px solid black">{data.projectName}</Td>
                     <Td border="1px solid black">{data.blockName}</Td>
                     <Td
                       border="1px solid black"
-                      style={{
-                        textDecoration:
-                          data.Status === "Cancelled" ? "line-through" : "none",
-                        color: data.Status === "Cancelled" ? "red" : "inherit",
-                      }}
+                      // style={{
+                      //   textDecoration:
+                      //     data.Status === "Cancelled" ? "line-through" : "none",
+                      //   color: data.Status === "Cancelled" ? "red" : "inherit",
+                      // }}
                     >
                       {data.plotno}
                     </Td>
@@ -380,12 +380,12 @@ const HistoricalReport = () => {
                               data.transactionStatus === "PDC"
                             ? "black"
                             : "inherit",
-                        textDecoration:
-                          data.Status === "Cancelled"
-                            ? "line-through"
-                            : data.transactionStatus === "Bounced"
-                            ? "line-through"
-                            : "none",
+                        // textDecoration:
+                        //   data.Status === "Cancelled"
+                        //     ? "line-through"
+                        //     : data.transactionStatus === "Bounced"
+                        //     ? "line-through"
+                        //     : "none",
                       }}
                     >
                       {data.transactionStatus}

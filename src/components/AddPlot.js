@@ -610,7 +610,7 @@ const AddPlot = () => {
          <Box display={"flex"} gap={5} w={"30%"}>
             <Input
               type="number"
-              textColor={"white"}
+              textColor={"black"}
            bg={"white"}
               w={"100%"}
               placeholder="Enter Plot Rate"

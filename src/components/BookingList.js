@@ -23,6 +23,14 @@ import {
   FormLabel,
   Radio,
   useToast,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
 } from "@chakra-ui/react";
 import axios, { all } from "axios";
 import { ChevronDownIcon } from "@chakra-ui/icons";
@@ -43,7 +51,7 @@ const BookingList = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedEndDate, setSelectedEndDate] = useState(null);
   const [selectedStatusEndDate,setSelectStatusEndDate] = useState(null);
-
+const [password, setPassword] = useState("")
   const [selectedStatusDate,setSelectStatusDate]= useState(null);
   const [plotsData, setPlotsData] = useState([]);
   const [constructionApplicable, setConstructionApplicable] = useState("All");
@@ -57,6 +65,8 @@ const BookingList = () => {
   const [selectBroker, setSelectBroker] = useState(["All"]);
   const [brokers, setBrokers] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [selectedData, setSelectedData] = useState(null);
 
   const [currentDate, setCurrentDate] = useState(
     new Date().toISOString().split("T")[0]
@@ -84,7 +94,7 @@ const BookingList = () => {
     }
   };
   const loadBooking = async () => {
-    let query = "SELECT * FROM booking;";
+    let query = "SELECT * FROM booking where isActive = '1';";
 
     const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
@@ -335,7 +345,7 @@ const BookingList = () => {
   //   }
   // };
 
-  const handleTally = async (props) => {
+  const handletTallyClick = async (props) => {
     console.log("tallydata", props);
 
     const url = "http://localhost/backend_lms/updateTallyStatus.php";
@@ -380,7 +390,8 @@ const BookingList = () => {
 };
 
 
-const handleNotTally = async (props) => {
+const  handleNotTally = async (props) => {
+
   console.log("tallydata", props);
 
   const url = "http://localhost/backend_lms/ReUpdateTally.php";
@@ -394,6 +405,8 @@ const handleNotTally = async (props) => {
 
     if (response && response.data && response.data.status === "success") {
       console.log(" successfully:", response.data.message);
+      onClose();
+      setPassword()
       toast({
         title: " Not Tally successfully!",
         status: "success",
@@ -421,10 +434,28 @@ const handleNotTally = async (props) => {
   }
 };
 
+const handleTallyClick= (data) => {
+  setSelectedData(data);
+  onOpen();
+};
+
+
+
+
+const handleConfirm = () => {
+  // Add your password validation logic here
+  if (password === '9022') {
+    handleTallyClick(selectedData);
+  } else {
+    alert('Incorrect password');
+  }
+}
+
+
   useEffect(() => {
     loadBooking();
   }, [render]);
-console.log("filter...",filteredBookings);
+
   return (
     <>
       <Center>
@@ -1068,19 +1099,20 @@ console.log("filter...",filteredBookings);
                         </Td> */}
 
                         <Td border="1px solid black">
-                          {data.TalliedStatus === "Tallied" ? (
+                          {data.TalliedStatus === "Not Tallied" ? (
                             <Button
                               colorScheme="teal"
-                              onClick={() => handleNotTally(data)}
+                           
+                              onClick={() => handleTallyClick(data)}
                             >
-                              Not Tally
+                              Tally
                             </Button>
                           ) : (
                             <Button
                               colorScheme="teal"
-                              onClick={() => handleTally(data)}
+                              onClick={() =>  handleNotTally(data)}
                             >
-                              Tally
+                             Not  Tally
                             </Button>
                           )}
                         </Td>
@@ -1111,6 +1143,27 @@ console.log("filter...",filteredBookings);
           </>
         )}
       </Box>
+      <Modal isOpen={isOpen} onClose={onClose}>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>Enter Password</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody>
+          <Input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter your password"
+          />
+        </ModalBody>
+        <ModalFooter>
+          <Button colorScheme="teal" mr={3} onClick={handleConfirm}>
+            Confirm
+          </Button>
+          <Button variant="ghost" onClick={onClose}>Cancel</Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
     </>
   );
 };
