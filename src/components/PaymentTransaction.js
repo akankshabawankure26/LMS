@@ -604,7 +604,8 @@ const PaymentTransaction = () => {
 
     const url = "http://localhost/backend_lms/setQuery.php";        
     let query =
-    "UPDATE brokertransaction SET RegistryDate = '" +registryDate+ "' WHERE plotNo = '" +
+    "UPDATE brokertransaction SET RegistryDate = '"
+    +registryDate+ "' WHERE plotNo = '" +
     plotName+
     "';"
     console.log("here i am coming 2");
@@ -903,8 +904,8 @@ const PaymentTransaction = () => {
           loadTransaction(response.data.phpresult);
         }
       }
-      document.getElementById("plotStatus").value =
-      plotData[0]["plotStatus"];
+      // document.getElementById("plotStatus").value =
+      // plotData[0]["plotStatus"];
       
     } catch (error) {
       console.log("Please Select Proper Input");
@@ -1821,6 +1822,8 @@ const PaymentTransaction = () => {
   };
   const navigate = useNavigate();
 
+  const filterPlotOne = plotData?.filter((item) => item.plotNo === plotName)
+console.log("filter", filterPlotOne);
   // useEffect(()=> {
   //   const filterPlot = plotData?.filter((item)=> item.plotNo === plotName)
    
@@ -2419,7 +2422,7 @@ const PaymentTransaction = () => {
                     // padding={"0px 4px 0px 4px"}
                   >
                     <FormLabel fontSize={"sm"}>Plot Status</FormLabel>
-                    <Input type="text" id="plotStatus" w={"60%"} />
+                    <Input type="text" value={filterPlotOne[0]?.plotStatus} id="plotStatus"  w={"60%"} />
                   </Flex>
                 </FormControl>
                 <FormControl>

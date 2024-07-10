@@ -59,7 +59,7 @@ const BookingStatus = () => {
   const [totalArea, setTotalArea] = useState(0);
   const [totalAreamt, setTotalAreamt] = useState(0);
   const toast = useToast();
-
+  const [approvedPlotIds, setApprovedPlotIds] = useState(new Set());
   const [formData, setFormData] = useState({
     customerName: "",
     contactNo: "",
@@ -153,7 +153,6 @@ const BookingStatus = () => {
   };
 
   const fetchData = async () => {
-  
     try {
       const response = await axios.get(
         "http://localhost/backend_lms/getplot.php"
@@ -388,10 +387,29 @@ const BookingStatus = () => {
     }
   };
 
+  const handleApprove = async (id) => {
+    console.log("id", id);
+    let query = `UPDATE plot SET booked = 'Approved' WHERE id = ${id}`;
+
+    const url = "http://localhost/backend_lms/getQuery.php";
+    let fData = new FormData();
+    fData.append("query", query);
+
+    try {
+      const response = await axios.post(url, fData);
+      setApprovedPlotIds((prev) => new Set(prev).add(id)); 
+      fetchData();
+    
+    } catch (error) {
+      console.log(error.toJSON());
+     
+    }
+  };
   console.log("hey pavan this is filteredBookings", filteredBookings);
   console.log("hey pavan this is status", status);
 
-  //****************************************************************************************************
+  
+
 
   return (
     <>
@@ -712,7 +730,12 @@ const BookingStatus = () => {
                           <Box>
                             {" "}
                             {plotItem.plotStatus === "Booked" ? (
-                              <Button size={"xs"} colorScheme="blue">
+                              <Button
+                                size={"xs"}
+                                colorScheme="blue"
+                                onClick={() => handleApprove(plotItem.id)}
+                                leftIcon={plotItem.booked? <span>✔️</span> : null}
+                              >
                                 AP
                               </Button>
                             ) : (
