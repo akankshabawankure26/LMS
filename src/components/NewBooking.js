@@ -13,25 +13,28 @@ import {
   GridItem,
   useToast,
   Textarea,
+
 } from "@chakra-ui/react";
 //import { getFormSubmissionInfo } from "react-router-dom/dist/dom";
 
 import axios from "axios";
+import { Navigate } from "react-router-dom";
 
 const NewBooking = () => {
-
+  const [Render, setRender] = useState(false)
   const [projectName, setProjectName] = useState("");
   const [blockName, setBlockname] = useState("");
   const [plotName, setPlotName] = useState("");
   const [contractorName, setcontractorName] = useState("");
   const [plottype, setplottype] = useState("");
   const [registerygender, setregisterygender] = useState("");
-  const [discountApplicable, setdiscountApplicable] = useState("");
+  //const [discountApplicable, setdiscountApplicable] = useState("No");
   const [constructionapplicable, setconstructionapplicable] = useState("No");
   const [broker, setBroker] = useState("");
   const plotTypes = ["Normal", "EWS", "1BHK", "2BHK", "3BHK", "4BHK", "5BHK"]; // Replace with actual plot types
   const genders = ["Male", "Female"]; // Replace with actual gender options
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [discountApplicable, setDiscountApplicable] = useState('No'); // Initial state
 
   const toast = useToast();
   const [formData, setFormData] = useState({
@@ -68,28 +71,78 @@ const NewBooking = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    //const { value } = e.target;
+    setDiscountApplicable(value);
+
     setFormData((prevData) => ({ ...prevData, [name]: value }));
+    document.getElementById("grandTotal").value =
+      parseFloat(document.getElementById("netAmount").value) +
+      parseFloat(document.getElementById("registryAmount").value) +
+      parseFloat(document.getElementById("serviceAmount").value) +
+      parseFloat(document.getElementById("maintenanceAmount").value) +
+      parseFloat(document.getElementById("miscAmount").value);
+
+    document.getElementById("totalAmountPayable").value =
+      document.getElementById("grandTotal").value;
+
+    // document.getElementById("guidelineAmount").value =
+    //     plotData[0]["areaSqmt"] * master[0]["guideline"];
+
+
+    document.getElementById("cashAmountPayable").value =
+      document.getElementById("totalAmountPayable").value -
+      document.getElementById("bankAmountPayable").value;
+
+    // document.getElementById("bankAmountPayable").value =
+    // (document.getElementById("guidelineAmount").value *
+    //   document.getElementById("registry").value) /
+    // 100;
+
+
   };
 
+
+
   const onAddBook = async () => {
-    if(!formData.customerName){
-      alert("fill customer name")
-      return 
+    const projectName = document.getElementById("projectName").value;
+    const blockName = document.getElementById("blockName").value;
+    const plotNo = document.getElementById("plotNo").value;
+    const customerName = document.getElementById("customerName").value;
+
+    // Validate the required fields
+    if (!projectName) {
+      alert("Please fill in the project name");
+      return;
     }
-    
+
+    if (!blockName) {
+      alert("Please fill in the block name");
+      return;
+    }
+
+    if (!plotNo) {
+      alert("Please fill in the plot number");
+      return;
+    }
+
+    if (!customerName) {
+      alert("Please fill in the customer name");
+      return;
+    }
+
     setIsSubmitting(true);
     const url = "http://localhost/backend_lms/setQuery.php";
     let query =
-      "INSERT INTO booking (id, projectName, blockName, plotNo, plotType, customerName, customerAddress, customerContact, registryGender, areaSqft, rateAreaSqft, totalAmount, discountApplicable, discountPercent, netAmount, registryAmount, serviceAmount, maintenanceAmount, miscAmount, grandTotal, constructionApplicable, constructionContractor, constructionAmount, totalAmountPayable, guidelineAmount, registryPercent, bankAmountPayable, bookingDate, cashAmountPayable, broker,remarks) VALUES (NULL, '" +
-      document.getElementById("projectName").value +
+      "INSERT INTO booking (id, projectName, blockName, plotNo, plotType, customerName, customerAddress, customerContact, registryGender, areaSqft, rateAreaSqft, totalAmount, discountApplicable, discountPercent, netAmount, registryAmount, serviceAmount, maintenanceAmount, miscAmount, grandTotal, constructionApplicable, constructionContractor, constructionAmount, totalAmountPayable, guidelineAmount, registryPercent, bankAmountPayable, bookingDate, cashAmountPayable, broker, remarks) VALUES (NULL, '" +
+      projectName +
       "', '" +
-      document.getElementById("blockName").value +
+      blockName +
       "', '" +
-      document.getElementById("plotNo").value +
+      plotNo +
       "', '" +
       document.getElementById("plotType").value +
       "', '" +
-    document.getElementById("customerName").value +
+      customerName +
       "', '" +
       document.getElementById("customerAddress").value +
       "', '" +
@@ -141,16 +194,14 @@ const NewBooking = () => {
       "', '" +
       document.getElementById("remarks").value +
       "')";
+
     let fData = new FormData();
     fData.append("query", query);
-    // let projectName1 = document.getElementById("projectName").value;
-    // let blockName1 = document.getElementById("blockName").value;
-    // let plotNo1 = document.getElementById("plotNo").value;
-    let plotType1 = document.getElementById("plotType").value;
-    console.log(plotType1);
+
     try {
       const response = await axios.post(url, fData);
       console.log(response);
+      window.location.reload();
       updatePlotStatus();
       toast({
         title: "Booking added successfully!",
@@ -159,6 +210,8 @@ const NewBooking = () => {
         position: "top",
         isClosable: true,
       });
+
+      // Clear form fields
       document.getElementById("projectName").value = "";
       document.getElementById("blockName").value = "";
       document.getElementById("plotNo").value = "";
@@ -188,6 +241,7 @@ const NewBooking = () => {
       document.getElementById("bookingDate").value = "";
       document.getElementById("cashAmountPayable").value = "";
       document.getElementById("remarks").value = "";
+
       setIsSubmitting(false);
     } catch (error) {
       console.log(error.toJSON());
@@ -200,7 +254,10 @@ const NewBooking = () => {
     let query =
       "UPDATE plot SET plotStatus = 'Booked' WHERE plotNo = '" +
       plotName +
-      "';";
+      "' AND projectName ='" +
+      projectName +
+      "' AND blockName  ='" +
+      blockName + "' ;";
 
     let fData = new FormData();
     fData.append("query", query);
@@ -285,6 +342,7 @@ const NewBooking = () => {
       console.log("Please Select Proper Input");
     }
   };
+
   const loadPlots = async (bname) => {
     let query =
       "SELECT * FROM plot where blockName = '" +
@@ -301,6 +359,7 @@ const NewBooking = () => {
 
     try {
       const response = await axios.post(url, fData);
+      console.log(response);
 
       if (response && response.data) {
         if (response.data.phpresult) {
@@ -336,7 +395,7 @@ const NewBooking = () => {
     }
   };
 
-  const[myValue, setMyValue]= useState("")    //******************************************************
+  const [myValue, setMyValue] = useState("")    //******************************************************
 
   const onSelectPlot = async (pno) => {
     let query =
@@ -363,7 +422,7 @@ const NewBooking = () => {
 
           let query1 =
             "SELECT * FROM master where projectName ='" + projectName + "';";
-          // alert(query);
+
 
           const url = "http://localhost/backend_lms/getQuery.php";
           let fData1 = new FormData();
@@ -380,13 +439,13 @@ const NewBooking = () => {
               console.log("MasterData", response1.data?.phpresult)
 
 
-// *********************************************************************************************
+              // *********************************************************************************************
               // document.getElementById('plotType').style.backgroundColor = 'gray';
               // document.getElementById('plotType').disabled = true;
               // document.getElementById("plotType").value =
-               setMyValue( response.data.phpresult[0]["plotType"]);
+              setMyValue(response.data.phpresult[0]["plotType"]);
 
-// ********************************************************************************************************
+              // ********************************************************************************************************
               document.getElementById("areaSqft").value =
                 response.data.phpresult[0]["areaSqft"];
               document.getElementById("rateAreaSqft").value =
@@ -403,6 +462,7 @@ const NewBooking = () => {
                 response.data.phpresult[0]["areaSqmt"] *
                 response1.data.phpresult[0]["guideline"];
 
+
               if (document.getElementById("registryGender").value == "Male") {
                 document.getElementById("registryPercent").value =
                   response1.data.phpresult[0]["registryMalePercent"];
@@ -411,6 +471,7 @@ const NewBooking = () => {
                 document.getElementById("registryPercent").value =
                   response1.data.phpresult[0]["registryFemalePercent"];
               }
+
 
               document.getElementById("registryAmount").value =
                 (document.getElementById("guidelineAmount").value *
@@ -498,7 +559,7 @@ const NewBooking = () => {
     }
   };
 
-  const[Render,setRender] = useState(false)
+
 
 
   const updateOnChange = () => {
@@ -508,23 +569,22 @@ const NewBooking = () => {
     document.getElementById("netAmount").value =
       document.getElementById("totalAmount").value;
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
     if (document.getElementById("discountApplicable").value == "Yes") {
-      document.getElementById("netAmount").value =
-        document.getElementById("totalAmount").value -
-        (document.getElementById("totalAmount").value / 100) *
-          document.getElementById("discountPercent").value;
-    } else if (document.getElementById("discountApplicable").value == "No") {
+      document.getElementById("netAmount").value = (document.getElementById("totalAmount").value * document.getElementById("discountPercent").value) / 100;
+      var netAmount = document.getElementById("totalAmount").value - document.getElementById("netAmount").value;
+      document.getElementById("netAmount").value = netAmount;
+    } else if (document.getElementById("netAmount").value == "No") {
       document.getElementById("discountPercent").value = 0;
-      document.getElementById("netAmount").value =
-        document.getElementById("totalAmount").value;
+      document.getElementById("netAmount").value = document.getElementById("totalAmount").value;
     }
 
     {
-      // This is Previous
       document.getElementById("guidelineAmount").value =
         plotData[0]["areaSqmt"] * master[0]["guideline"];
     }
+
 
     if (document.getElementById("registryGender").value == "Male") {
       document.getElementById("registryPercent").value =
@@ -535,52 +595,24 @@ const NewBooking = () => {
         master[0]["registryFemalePercent"];
     }
 
-// *****************************************************************88///////////////////////////////////////////////////////////////
 
 
-if (document.getElementById("registryGender").value == "Male" && document.getElementById("discountApplicable").value == "Yes") {
- 
-  // setPercent(master[0].registryMalePercent)
-  // console.log("call male", master[0].registryMalePercent);
-  document.getElementById("discountPercent").value =
-    master[0]?.registryMalePercent;
-    document.getElementById("netAmount").value =
-    document.getElementById("totalAmount").value -
-    (document.getElementById("totalAmount").value / 100) *
-      document.getElementById("discountPercent").value;
 
-
-  // document.getElementById("registryPercent").value =
-  //   master[0]?.registryMalePercent;
-  //   setRender((prev) => !prev)
-}
-
-
-if (document.getElementById("registryGender").value == "Female" && document.getElementById("discountApplicable").value == "Yes") {
-  // setPercent(master[0].registryFemalePercent)
-  // console.log("call female", master[0].registryFemalePercent);
-  // document.getElementById("discountPercent").value =
-  //   master[0]?.registryFemalePercent;
-
-    document.getElementById("netAmount").value =
-    document.getElementById("totalAmount").value -
-    (document.getElementById("totalAmount").value / 100) *
-      document.getElementById("discountPercent").value;
-  // document.getElementById("registryPercent").value =
-  //   master[0]?.registryFemalePercent;
-  //   setRender((prev) => !prev)
-}
+    if (document.getElementById("registryGender").value == "Female" && document.getElementById("discountApplicable").value == "Yes") {
+    }
 
 
 
 
-// **************************************************************************
+    // **************************************************************************
 
     // this is for previous
-    //  { document.getElementById("registryAmount").value =
-    //     (document.getElementById("guidelineAmount").value *
-    //       document.getElementById("registryPercent").value) /
-    //     100;}
+    {
+      document.getElementById("registryAmount").value =
+        (document.getElementById("guidelineAmount").value *
+          document.getElementById("registryPercent").value) /
+        100;
+    }
     if (master[0]["serviceType"] == "Lumpsum") {
       document.getElementById("serviceAmount").value =
         master[0]["serviceValue"];
@@ -633,7 +665,7 @@ if (document.getElementById("registryGender").value == "Female" && document.getE
       document.getElementById("totalAmountPayable").value =
         document.getElementById("grandTotal").value;
     }
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     {
       // This is Previous
       document.getElementById("bankAmountPayable").value =
@@ -647,13 +679,27 @@ if (document.getElementById("registryGender").value == "Female" && document.getE
       document.getElementById("bankAmountPayable").value;
   };
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   useEffect(() => {
     // Call the loadContractor function when the component mounts
     loadProjects();
     loadContractor();
     loadBroker();
   }, []);
+  const [phone, setPhone] = useState('');
+
+  const handleInputChange = (event) => {
+    const { value } = event.target;
+
+    const formattedValue = value.replace(/\D/g, '');
+
+    if (formattedValue.length === 10) {
+      setPhone(formattedValue);
+
+    } else {
+      setPhone(formattedValue);
+    }
+  };
 
   return (
     <Box p={4} width="100%" position={"relative"} bottom={"0rem"} >
@@ -711,7 +757,6 @@ if (document.getElementById("registryGender").value == "Female" && document.getE
                 })}
               </Select>
             </FormControl>
-
             <FormControl>
               <FormLabel>Plot No</FormLabel>
               <Select
@@ -733,61 +778,13 @@ if (document.getElementById("registryGender").value == "Female" && document.getE
                 })}
               </Select>
             </FormControl>
-{/* 
-            <FormControl>
-              <FormLabel>Plot Type</FormLabel>
-              <Select
-                id="plotType"
-                name="plotType"
-                value={plottype}
-                onChange={(e) => {
-                  setplottype(e.target.value);
-                  // onSelectPlottype(e.target.value);
-                  // updateOnChange();
-                }}
-                //onChange={handleChange}
-                required
-              >
-                <option value="" disabled>
-                  Select Plot Type
-                </option>
-
-                 
-
-
-                <option key="Normal" value="Normal">
-                  Normal
-                </option>
-                <option key="EWS" value="EWS">
-                  EWS
-                </option>
-                <option key="1BHK" value="1BHK">
-                  1BHK
-                </option>
-                <option key="2BHK" value="2BHK">
-                  2BHK
-                </option>
-                <option key="3BHK" value="3BHK">
-                  3BHK
-                </option>
-                <option key="4BHK" value="4BHK">
-                  4BHK
-                </option>
-                <option key="5BHK" value="5BHK">
-                  5BHK
-                </option>
-
-
-
-              </Select>
-            </FormControl> */}
 
             <FormControl>
               <FormLabel>Plot Type</FormLabel>
               <Input
                 // onChange={updateOnChange}
-                  id="plotType"
-                  value={myValue}
+                id="plotType"
+                value={myValue}
                 type="text"
                 required
               />
@@ -818,13 +815,27 @@ if (document.getElementById("registryGender").value == "Female" && document.getE
 
             <FormControl>
               <FormLabel>Customer Contact</FormLabel>
+              {/* <Input
+                id="customerContact"
+                type="tel"
+                name="customerContact"
+                value={phone}
+                onChange={handleInputChange}
+                pattern="^[0-9()+\- ]*$"
+                maxLength="35"
+                minLength="10"
+                required
+
+              /> */}
+
               <Input
                 id="customerContact"
                 type="text"
                 name="customerContact"
-                //onChange={handleChange}
+                onChange={handleInputChange}
                 required
               />
+
             </FormControl>
 
             <FormControl>
@@ -888,30 +899,44 @@ if (document.getElementById("registryGender").value == "Female" && document.getE
               />
             </FormControl>
             <Box gridColumn="span 1" />
-            <FormControl>
+            {/* <FormControl>
               <FormLabel>Discount Applicable</FormLabel>
               <Select
                 id="discountApplicable"
                 name="discountApplicable"
                 onChange={(e) => {
                   setdiscountApplicable(e.target.value);
-                  updateOnChange();
+
                 }}
                 //onChange={handleChange}
                 required
               >
-                <option value="Yes">Yes</option>
                 <option value="No">No</option>
+                <option value="Yes">Yes</option>
+              </Select>
+            </FormControl> */}
+            <FormControl>
+              <FormLabel>Discount Applicable</FormLabel>
+              <Select
+                id="discountApplicable"
+                name="discountApplicable"
+                value={discountApplicable} // Controlled component
+                onChange={handleChange} // Event handler for changes
+                required
+              >
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
               </Select>
             </FormControl>
+
             <FormControl>
               <FormLabel>Discount Percent</FormLabel>
               <Input
-                // onChange={updateOnChange}
+                onChange={updateOnChange}
                 id="discountPercent"
                 type="text"
                 name="discountPercent"
-                onChange={handleChange}
+                disabled={discountApplicable === "No"}
                 required
               />
             </FormControl>
@@ -931,11 +956,11 @@ if (document.getElementById("registryGender").value == "Female" && document.getE
             <FormControl>
               <FormLabel>Registry Amount</FormLabel>
               <Input
-                onChange={updateOnChange}
+                // onChange={updateOnChange}
                 id="registryAmount"
                 type="number"
                 name="registryAmount"
-                //onChange={handleChange}
+                onChange={handleChange}
                 required
               />
             </FormControl>
@@ -1035,7 +1060,7 @@ if (document.getElementById("registryGender").value == "Female" && document.getE
                 type="text"
                 name="constructionAmount"
 
-                //onChange={handleChange}
+              //onChange={handleChange}
               />
             </FormControl>
 
@@ -1058,7 +1083,7 @@ if (document.getElementById("registryGender").value == "Female" && document.getE
                 type="text"
                 name="guidelineAmount"
 
-                //onChange={handleChange}
+              //onChange={handleChange}
               />
             </FormControl>
 
@@ -1068,7 +1093,7 @@ if (document.getElementById("registryGender").value == "Female" && document.getE
                 type="text"
                 onChange={updateOnChange}
                 id="registry"
-                //onChange={handleChange}
+              //onChange={handleChange}
               />
               <Input
                 onChange={updateOnChange}
@@ -1076,7 +1101,7 @@ if (document.getElementById("registryGender").value == "Female" && document.getE
                 type="text"
                 name="registryPercent"
                 style={{ display: "none" }}
-                //onChange={handleChange}
+              //onChange={handleChange}
               />
             </FormControl>
             <Box gridColumn="span 1" />
@@ -1090,11 +1115,11 @@ if (document.getElementById("registryGender").value == "Female" && document.getE
               <FormControl>
                 <FormLabel>Bank Amount Payable</FormLabel>
                 <Input
-                  onChange={updateOnChange}
+                  // onChange={updateOnChange}
                   id="bankAmountPayable"
                   type="text"
                   name="bankAmountPayable"
-                  //onChange={handleChange}
+                  onChange={handleChange}
                   bg={"yellow"}
                 />
               </FormControl>
@@ -1120,7 +1145,8 @@ if (document.getElementById("registryGender").value == "Female" && document.getE
                   name="bookingDate"
                   //onChange={handleChange}
                   required
-                  defaultValue={new Date().toISOString().substr(0, 10)}
+                  defaultValue={new Date().toISOString().slice(0, 10)}
+
                 />
               </FormControl>
               <FormControl>
@@ -1157,22 +1183,22 @@ if (document.getElementById("registryGender").value == "Female" && document.getE
                   width={"320px"}
                   rows={2}
                 />
-                
+
               </FormControl>
 
-           
-                <Button
-                  colorScheme="blue"
-                  type="button"
-                  mt={8}
-                  onClick={onAddBook}
-                  isDisabled = {isSubmitting}
-                >
-                  {isSubmitting ? 'Submitting...' : 'Submit'}
-                </Button>
-            
 
-           
+              <Button
+                colorScheme="blue"
+                type="button"
+                mt={8}
+                onClick={onAddBook}
+                isDisabled={isSubmitting}
+              >
+                {isSubmitting ? 'Submitting...' : 'Submit'}
+              </Button>
+
+
+
             </Box>
           </Grid>
         </form>
@@ -1183,3 +1209,6 @@ if (document.getElementById("registryGender").value == "Female" && document.getE
 };
 
 export default NewBooking;
+
+
+

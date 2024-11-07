@@ -29,7 +29,7 @@
              const handleEditMasterSubmit = async (e) => {
     e.preventDefault();
 
-    const url = "https://lkgexcel.com/backend/editmaster.php";
+    const url = "http://localhost/backend_lms/editmaster.php";
     const formData = new FormData();
 
     // Append the edited master data to the formData object

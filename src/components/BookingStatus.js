@@ -52,7 +52,10 @@ const BookingStatus = () => {
   const [selectedPlotstatus, setSelectedPlotstatus] = useState([]);
   const [selectedFromDate, setSelectedFromDate] = useState("");
   const [selectedToDate, setSelectedToDate] = useState("");
-
+  const[selectedStatusDate ,setSelectStatusDate] = useState("");
+  const[selectedDate,setSelectedDate] =useState("");
+ const[selectedEndDate,setSelectedEndDate]= useState("")
+  const [selectedStatusEndDate,setSelectStatusEndDate]= useState("")
   const [highlightedRow, setHighlightedRow] = useState(null);
   const [loading, setLoading] = useState(true);
   const [count, setCount] = useState(null);
@@ -96,7 +99,7 @@ const BookingStatus = () => {
   const loadBooking = async () => {
     let query = "SELECT * FROM booking where IsActive='1';";
     const url = "http://localhost/backend_lms/getQuery.php";
-    // const url = "https://lkgexcel.com/backend/getQuery.php";
+    // const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
 
     fData.append("query", query);
@@ -126,7 +129,7 @@ const BookingStatus = () => {
   const loadDate = async () => {
     let query = "SELECT registryDate FROM registry;";
 
-    // const url = "https://lkgexcel.com/backend/getQuery.php";
+    // const url = "http://localhost/backend_lms/getQuery.php";
     const url = "http://localhost/backend_lms/getQuery.php";
 
     let fData = new FormData();
@@ -156,7 +159,7 @@ const BookingStatus = () => {
     try {
       const response = await axios.get(
         "http://localhost/backend_lms/getplot.php"
-        // "https://lkgexcel.com/backend/getplot.php"
+        // "http://localhost/backend_lms/getplot.php"
       );
       setBooking(response.data);
       setTemp(response.data);
@@ -266,7 +269,7 @@ const BookingStatus = () => {
     setSelectedFromDate("");
     setSelectedToDate("");
   }, []);
-  console.log("booking", bookings);
+
 
   useEffect(() => {
     const totalSQFT = filteredBookings.reduce((accumulator, currentItem) => {
@@ -280,7 +283,7 @@ const BookingStatus = () => {
   }, [filteredBookings]);
 
   // console.log(filteredBookings[1])
-  console.log(filteredBookings[highlightedRow]);
+  
   let data = filteredBookings[highlightedRow];
 
   const handleOnHold = (props) => {
@@ -294,7 +297,7 @@ const BookingStatus = () => {
   };
 
   const handleEditPlotSubmit = async () => {
-    // const url = "https://lkgexcel.com/backend/editplot.php";
+    // const url = "http://localhost/backend_lms/editplot.php";
     const url = "http://localhost/backend_lms/editplot.php";
     const formData1 = new FormData();
 
@@ -343,7 +346,6 @@ const BookingStatus = () => {
     }
   };
 
-  // **********************************************************************************************
 
   const sendDataToBackend = async (e) => {
     e.preventDefault();
@@ -387,29 +389,53 @@ const BookingStatus = () => {
     }
   };
 
-  const handleApprove = async (id) => {
+  const handleApprove = async (id, bookedStatus) => {
     console.log("id", id);
-    let query = `UPDATE plot SET booked = 'Approved' WHERE id = ${id}`;
+    console.log("status", bookedStatus);
 
-    const url = "http://localhost/backend_lms/getQuery.php";
-    let fData = new FormData();
-    fData.append("query", query);
-
-    try {
-      const response = await axios.post(url, fData);
-      setApprovedPlotIds((prev) => new Set(prev).add(id)); 
-      fetchData();
-    
-    } catch (error) {
-      console.log(error.toJSON());
-     
+    if (bookedStatus == "Approved") {
+      console.log("call");
+      let query = `UPDATE plot SET booked = '' WHERE id = ${id}`;
+      const url = "http://localhost/backend_lms/getQuery.php";
+      let fData = new FormData();
+      fData.append("query", query);
+      try {
+        const response = await axios.post(url, fData);
+        setApprovedPlotIds((prev) => new Set(prev).add(id));
+        if (response.data) {
+          toast({
+            title: "Approve Status Change Succesfully",
+            status: "success",
+            duration: 3000,
+            isClosable: true,
+          });
+          fetchData();
+        }
+      } catch (error) {
+        console.log(error.toJSON());
+      }
+    } else {
+      let query = `UPDATE plot SET booked = 'Approved' WHERE id = ${id}`;
+      const url = "http://localhost/backend_lms/getQuery.php";
+      let fData = new FormData();
+      fData.append("query", query);
+      try {
+        const response = await axios.post(url, fData);
+        setApprovedPlotIds((prev) => new Set(prev).add(id));
+        if (response.data) {
+          toast({
+            title: "Plot is ready to Register",
+            status: "success",
+            duration: 3000,
+            isClosable: true,
+          });
+          fetchData();
+        }
+      } catch (error) {
+        console.log(error.toJSON());
+      }
     }
   };
-  console.log("hey pavan this is filteredBookings", filteredBookings);
-  console.log("hey pavan this is status", status);
-
-  
-
 
   return (
     <>
@@ -607,7 +633,72 @@ const BookingStatus = () => {
             </MenuList>
           </Menu>
 
-          <Box display={"flex"}>
+          <Box display={"flex"} mb={4}>
+            <FormLabel
+              textAlign={"center"}
+              fontSize={"17px"}
+              minWidth={"fit-content"}
+              mt={"5px"}
+            >
+              Booking Date:
+            </FormLabel>
+            <Box display="flex" alignItems="center">
+              <Text marginRight="4px">From</Text>
+              <Text marginRight="4px">:</Text>
+            </Box>
+            <Input
+              type="date"
+              id="date"
+              value={selectedDate || ""}
+              onChange={(e) => setSelectedDate(e.target.value)}
+            />
+            <Box display={"flex"} alignItems={"center"}>
+              <Text mr={"4px"}>To</Text>
+              <Text mr={"4px"}>:</Text>
+            </Box>
+            <Input
+              type="date"
+              id="enddate"
+              value={selectedEndDate }
+              onChange={(e) => setSelectedEndDate(e.target.value)}
+            />
+          </Box>
+
+          <Box display={"flex"} mb={4}>
+            <FormLabel
+              textAlign={"center"}
+              fontSize={"17px"}
+              minWidth={"fit-content"}
+              mt={"5px"}
+            >
+              Registry Date:
+            </FormLabel>
+            <Box display="flex" alignItems="center">
+              <Text marginRight="4px">From</Text>
+              <Text marginRight="4px">:</Text>
+            </Box>
+            <Input
+              type="date"
+              id="date"
+              value={selectedStatusDate || ""}
+              onChange={(e) => setSelectStatusDate(e.target.value)}
+            />
+            <Box display={"flex"} alignItems={"center"}>
+              <Text mr={"4px"}>To</Text>
+              <Text mr={"4px"}>:</Text>
+            </Box>
+            <Input
+              type="date"
+              id="enddate"
+              value={selectedStatusEndDate }
+              onChange={(e) => setSelectStatusEndDate(e.target.value)}
+            />
+             <Button onClick={handleFind}>Find</Button>
+          </Box> 
+
+
+
+          {/* <Box display={"flex"}>
             <Text mt={2}>From:</Text>
             <Input
               type="date"
@@ -630,7 +721,7 @@ const BookingStatus = () => {
               onChange={(event) => setSelectedToDate(event.target.value)}
             />
             <Button onClick={handleFind}>Find</Button>
-          </Box>
+          </Box>  */}
 
           <Button ml={2} onClick={clearFilters} colorScheme="red">
             Clear Filters
@@ -733,8 +824,11 @@ const BookingStatus = () => {
                               <Button
                                 size={"xs"}
                                 colorScheme="blue"
-                                onClick={() => handleApprove(plotItem.id)}
-                                leftIcon={plotItem.booked? <span>✔️</span> : null}
+                                onClick={() => handleApprove(plotItem.id, plotItem.booked)}
+                                
+                                leftIcon={
+                                  plotItem.booked ? <span color="green.500">✔️</span> : null
+                                }
                               >
                                 AP
                               </Button>
@@ -806,7 +900,9 @@ const BookingStatus = () => {
                           <Td>{book.bookingDate}</Td>
                           <Td>{book.customerName}</Td>
                           <Td>{book.customerContact}</Td>
-                          <Td>{book.registryDate}</Td>
+                          <Td>{book.registryDate? new Date(book.registryDate).toLocaleDateString("en-GB")
+                                .replace(/\//g, "/")
+                            : "" }</Td>
                         </React.Fragment>
                       ))}
                   </Tr>
@@ -817,7 +913,7 @@ const BookingStatus = () => {
         </>
       )}
 
-      {/* ************************************************************************ */}
+  
 
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
@@ -885,10 +981,7 @@ const BookingStatus = () => {
               </FormControl>
             </Box>
             <Box display={"flex"} gap={4}>
-              {/* <FormControl mb={2}>
-              <FormLabel>ADDRESS</FormLabel>
-              <Input placeholder="ADDRESS" />
-            </FormControl> */}
+             
               <FormControl mb={2}>
                 <FormLabel>CONTACT NO.</FormLabel>
                 <Input
@@ -938,8 +1031,6 @@ const BookingStatus = () => {
     </>
   );
 
-  //   </>
-  // );
 };
 
 export default BookingStatus;

@@ -32,64 +32,101 @@ import ContractorTransaction from "./components/ContractorTransaction";
 import BrokerTransaction from "./components/BrokerTransaction";
 import Profile from "./components/Profile";
 import HoldedPlots from "./components/HoldedPlots";
+import Plothistory from "./components/Plothistory";
+import RoleManager from "./components/RoleManager";
+import RolePermissionManager from "./components/RolePermissionManager";
+import AddMacAddress from "./components/AddMacAddress";
+import PrintTransactionList from "./components/PrintTransactionList";
+import RolePer from "./components/RolePer";
+
+
 
 const App = () => {
   const [isLoggedIn, setLoggedIn] = useState(false);
 
-
   const handleLogin = () => {
-    const adminData = {
-      email: "admin@example.com",
-      rights:"admin"
-    };
-  
-    // Set adminData in localStorage
-    localStorage.setItem("adminData", JSON.stringify(adminData));
-  
-    // Set expiration time for isAuth (next day)
+    // const adminData = {
+    //   email: email,
+    // };
+
+    // localStorage.setItem("adminData", email);
+
     const expirationTime = new Date();
     expirationTime.setDate(expirationTime.getDate() + 1); // Next day
     localStorage.setItem("isAuthExpires", expirationTime.getTime());
-  
-    // Set isAuth to true
+
     localStorage.setItem("isAuth", true);
-  
+
     setLoggedIn(true);
   };
 
   const isAuthExpired = () => {
     const expirationTime = localStorage.getItem("isAuthExpires");
     if (!expirationTime) {
-      // If expiration time doesn't exist, it means authentication is expired
       return true;
     }
-    // Compare current time with expiration time
+
     return Date.now() > parseInt(expirationTime);
   };
-  
 
-  const handleLogout = () => {
-    localStorage.removeItem("adminData");
-    localStorage.clear("isAuth")
-    setLoggedIn(false);
+  // let userData = JSON.parse(localStorage.getItem("adminData"));
+  let userData = localStorage.getItem("adminData");
+
+  useEffect(() => {
+    if (userData && userData.email) {
+      // setEmail(userData.email);
+      // console.log("setEmail",setEmail);
+
+    }
+  }, [userData]);
+
+  const handleLogout = async () => {
+    let email = localStorage.getItem("email");
+    console.log(email, "this is the req email");
+    let query = `UPDATE user SET IsActive = '0' WHERE userEmail = '${email}'`;
+    const url = "http://localhost/backend_lms/getQuery.php";
+    // const url = "http://localhost/backend_lms/getQuery.php";
+
+    let fData = new FormData();
+    fData.append("query", query);
+
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        body: fData,
+      });
+
+      if (response.ok) {
+        localStorage.removeItem("adminData");
+        localStorage.removeItem("isAuth");
+        setLoggedIn(false);
+      } else {
+        console.error("Failed to update user status.");
+      }
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
   };
 
-  let isAuth = localStorage.getItem("isAuth")
+  let isAuth = localStorage.getItem("isAuth");
   useEffect(() => {
-    const adminData = JSON.parse(localStorage.getItem("adminData"));
+    // const adminData = JSON.parse(localStorage.getItem("adminData"));
+    const adminData = localStorage.getItem("adminData");
     if (adminData) {
       setLoggedIn(true);
     }
   }, []);
 
 
-  useEffect(()=> {
-    if(isAuthExpired()){
-      handleLogout()
+  useEffect(() => {
+
+    if (isAuthExpired()) {
+      handleLogout();
     }
-  },[])
+  }, []);
 
   return (
+
     <Router>
       <Routes>
         <Route
@@ -97,9 +134,8 @@ const App = () => {
           element={
             isLoggedIn || isAuth ? (
               <>
-                {" "}
-                <Nav isLoggedIn={isLoggedIn} handleLogout={handleLogout} />{" "}
-                <Home />{" "}
+                <Nav isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
+                <Home />
               </>
             ) : (
               <Navigate to="/admin" />
@@ -108,11 +144,7 @@ const App = () => {
         />
         <Route
           path="/admin"
-          element={
-            <>
-              <Admin isLoggedIn={isLoggedIn} onLogin={handleLogin} />
-            </>
-          }
+          element={<Admin isLoggedIn={isLoggedIn} onLogin={handleLogin} />}
         />
         {isLoggedIn && (
           <>
@@ -120,12 +152,9 @@ const App = () => {
               path="/addproject"
               element={
                 <>
-                  {" "}
-                  <Nav
-                    isLoggedIn={isLoggedIn}
-                    handleLogout={handleLogout}
-                  />{" "}
-                  <AddProject />{" "}
+                  <Nav isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
+                  <AddProject />
+
                 </>
               }
             />
@@ -133,12 +162,8 @@ const App = () => {
               path="/newbooking"
               element={
                 <>
-                  {" "}
-                  <Nav
-                    isLoggedIn={isLoggedIn}
-                    handleLogout={handleLogout}
-                  />{" "}
-                  <NewBooking />{" "}
+                  <Nav isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
+                  <NewBooking />
                 </>
               }
             />
@@ -146,25 +171,18 @@ const App = () => {
               path="/masterinputs"
               element={
                 <>
-                  {" "}
-                  <Nav
-                    isLoggedIn={isLoggedIn}
-                    handleLogout={handleLogout}
-                  />{" "}
-                  <MasterInputs />{" "}
+                  <Nav isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
+                  <MasterInputs />
                 </>
               }
             />
+
             <Route
               path="/addblock"
               element={
                 <>
-                  {" "}
-                  <Nav
-                    isLoggedIn={isLoggedIn}
-                    handleLogout={handleLogout}
-                  />{" "}
-                  <AddBlock />{" "}
+                  <Nav isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
+                  <AddBlock />
                 </>
               }
             />
@@ -172,12 +190,8 @@ const App = () => {
               path="/addplot"
               element={
                 <>
-                  {" "}
-                  <Nav
-                    isLoggedIn={isLoggedIn}
-                    handleLogout={handleLogout}
-                  />{" "}
-                  <AddPlot />{" "}
+                  <Nav isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
+                  <AddPlot />
                 </>
               }
             />
@@ -185,12 +199,8 @@ const App = () => {
               path="/adduser"
               element={
                 <>
-                  {" "}
-                  <Nav
-                    isLoggedIn={isLoggedIn}
-                    handleLogout={handleLogout}
-                  />{" "}
-                  <AddUser />{" "}
+                  <Nav isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
+                  <AddUser />
                 </>
               }
             />
@@ -198,12 +208,35 @@ const App = () => {
               path="/userlist"
               element={
                 <>
-                  {" "}
-                  <Nav
-                    isLoggedIn={isLoggedIn}
-                    handleLogout={handleLogout}
-                  />{" "}
-                  <UserList />{" "}
+                  <Nav isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
+                  <UserList />
+                </>
+              }
+            />
+            <Route
+              path="/addmacaddress"
+              element={
+                <>
+                  <Nav isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
+                  <AddMacAddress />
+                </>
+              }
+            />
+            <Route
+              path="/rolemanager"
+              element={
+                <>
+                  <Nav isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
+                  <RoleManager />
+                </>
+              }
+            />
+            <Route
+              path="/rolepermission"
+              element={
+                <>
+                  <Nav isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
+                  <RolePermissionManager />
                 </>
               }
             />
@@ -211,12 +244,8 @@ const App = () => {
               path="/addcontractor"
               element={
                 <>
-                  {" "}
-                  <Nav
-                    isLoggedIn={isLoggedIn}
-                    handleLogout={handleLogout}
-                  />{" "}
-                  <AddContractor />{" "}
+                  <Nav isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
+                  <AddContractor />
                 </>
               }
             />
@@ -224,12 +253,8 @@ const App = () => {
               path="/contractorlist"
               element={
                 <>
-                  {" "}
-                  <Nav
-                    isLoggedIn={isLoggedIn}
-                    handleLogout={handleLogout}
-                  />{" "}
-                  <ContractorList />{" "}
+                  <Nav isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
+                  <ContractorList />
                 </>
               }
             />
@@ -237,12 +262,8 @@ const App = () => {
               path="/brokerlist"
               element={
                 <>
-                  {" "}
-                  <Nav
-                    isLoggedIn={isLoggedIn}
-                    handleLogout={handleLogout}
-                  />{" "}
-                  <BrokerList />{" "}
+                  <Nav isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
+                  <BrokerList />
                 </>
               }
             />
@@ -250,12 +271,8 @@ const App = () => {
               path="/addbroker"
               element={
                 <>
-                  {" "}
-                  <Nav
-                    isLoggedIn={isLoggedIn}
-                    handleLogout={handleLogout}
-                  />{" "}
-                  <AddBroker />{" "}
+                  <Nav isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
+                  <AddBroker />
                 </>
               }
             />
@@ -263,12 +280,8 @@ const App = () => {
               path="/bookingstatus"
               element={
                 <>
-                  {" "}
-                  <Nav
-                    isLoggedIn={isLoggedIn}
-                    handleLogout={handleLogout}
-                  />{" "}
-                  <BookingStatus />{" "}
+                  <Nav isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
+                  <BookingStatus />
                 </>
               }
             />
@@ -276,12 +289,8 @@ const App = () => {
               path="/PaymentTransaction"
               element={
                 <>
-                  {" "}
-                  <Nav
-                    isLoggedIn={isLoggedIn}
-                    handleLogout={handleLogout}
-                  />{" "}
-                  <PaymentTransaction />{" "}
+                  <Nav isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
+                  <PaymentTransaction />
                 </>
               }
             />
@@ -289,12 +298,8 @@ const App = () => {
               path="/bookinglist"
               element={
                 <>
-                  {" "}
-                  <Nav
-                    isLoggedIn={isLoggedIn}
-                    handleLogout={handleLogout}
-                  />{" "}
-                  <BookingList />{" "}
+                  <Nav isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
+                  <BookingList />
                 </>
               }
             />
@@ -302,12 +307,8 @@ const App = () => {
               path="/transactionreport"
               element={
                 <>
-                  {" "}
-                  <Nav
-                    isLoggedIn={isLoggedIn}
-                    handleLogout={handleLogout}
-                  />{" "}
-                  <TransactionReport />{" "}
+                  <Nav isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
+                  <TransactionReport />
                 </>
               }
             />
@@ -315,12 +316,8 @@ const App = () => {
               path="/balancereport"
               element={
                 <>
-                  {" "}
-                  <Nav
-                    isLoggedIn={isLoggedIn}
-                    handleLogout={handleLogout}
-                  />{" "}
-                  <BalanceReport />{" "}
+                  <Nav isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
+                  <BalanceReport />
                 </>
               }
             />
@@ -328,12 +325,8 @@ const App = () => {
               path="/historicalreport"
               element={
                 <>
-                  {" "}
-                  <Nav
-                    isLoggedIn={isLoggedIn}
-                    handleLogout={handleLogout}
-                  />{" "}
-                  <HistoricalReport />{" "}
+                  <Nav isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
+                  <HistoricalReport />
                 </>
               }
             />
@@ -341,12 +334,8 @@ const App = () => {
               path="/contractorledger"
               element={
                 <>
-                  {" "}
-                  <Nav
-                    isLoggedIn={isLoggedIn}
-                    handleLogout={handleLogout}
-                  />{" "}
-                  <ContractorLedger />{" "}
+                  <Nav isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
+                  <ContractorLedger />
                 </>
               }
             />
@@ -354,12 +343,8 @@ const App = () => {
               path="/brokerledger"
               element={
                 <>
-                  {" "}
-                  <Nav
-                    isLoggedIn={isLoggedIn}
-                    handleLogout={handleLogout}
-                  />{" "}
-                  <BrokerLedger />{" "}
+                  <Nav isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
+                  <BrokerLedger />
                 </>
               }
             />
@@ -367,12 +352,8 @@ const App = () => {
               path="/contractortransaction"
               element={
                 <>
-                  {" "}
-                  <Nav
-                    isLoggedIn={isLoggedIn}
-                    handleLogout={handleLogout}
-                  />{" "}
-                  <ContractorTransaction />{" "}
+                  <Nav isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
+                  <ContractorTransaction />
                 </>
               }
             />
@@ -380,12 +361,8 @@ const App = () => {
               path="/brokertransaction"
               element={
                 <>
-                  {" "}
-                  <Nav
-                    isLoggedIn={isLoggedIn}
-                    handleLogout={handleLogout}
-                  />{" "}
-                  <BrokerTransaction />{" "}
+                  <Nav isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
+                  <BrokerTransaction />
                 </>
               }
             />
@@ -393,24 +370,20 @@ const App = () => {
               path="/profile"
               element={
                 <>
-                  {" "}
-                  <Nav
-                    isLoggedIn={isLoggedIn}
-                    handleLogout={handleLogout}
-                  />{" "}
-                  <Profile />{" "}
+                  <Nav isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
+                  <Profile />
                 </>
               }
             />
-            <Route
-            path="/holdedplots"
-            element={<HoldedPlots/>}
-            />
+            <Route path="/printTranList" element={<PrintTransactionList />} />
+            <Route path="/holdedplots" element={<HoldedPlots />} />
+            <Route path="/plothistory" element={<Plothistory />} />
           </>
         )}
-        {/* <Footer /> */}
       </Routes>
+      {/* <Footer /> */}
     </Router>
+
   );
 };
 

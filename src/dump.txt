@@ -398,7 +398,7 @@ export default NewBooking;
   const fetchData = async () => {
     try {
       const response = await axios.get(
-        "https://lkgexcel.com/backend/getprojects.php"
+        "http://localhost/backend_lms/getprojects.php"
       );
       setProjects(response.data);
     } catch (error) {
@@ -427,7 +427,7 @@ export default NewBooking;
   const onAdd = async (e) => {
     e.preventDefault();
 
-    const url = "https://lkgexcel.com/backend/addproject.php";
+    const url = "http://localhost/backend_lms/addproject.php";
     let fData = new FormData();
     fData.append("projectName", formData.projectName);
     fData.append("city", formData.city);
@@ -472,7 +472,7 @@ export default NewBooking;
     try {
       // Make a DELETE request to your API endpoint for deleting a project
       await axios.delete(
-        `https://lkgexcel.com/backend/deleteproject.php?id=${projectId}`
+        `http://localhost/backend_lms/deleteproject.php?id=${projectId}`
       );
       // Update the projects state after successful deletion
       setProjects(projects.filter((project) => project.id !== projectId));
@@ -523,7 +523,7 @@ export default NewBooking;
   };
   const handleEditSubmit = async (e) => {
     e.preventDefault();
-    const url = "https://lkgexcel.com/backend/editproject.php";
+    const url = "http://localhost/backend_lms/editproject.php";
 
     try {
       console.log("Before axios.post");
@@ -585,7 +585,7 @@ export default NewBooking;
   // const fetchData = async () => {
   //   try {
   //     const response = await axios.get(
-  //       "https://lkgexcel.com/backend/getprojects.php"
+  //       "http://localhost/backend_lms/getprojects.php"
   //     );
   //     setProjects(response.data);
   //   } catch (error) {
@@ -615,7 +615,7 @@ export default NewBooking;
   // const onAdd = (e) => {
   //   e.preventDefault();
 
-  //   const url = "https://lkgexcel.com/backend/addproject.php";
+  //   const url = "http://localhost/backend_lms/addproject.php";
   //   let fData = new FormData();
   //   fData.append("projectName", formData.projectName);
   //   fData.append("city", formData.city);
@@ -661,7 +661,7 @@ export default NewBooking;
   // const handleDelete = async (projectId) => {
   //   try {
   //     await axios.delete(
-  //       `https://lkgexcel.com/backend/deleteproject.php?id=${projectId}`
+  //       `http://localhost/backend_lms/deleteproject.php?id=${projectId}`
   //     );
   //     setProjects(projects.filter((project) => project.id !== projectId));
 
@@ -677,7 +677,7 @@ export default NewBooking;
  // const fetchData = async () => {
   //   try {
   //     const response = await axios.get(
-  //       "https://lkgexcel.com/backend/getprojects.php"
+  //       "http://localhost/backend_lms/getprojects.php"
   //     );
   //     setProjects(response.data);
   //   } catch (error) {
@@ -691,7 +691,7 @@ export default NewBooking;
     const onAddPlot = async (e) => {
     e.preventDefault();
 
-    const url = "https://lkgexcel.com/backend/addplot.php";
+    const url = "http://localhost/backend_lms/addplot.php";
     const fData = new FormData();
     fData.append("projectName", formData.projectName);
     fData.append("blockName", formData.blockName);
@@ -1753,7 +1753,7 @@ export default App;
 //     let query = "SELECT * FROM project;";
 //     // alert(query);
 
-//     const url = "https://lkgexcel.com/backend/getQuery.php";
+//     const url = "http://localhost/backend_lms/getQuery.php";
 //     let fData = new FormData();
 
 //     fData.append("query", query);
@@ -1776,7 +1776,7 @@ export default App;
 //     let query = "SELECT * FROM block where projectName = '" + pname + "' ;";
 //     // alert(query);
 
-//     const url = "https://lkgexcel.com/backend/getQuery.php";
+//     const url = "http://localhost/backend_lms/getQuery.php";
 //     let fData = new FormData();
 
 //     fData.append("query", query);
@@ -1804,7 +1804,7 @@ export default App;
 //   //     "' AND plotStatus ='Booked' ;";
 //   //   // alert(query);
 
-//   //   const url = "https://lkgexcel.com/backend/getQuery.php";
+//   //   const url = "http://localhost/backend_lms/getQuery.php";
 //   //   let fData = new FormData();
 
 //   //   fData.append("query", query);
@@ -1832,7 +1832,7 @@ export default App;
 //       "' AND plotStatus ='Booked';";
 //     // alert(query);
 
-//     const url = "https://lkgexcel.com/backend/getQuery.php";
+//     const url = "http://localhost/backend_lms/getQuery.php";
 //     let fData = new FormData();
 
 //     fData.append("query", query);
@@ -2594,7 +2594,7 @@ const BookingStatus = () => {
     // "' AND plotStatus ='Booked' ;";
     // alert(query);
 
-    const url = "https://lkgexcel.com/backend/getQuery.php";
+    const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
 
     fData.append("query", query);
@@ -2615,7 +2615,7 @@ const BookingStatus = () => {
   const fetchData = async () => {
     try {
       const response = await axios.get(
-        "https://lkgexcel.com/backend/getplot.php"
+        "http://localhost/backend_lms/getplot.php"
       );
       setBooking(response.data);
     } catch (error) {

@@ -69,7 +69,7 @@ const NewBooking = () => {
   };
 
   const onAddBook = async () => {
-    const url = "https://lkgexcel.com/backend/newbooking.php";
+    const url = "http://localhost/backend_lms/newbooking.php";
     let query =
       "INSERT INTO booking (id, projectName, blockName, plotNo, plotType, customerName, customerAddress, customerContact, registryGender, areaSqft, rateAreaSqft, totalAmount, discountApplicable, discountPercent, netAmount, registryAmount, serviceAmount, maintenanceAmount, miscAmount, grandTotal, constructionApplicable, constructionContractor, constructionAmount, totalAmountPayable, guidelineAmount, registryPercent, bankAmountPayable, bookingDate, cashAmountPayable, remarks, registryDate) VALUES (NULL, '" +
       document.getElementById("projectName").value +
@@ -150,7 +150,7 @@ const NewBooking = () => {
   };
 
   const updatePlotStatus = async () => {
-    const url = "https://lkgexcel.com/backend/setQuery.php";
+    const url = "http://localhost/backend_lms/setQuery.php";
     let query =
       "UPDATE plot SET plotStatus = 'Booked' WHERE plotNo = '" +
       plotName +
@@ -176,7 +176,7 @@ const NewBooking = () => {
     let query = "SELECT * FROM block where projectName = '" + pname + "' ;";
     // alert(query);
 
-    const url = "https://lkgexcel.com/backend/getQuery.php";
+    const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
 
     fData.append("query", query);
@@ -199,7 +199,7 @@ const NewBooking = () => {
     let query = "SELECT * FROM contractor;";
     // alert(query);
 
-    const url = "https://lkgexcel.com/backend/getQuery.php";
+    const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
 
     fData.append("query", query);
@@ -227,7 +227,7 @@ const NewBooking = () => {
       "' AND plotStatus ='Available' ;";
     // alert(query);
 
-    const url = "https://lkgexcel.com/backend/getQuery.php";
+    const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
 
     fData.append("query", query);
@@ -250,7 +250,7 @@ const NewBooking = () => {
     let query = "SELECT * FROM project;";
     // alert(query);
 
-    const url = "https://lkgexcel.com/backend/getQuery.php";
+    const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
 
     fData.append("query", query);
@@ -280,7 +280,7 @@ const NewBooking = () => {
       "';";
     // alert(query);
 
-    const url = "https://lkgexcel.com/backend/getQuery.php";
+    const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
 
     fData.append("query", query);
@@ -296,7 +296,7 @@ const NewBooking = () => {
             "SELECT * FROM master where projectName ='" + projectName + "';";
           // alert(query);
 
-          const url = "https://lkgexcel.com/backend/getQuery.php";
+          const url = "http://localhost/backend_lms/getQuery.php";
           let fData1 = new FormData();
 
           fData1.append("query", query1);

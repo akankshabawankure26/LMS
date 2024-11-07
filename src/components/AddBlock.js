@@ -59,7 +59,7 @@ const AddBlock = () => {
     setTableLoading(true);
     try {
       const response = await axios.get(
-        // "https://lkgexcel.com/backend/getprojects.php"
+        // "http://localhost/backend_lms/getprojects.php"
         "http://localhost/backend_lms/getprojects.php"
       );
       if (response.data) {
@@ -81,8 +81,8 @@ const AddBlock = () => {
     setTableLoading(true);
     try {
       const response = await axios.get(
-        // "https://lkgexcel.com/backend/getblock.php"
         "http://localhost/backend_lms/getblock.php"
+        // "http://localhost/backend_lms/getblock.php"
       );
 
       setBlock(response.data);
@@ -113,8 +113,8 @@ const AddBlock = () => {
   const onAddBlock = async (e) => {
     setAddLoading(true);
     e.preventDefault();
-    // const url = "https://lkgexcel.com/backend/addblock.php";
     const url = "http://localhost/backend_lms/addblock.php";
+    // const url = "http://localhost/backend_lms/addblock.php";
     const fData = new FormData();
     fData.append("projectName", formData.projectName);
     fData.append("blockName", formData.blockName);
@@ -178,7 +178,7 @@ const AddBlock = () => {
   //   try {
   //     // Make a DELETE request to your API endpoint for deleting a project
   //     await axios.delete(
-  //       `https://lkgexcel.com/backend/deleteblock.php?id=${projectIdToDelete}`
+  //       `http://localhost/backend_lms/deleteblock.php?id=${projectIdToDelete}`
   //     )
   //     .then((res)=> {
   //       if(res.data){
@@ -227,27 +227,29 @@ const AddBlock = () => {
     setEditLoading(true);
     console.log("edit Project", editFormData.projectName);
     console.log("edit block", editFormData.blockName);
+
     const findBlock = block.find(
       (element) =>
         editFormData.projectName === element.projectName &&
-        editFormData.blockName != element.blockName
+        editFormData.blockName === element.blockName
     );
+    console.log(findBlock);
     if (findBlock) {
       console.log("found", findBlock);
       console.log("if call");
-      toast({
-        title: `Block Already exist`,
-        status: "warning",
-        position: "top-right",
-        isClosable: true,
-      });
+      // toast({
+      //   title: `Block Already exist`,
+      //   status: "warning",
+      //   position: "top-right",
+      //   isClosable: true,
+      // });
       setEditLoading(false);
-      return;
+
     }
 
-    // const url = "https://lkgexcel.com/backend/editblock.php";
     const url = "http://localhost/backend_lms/editblock.php";
-
+    // const url = "http://localhost/backend_lms/editblock.php";
+    console.log("api called");
     try {
       const formData = new FormData();
       formData.append("id", editFormData.id);
@@ -258,11 +260,12 @@ const AddBlock = () => {
       formData.append("ratePerSqft", editFormData.ratePerSqft);
 
       const response = await axios.post(url, formData);
-
-      if (response && response.data && response.data.status === "success") {
+      console.log(response && response.data && response.data.status === "success");
+      if (response && response.data ) {
         // Close the modal after successful submission
         setIsModalOpen(false);
         setEditLoading(false);
+        console.log("block edited..");
         // Fetch updated block data (make sure this function is implemented correctly)
         fetchData();
         // Show a success toast message
@@ -304,8 +307,8 @@ const AddBlock = () => {
     try {
       // Make a DELETE request to your API endpoint for deleting a project
       const response = await axios.delete(
-        // `https://lkgexcel.com/backend/deleteblock.php?id=${projectIdToDelete}`
-         `http://localhost/backend_lms/deleteblock.php?id=${projectIdToDelete}`
+        `http://localhost/backend_lms/deleteblock.php?id=${projectIdToDelete}`
+        //  `http://localhost/backend_lms/deleteblock.php?id=${projectIdToDelete}`
       );
       if (response.data) {
         toast({
@@ -572,6 +575,7 @@ const AddBlock = () => {
                   name="blockName"
                   value={editFormData.blockName || ""}
                   onChange={handleEditBlockChange}
+                  readOnly
                   required
                 />
               </FormControl>

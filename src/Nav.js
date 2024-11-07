@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Box,
@@ -27,6 +27,7 @@ const Nav = ({ isLoggedIn, handleLogout }) => {
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const bgColor = useColorModeValue("white", "gray.800");
+  const [userRight, setUserRight] = useState(localStorage.getItem("userRight"));
 
   const [isMobile] = useMediaQuery("(max-width: 768px)");
   const handleLogoutClick = () => {
@@ -39,9 +40,9 @@ const Nav = ({ isLoggedIn, handleLogout }) => {
       px={4}
       bg={bgColor}
       borderBottom={"gray 1px solid "}
-      // position={"fixed"}
-      // top={0}
-      // zIndex={100}
+    // position={"fixed"}
+    // top={0}
+    // zIndex={100}
     >
       <Flex h={16} alignItems="center" mx="auto">
         <HStack spacing={4} alignItems="center">
@@ -90,61 +91,70 @@ const Nav = ({ isLoggedIn, handleLogout }) => {
                 <MenuItem as={Link} to="/addplot">
                   Add Plot
                 </MenuItem>
-                <MenuItem as={Link} to="/masterinputs">
-                  Master Inputs
-                </MenuItem>
+                {(userRight !== "SalesPerson" && userRight !== "Manager" )  ? (
+                  <MenuItem as={Link} to="/masterinputs">
+                    Master Inputs
+                  </MenuItem>
+                ) : null}
+
+
               </MenuList>
             </Menu>
-            <Menu>
-              <MenuButton
-                as={Button}
-                rightIcon={<FaChevronDown />}
-                bg={"transparent"}
-              >
-                Booking
-              </MenuButton>
-              <MenuList>
-                <MenuItem as={Link} to="/bookingstatus">
-                  Booking Status
-                </MenuItem >
-                <MenuItem as={Link} to="/holdedplots" >
-                On-Hold Plots
-                </MenuItem>
-                <MenuItem as={Link} to="/newbooking">
-                  New Booking
-                </MenuItem>
-                <MenuItem as={Link} to="/PaymentTransaction">
-                  Payment Transaction
-                </MenuItem>
-              </MenuList>
-            </Menu>
-            <Menu>
-              <MenuButton
-                as={Button}
-                rightIcon={<FaChevronDown />}
-                bg={"transparent"}
-              >
-                Report
-              </MenuButton>
-              <MenuList>
-                <MenuItem as={Link} to="/bookinglist">
-                  Booking List
-                </MenuItem>
-                <MenuItem as={Link} to="/transactionreport">
-                  Transaction Report
-                </MenuItem>
-                <MenuItem
-                  as={Link}
-                  to="/balancereport
-                "
+            {(userRight !== "SalesPerson" && userRight !== "Manager" )  ? (
+              <Menu>
+                <MenuButton
+                  as={Button}
+                  rightIcon={<FaChevronDown />}
+                  bg={"transparent"}
                 >
-                  Balance Report
-                </MenuItem>
-                <MenuItem as={Link} to="/historicalreport">
-                  Historical Transaction Report
-                </MenuItem>
-              </MenuList>
-            </Menu>
+                  Booking
+                </MenuButton>
+                <MenuList>
+                  <MenuItem as={Link} to="/bookingstatus">
+                    Booking Status
+                  </MenuItem >
+                  <MenuItem as={Link} to="/holdedplots" >
+                    On-Hold Plots
+                  </MenuItem>
+                  <MenuItem as={Link} to="/newbooking">
+                    New Booking
+                  </MenuItem>
+                  <MenuItem as={Link} to="/PaymentTransaction">
+                    Payment Transaction
+                  </MenuItem>
+                </MenuList>
+              </Menu>
+            ) : null}
+
+            {(userRight !== "SalesPerson" && userRight !== "Manager" ) ? (
+              <Menu>
+                <MenuButton
+                  as={Button}
+                  rightIcon={<FaChevronDown />}
+                  bg={"transparent"}
+                >
+                  Report
+                </MenuButton>
+                <MenuList>
+                  <MenuItem as={Link} to="/bookinglist">
+                    Booking List
+                  </MenuItem>
+                  <MenuItem as={Link} to="/transactionreport">
+                    Transaction Report
+                  </MenuItem>
+                  <MenuItem
+                    as={Link}
+                    to="/balancereport
+                "
+                  >
+                    Balance Report
+                  </MenuItem>
+                  <MenuItem as={Link} to="/historicalreport">
+                    Historical Transaction Report
+                  </MenuItem>
+                </MenuList>
+              </Menu>
+            ) : null}
             <Menu>
               <MenuButton
                 as={Button}
@@ -160,7 +170,9 @@ const Nav = ({ isLoggedIn, handleLogout }) => {
                 <MenuItem as={Link} to="/userlist">
                   User List
                 </MenuItem>
-                <MenuItem>User Role</MenuItem>
+                <MenuItem as={Link} to="/rolemanager">User Role</MenuItem>
+                <MenuItem as={Link} to="/rolepermission">User Role Permission</MenuItem>
+                <MenuItem as={Link} to="/addmacaddress">Add MAC Address</MenuItem>
               </MenuList>
             </Menu>
             <Menu>
@@ -223,7 +235,7 @@ const Nav = ({ isLoggedIn, handleLogout }) => {
         </HStack>
 
         {/* Render the Logout button on the right side */}
-        <ProfileDropdown handleLogout={handleLogout}/>
+        <ProfileDropdown handleLogout={handleLogout} />
       </Flex>
 
       {/* Mobile Screen Links */}

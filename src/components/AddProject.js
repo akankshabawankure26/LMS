@@ -89,6 +89,7 @@ const AddProject = () => {
   const [projects, setProjects] = useState([]); //this state use for fetching
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [projectIdToDelete, setProjectIdToDelete] = useState(null);
+  const [userRight, setUserRight] = useState(localStorage.getItem("userRight"));
 
   //this use for fecthing projects
 
@@ -157,7 +158,10 @@ const AddProject = () => {
       setAddLoading(false);
       return;
     }
+    // const url = "http://localhost/backend_lms/addproject.php";
     const url = "http://localhost/backend_lms/addproject.php";
+
+
     let fData = new FormData();
     fData.append("projectName", formData.projectName);
     fData.append("city", formData.city);
@@ -329,6 +333,13 @@ const AddProject = () => {
     }
   };
 
+  // const userPermission = async () => {
+  //   const url = "http://localhost/backend_lms/getUserPermission.php";
+  //   const response = await axios.post(url,userRight);
+
+
+  // }
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -430,15 +441,21 @@ const AddProject = () => {
                 required
               />
             </FormControl>
+
             {addloading ? (
               <Button colorScheme="blue" mt={8}>
                 <Spinner size="md" color="white" />
               </Button>
             ) : (
-              <Button colorScheme="blue" type="submit" mt={8}>
+              <Button
+                colorScheme="blue"
+                type="submit"
+                mt={8}
+              >
                 Add Project
               </Button>
             )}
+
           </Grid>
           <Center></Center>
         </form>
@@ -544,6 +561,7 @@ const AddProject = () => {
                       >
                         Delete
                       </Button>
+
                       <DeleteConfirmationDialog
                         isOpen={isDeleteDialogOpen}
                         loadingDel={delloading}

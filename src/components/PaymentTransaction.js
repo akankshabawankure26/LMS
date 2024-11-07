@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import axios from "axios";
-import { useReactToPrint } from "react-to-print";
-import { useNavigate } from "react-router-dom";
+import { json, useNavigate } from "react-router-dom";
 import {
   Input,
   FormControl,
@@ -30,18 +29,27 @@ import {
   ModalBody,
   ModalCloseButton,
   TableContainer,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverArrow,
+  PopoverCloseButton,
+  PopoverBody,
+  filter,
 } from "@chakra-ui/react";
-import { useData } from "../Context";
+import { DataContext, DataProvider, useData } from "../Context";
 import DeleteConfirmationDialog from "./DeleteConfirmationDialog";
-import { Link } from "react-router-dom";
-const PaymentTransaction = () => {
 
+
+const PaymentTransaction = () => {
+  const Nav = useNavigate();
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const { constructionData, setConstructionData } = useData();
-  const [displa, setdisplay] = useState(false);
+  const [display, setdisplay] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [transactionIdToDelete, setTransactionIdToDelete] = useState(null);
   const toast = useToast();
+  const [registryDateGet, setRegistryDateGet] = useState("");
   const [projectsData, setprojectsData] = useState([]);
   const [blockData, setblockData] = useState([]);
   const [plotData, setplotData] = useState([]);
@@ -75,79 +83,208 @@ const PaymentTransaction = () => {
   const [transferAllProjectName, setTransferAllProjectName] = useState("");
   const [transferAllBlockName, setTransferAllBlockName] = useState("");
   const [transferAllPlotName, setTransferAllPlotName] = useState("");
-
+  const [currentDate, setCurrentDate] = useState("");
   const [transferAllProject, setTransferAllProject] = useState([]);
   const [transferAllBlock, setTransferAllBlock] = useState([]);
   const [transferAllPlot, setTransferAllPlot] = useState([]);
   const [AllPlot, setAllPlot] = useState([]);
-  const [plotStatus, setPlotStatus] = useState('');
-  const[renderData,setrenderData]= useState([])
-
-
-
+  const [renderData, setrenderData] = useState(false);
+  const [areaSqft, setAreaSqft] = useState(0);
+  const [render, setRender] = useState(false);
+  const [ratePerSqft, setRatePerSqft] = useState(0);
+  const [totalAmt, setTotalAmt] = useState(0);
+  const [discount, setDiscount] = useState("");
+  const [discountPercent, setDiscountPercent] = useState(0);
+  const [netAmt, setNetAmt] = useState(0);
+  const [registryAmt, setRegistryAmt] = useState(0);
+  const [serviceAmt, setServiceAmt] = useState(0);
+  const [maintenanceAmt, setMaintenanceAmt] = useState(0);
+  const [miscAmt, setMiscAmt] = useState(0);
+  const [grandTotal, setGrandTotal] = useState(0);
+  const [constYesNo, setConstYesNo] = useState(false);
+  const [constAmt, setConstAmt] = useState(0);
+  const [totalAmtPayable, setTotalAmtPayable] = useState(0);
+  const [guidelineAmt, setGuidelineAmt] = useState(0);
+  const [registryPercent, setRegistryPercent] = useState(0);
+  const [bankAmtPayable, setBankAmtPayable] = useState(0);
+  const [cashAmtPayable, setCashAmtPayable] = useState(0);
+  const [totalAmount, setTotalAmount] = useState(0);
+  const [bankreceive, setBankreceive] = useState(0);
+  const [cashReceive, setCashReceive] = useState(0);
+  const [totalPayable, setTotalPayable] = useState(0);
+  const [bankAmountPayable, setBankAmountPayable] = useState(0);
+  const [cashAmountPayable, setCashAmountPayable] = useState(0);
+  const { storeData, goData, toggle } = useContext(DataContext);
+  const [custName, setCustName] = useState("");
+  const [APVisible, setAPVisible] = useState(false);
+  const [APTickVisible, setAPTickVisible] = useState(false);
+  const [isApprove, setIsApprove] = useState(false);
 
 
   useEffect(() => {
-    const updatedTransactionData = transactionData.map((res, index) => {
-      if (transferredRows.includes(index)) {
-        return { ...res, Status: "Transferred" };
-      }
-      return res;
-    });
-    setTransactionData(updatedTransactionData);
-  }, [transferredRows]);
+    const calculatedTotalAmt = areaSqft * ratePerSqft;
+    setTotalAmt(calculatedTotalAmt);
 
+    const calculatedNetAmt =
+      discount === "Yes"
+        ? calculatedTotalAmt * (1 - discountPercent / 100)
+        : calculatedTotalAmt;
+    setNetAmt(calculatedNetAmt);
 
-  const transferTransactions = () => {
-    const transferredTransactions = transactionData.filter((transaction) => {
-      return (
-        transaction.projectName === projectName &&
-        transaction.blockName === blockName &&
-        transaction.plotno === plotName
-      );
-    });
+    const calculatedGrandTotal =
+      Number(calculatedNetAmt) +
+      Number(registryAmt) +
+      Number(serviceAmt) +
+      Number(maintenanceAmt) +
+      Number(miscAmt);
+    setGrandTotal(calculatedGrandTotal);
 
-    setTransactionData((prevData) => [
-      ...prevData,
-      ...transferredTransactions.map((transaction) => ({
-        ...transaction,
-        project: transferAllProjectName,
-        block: transferAllBlockName,
-        plot: transferAllPlotName,
-      })),
-    ]);
+    setTotalAmtPayable(calculatedGrandTotal);
+  }, [
+    areaSqft,
+    ratePerSqft,
+    discount,
+    discountPercent,
+    registryAmt,
+    serviceAmt,
+    maintenanceAmt,
+    miscAmt,
+  ]);
 
-    // Log the transfer message to the console
-    console.log(
-      `Transactions from ${projectName}, ${blockName}, ${plotName} have been transferred to ${transferAllProjectName}, ${transferAllBlockName}, ${transferAllPlotName}`
-    );
+  const calculateTotalAmount = (data) => {
+    return data.reduce((total, item) => {
+      return item.action === "" ? total + Number(item.amount) : total;
+    }, 0);
   };
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////
+  const calculateBankreceive = (data) => {
+    return data.reduce((total, item) => {
+      return item.action == "" && item.paymentType == "Bank"
+        ? total + Number(item.amount)
+        : total;
+    }, 0);
+  };
+  const calculateCashReceive = (data) => {
+    return data.reduce((total, item) => {
+      return item.action == "" && item.paymentType == "Cash"
+        ? total + Number(item.amount)
+        : total;
+    }, 0);
+  };
+
+  const calculateTotalPayable = (data) => {
+    return data.reduce((total, item) => {
+      return total + Number(item.totalAmountPayable);
+    }, 0);
+  };
+  const calculatebankAmountPayable = (data) => {
+    return data.reduce((total, item) => {
+      return total + Number(item.bankAmountPayable);
+    }, 0);
+  };
+
+  const calculateCashAmountPayable = (data) => {
+    return data.reduce((total, item) => {
+      return total + Number(item.cashAmountPayable);
+    }, 0);
+  };
+
+  useEffect(() => {
+    if (transactionData) {
+      const total = calculateTotalAmount(transactionData);
+      setTotalAmount(total);
+      const bankTotal = calculateBankreceive(transactionData);
+      setBankreceive(bankTotal);
+      const cashTotal = calculateCashReceive(transactionData);
+      setCashReceive(cashTotal);
+      const TotalPayable = calculateTotalPayable(currentPlot);
+      setTotalPayable(TotalPayable);
+      const BankPayable = calculatebankAmountPayable(currentPlot);
+      setBankAmountPayable(BankPayable);
+      const CashPayable = calculateCashAmountPayable(currentPlot);
+      setCashAmountPayable(CashPayable);
+    }
+
+    console.log(totalAmount);
+    console.log(totalPayable);
+  }, [transactionData]);
+
+  // useEffect(() => {
+  //   const updatedTransactionData = transactionData.map((res, index) => {
+  //     if (transferredRows.includes(index)) {
+  //       return { ...res, Status: "Transferred" };
+  //     }
+  //     return res;
+  //   });
+  //   setTransactionData(updatedTransactionData);
+  // }, [transferredRows]);
+  const [newProjectName, setnewProjectName] = useState();
+
+  const [newBlockName, setnewBlockName] = useState();
+  const [newPlotNo, setnewPlotNo] = useState();
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   const confirmTransferAll = () => {
-
     const isConfirmed = window.confirm(
       "Are you sure you want to transfer all transactions?"
     );
 
     if (isConfirmed) {
       transferTransactions();
-
-      toast({
-        title: "Transactions Transferred",
-        description: `Transactions from ${projectName}, ${blockName}, ${plotName} have been transferred to ${transferAllProjectName}, ${transferAllBlockName}, ${transferAllPlotName}`,
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-        position: "top-right",
-      });
     }
   };
 
+  const transferTransactions = async () => {
+    const updatedTransactionData = transactionData.map((item) => ({
+      ...item,
+      projectName: newProjectName,
+      blockName: newBlockName,
+      plotno: newPlotNo,
+    }));
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    console.log("updatedTransactionData!!!!!!!!!!!!", updatedTransactionData);
+    const transferRemark = `Transfer to ${newProjectName} , ${newBlockName} , ${newPlotNo} on ${new Date().toISOString().split("T")[0]
+      }`;
+    const receivedRemark = ` Received from ${newProjectName} , ${newBlockName} , ${newPlotNo} on  ${new Date().toISOString().split("T")[0]
+      }`;
 
+    const url = "http://localhost/backend_lms/transferAll.php";
+    let fData = new FormData();
+    fData.append(
+      "updatedTransactionData",
+      JSON.stringify(updatedTransactionData)
+    );
+    fData.append("actionAll", transferRemark);
+    fData.append("TRAll", receivedRemark);
+
+    try {
+      const response = await axios.post(url, fData);
+
+      if (response && response.data) {
+        console.log("result", response.data);
+        if (response.data.status) {
+          toast({
+            title: "Transactions Transferred",
+            description: `Transactions from ${projectName}, ${blockName}, ${plotName} have been transferred to ${transferAllProjectName}, ${transferAllBlockName}, ${transferAllPlotName}`,
+            status: "success",
+            duration: 5000,
+            isClosable: true,
+            position: "top-right",
+          });
+        }
+        setIsTransferAllModalOpen(false);
+      }
+    } catch (error) {
+      console.log("Error to connect");
+    }
+
+    console.log(
+      `Transactions from ${projectName}, ${blockName}, ${plotName} have been transferred to ${transferAllProjectName}, ${transferAllBlockName}, ${transferAllPlotName}`
+    );
+  };
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   const loadContractor = async () => {
     let query = "SELECT * FROM contractor;";
@@ -164,11 +301,11 @@ const PaymentTransaction = () => {
       if (response && response.data) {
         if (response.data.phpresult) {
           setcontractorData(response.data.phpresult);
-          console.log(response.data.phpresult);
+          // console.log(response.data.phpresult);
         }
       }
     } catch (error) {
-      console.log("Please Select Proper Input");
+      console.log("please select proper input");
     }
   };
 
@@ -179,37 +316,32 @@ const PaymentTransaction = () => {
     const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
 
-    fData.append("query", query);
-
+    fData.append("query", query); //  ok bye ummmmaaaa tooooooo i love you tooo bye gn
     try {
       const response = await axios.post(url, fData);
 
       if (response && response.data) {
         if (response.data.phpresult) {
           setbrokerData(response.data.phpresult);
-          console.log("Broker data");
-          console.log(response.data.phpresult);
+          // console.log("Broker data");
+          // console.log(response.data.phpresult);
         }
       }
     } catch (error) {
-      console.log("Please Select Proper Input");
+      alert("Please Select Proper Input");
     }
   };
 
-  const handlePrint = useReactToPrint({
-    content: () => componentRef.current,
-    onBeforeGetContent: () => {
-      setShowButtons(false); // Hide the buttons before printing
-      setShowPayment(false);
-      setShowAction(false);
-    },
-    onAfterPrint: () => {
-      setShowButtons(true); // Show the buttons after printing
-      setShowPayment(true);
-      setShowAction(true); // Show the buttons after printing
-      // Show the buttons after printing
-    },
-  });
+
+  const handlePrintButton = () => {
+
+    Nav('/printTranList');
+  };
+
+
+
+
+
   const loadProjects = async () => {
     let query = "SELECT * FROM project;";
     // alert(query);
@@ -225,13 +357,14 @@ const PaymentTransaction = () => {
       if (response && response.data) {
         if (response.data.phpresult) {
           setprojectsData(response.data.phpresult);
-          console.log(response.data.phpresult);
+          // console.log(response.data.phpresult);
         }
       }
     } catch (error) {
-      console.log("Please Select Proper Input");
+      alert("Please Select Proper Input");
     }
   };
+
   const loadTransferProjects = async () => {
     let query = "SELECT * FROM project;";
     // alert(query);
@@ -247,11 +380,11 @@ const PaymentTransaction = () => {
       if (response && response.data) {
         if (response.data.phpresult) {
           setTransferProject(response.data.phpresult);
-          console.log(response.data.phpresult);
+          // console.log(response.data.phpresult);
         }
       }
     } catch (error) {
-      console.log("Please Select Proper Input");
+      alert("Please Select Proper Input");
     }
   };
 
@@ -270,11 +403,11 @@ const PaymentTransaction = () => {
       if (response && response.data) {
         if (response.data.phpresult) {
           setTransferAllProject(response.data.phpresult);
-          console.log(response.data.phpresult);
+          // console.log(response.data.phpresult);
         }
       }
     } catch (error) {
-      console.log("Please Select Proper Input");
+      alert("Please Select Proper Input");
     }
   };
 
@@ -293,11 +426,11 @@ const PaymentTransaction = () => {
       if (response && response.data) {
         if (response.data.phpresult) {
           setblockData(response.data.phpresult);
-          console.log(response.data.phpresult);
+          // console.log(response.data.phpresult);
         }
       }
     } catch (error) {
-      console.log("Please Select Proper Input");
+      alert("Please Select Proper Input");
     }
   };
 
@@ -315,11 +448,11 @@ const PaymentTransaction = () => {
       if (response && response.data) {
         if (response.data.phpresult) {
           setTransferBlock(response.data.phpresult);
-          console.log(response.data.phpresult);
+          // console.log(response.data.phpresult);
         }
       }
     } catch (error) {
-      console.log("Please Select Proper Input");
+      alert("Please Select Proper Input");
     }
   };
   const loadTransferAllBlock = async (pname) => {
@@ -336,21 +469,47 @@ const PaymentTransaction = () => {
       if (response && response.data) {
         if (response.data.phpresult) {
           setTransferAllBlock(response.data.phpresult);
-          console.log(response.data.phpresult);
+          // console.log(response.data.phpresult);
         }
       }
     } catch (error) {
-      console.log("Please Select Proper Input");
+      alert("Please Select Proper Input");
     }
   };
+
+  /////////////////////////////////////////////////////////////////////////////////////
   const loadPlots = async (bname) => {
+    // console.log("name", projectName);
+    let query =
+      "  SELECT * FROM plot where blockName = '" + bname + "' AND projectName ='" + projectName +
+      "'AND plotStatus ='Booked' ;   ";
+
+    const url = "http://localhost/backend_lms/getQuery.php";
+    let fData = new FormData();
+    //////////////////////////////////////////////////////////////////////////////
+    fData.append("query", query);
+
+    try {
+      const response = await axios.post(url, fData);
+
+      if (response && response.data) {
+        if (response.data.phpresult) {
+          setplotData(response.data.phpresult);
+          // console.log("this is ",response.data.phpresult);
+        }
+      }
+    } catch (error) {
+      alert("Please Select Proper Input");
+    }
+  };
+  const loadPlots1 = async (bname, projectName) => {
+    // console.log("name", projectName);
     let query =
       "SELECT * FROM plot where blockName = '" +
       bname +
       "' AND projectName ='" +
       projectName +
       "';";
-    // alert(query);
 
     const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
@@ -363,14 +522,13 @@ const PaymentTransaction = () => {
       if (response && response.data) {
         if (response.data.phpresult) {
           setplotData(response.data.phpresult);
-          console.log("this is ",response.data.phpresult);
+          // console.log("this is ",response.data.phpresult);
         }
       }
     } catch (error) {
-      console.log("Please Select Proper Input");
+      alert("Please Select Proper Input");
     }
   };
-
 
   const loadTransferPlot = async (bname) => {
     let query =
@@ -392,11 +550,11 @@ const PaymentTransaction = () => {
       if (response && response.data) {
         if (response.data.phpresult) {
           setTransferPlot(response.data.phpresult);
-          console.log(response.data.phpresult);
+          // console.log(response.data.phpresult);
         }
       }
     } catch (error) {
-      console.log("Please Select Proper Input");
+      alert("Please Select Proper Input");
     }
   };
 
@@ -420,13 +578,14 @@ const PaymentTransaction = () => {
       if (response && response.data) {
         if (response.data.phpresult) {
           setTransferAllPlot(response.data.phpresult);
-          console.log(response.data.phpresult);
+          // console.log(response.data.phpresult);
         }
       }
     } catch (error) {
-      console.log("Please Select Proper Input");
+      alert("Please Select Proper Input");
     }
   };
+
   const dataTransfer = async (plotName) => {
     let query =
       "SELECT * FROM booking where blockName = '" +
@@ -449,11 +608,11 @@ const PaymentTransaction = () => {
       if (response && response.data) {
         if (response.data.phpresult) {
           setPlot(response.data.phpresult);
-          console.log(response.data.phpresult);
+          // console.log(response.data.phpresult);
         }
       }
     } catch (error) {
-      console.log("Please Select Proper Input");
+      alert("Please Select Proper Input");
     }
   };
 
@@ -479,14 +638,47 @@ const PaymentTransaction = () => {
       if (response && response.data) {
         if (response.data.phpresult) {
           setAllPlot(response.data.phpresult);
-          console.log(response.data.phpresult);
+          // console.log(response.data.phpresult);
         }
       }
     } catch (error) {
-      console.log("Please Select Proper Input");
+      alert("Please Select Proper Input");
     }
   };
+
+  const unRegistry = async () => {
+    const url = "http://localhost/backend_lms/setQuery.php";
+    let query =
+      "UPDATE plot SET plotStatus = 'Booked' WHERE plotNo = '" +
+      plotName +
+      "';";
+
+    let fData = new FormData();
+    fData.append("query", query);
+
+    let query1 =
+      "UPDATE booking SET registryDate = '' WHERE plotNo = '" + plotName + "'";
+    const fData1 = new FormData();
+    fData1.append("query", query1);
+
+    try {
+      const response = await axios.post(url, fData);
+      const response1 = await axios.post(url, fData1);
+      if (response) console.log("response", response);
+      alert("Plot status updated to Booked.");
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  const [approvedPlotIds, setApprovedPlotIds] = useState(new Set());
+
   const onRegistry = async () => {
+    if (!filterPlotOne[0].booked) {
+      alert("ask for admin to Approve");
+      return;
+    }
+
     const userConfirmed = window.confirm(
       "Do you really want to registry this plot?"
     );
@@ -556,11 +748,10 @@ const PaymentTransaction = () => {
       document.getElementById("registryD").value +
       "');";
 
-      let fData = new FormData();
-      fData.append("query", query);
+    let fData = new FormData();
+    fData.append("query", query);
 
-      const app = 
-          console.log("this is data from query", );
+    const app = console.log("this is data from query");
     try {
       const response = await axios.post(url, fData);
       updatePlotStatusRegistry();
@@ -574,7 +765,7 @@ const PaymentTransaction = () => {
         isClosable: true,
       });
     } catch (error) {
-      console.log(error.toJSON());
+      console.log(error);
     }
   };
   const updatePlotStatusRegistry = async () => {
@@ -582,7 +773,11 @@ const PaymentTransaction = () => {
     let query =
       "UPDATE plot SET plotStatus = 'Registered' WHERE plotNo = '" +
       plotName +
-      "';";
+      "' AND projectName ='" +
+      projectName +
+      "' AND blockName  ='" +
+      blockName +
+      "' ;";
 
     let fData = new FormData();
     fData.append("query", query);
@@ -591,56 +786,54 @@ const PaymentTransaction = () => {
       const response = await axios.post(url, fData);
       console.log("Plot status updated to Registered.");
     } catch (error) {
-      console.log(error.toJSON());
+      console.log(error);
     }
   };
 
-    const[registryDate,setRegistryDate] = useState();
-
-    // const RegistryDate =  new Date(registryDate).toLocaleDateString('en-GB')
-
+  const [registryDate, setRegistryDate] = useState("");
 
   const updateRegistryDate = async () => {
-
-    const url = "http://localhost/backend_lms/setQuery.php";        
+    const url = "http://localhost/backend_lms/setQuery.php";
     let query =
-    "UPDATE brokertransaction SET RegistryDate = '"
-    +registryDate+ "' WHERE plotNo = '" +
-    plotName+
-    "';"
-    console.log("here i am coming 2");
-    
+      "UPDATE brokertransaction SET RegistryDate = '" +
+      registryDate +
+      "' WHERE plotNo = '" +
+      plotName +
+      "';";
+    // console.log("here i am coming 2");
+
     let fData = new FormData();
     fData.append("query", query);
-    
-    console.log("here i am coming 3",query);
+
+    // console.log("here i am coming 3",query);
     try {
       const response = await axios.post(url, fData);
-      console.log("Registry date Updated");
+      // console.log("Registry date Updated");
     } catch (error) {
-      console.log(error.toJSON());
+      console.log(error);
     }
   };
   const updateRegistryDate01 = async () => {
-
-    const url = "http://localhost/backend_lms/setQuery.php";        
+    const url = "http://localhost/backend_lms/setQuery.php";
     let query =
-    "UPDATE booking SET RegistryDate = '" +registryDate+ "' WHERE plotNo = '" +
-    plotName+
-    "';"
-    
+      "UPDATE booking SET RegistryDate = '" +
+      registryDate +
+      "' WHERE plotNo = '" +
+      plotName +
+      "';";
+
     let fData = new FormData();
     fData.append("query", query);
-    
+
     try {
       const response = await axios.post(url, fData);
     } catch (error) {
-      console.log(error.toJSON());
+      console.log(error);
     }
   };
 
-
-  const loadTransaction = async (plotData) => {
+  const loadTransaction = async () => {
+    console.log("current", currentPlot);
     let query =
       "SELECT * FROM transaction where Status ='Active' AND  blockName  = '" +
       document.getElementById("blockName").value +
@@ -662,7 +855,7 @@ const PaymentTransaction = () => {
       if (response && response.data) {
         if (response.data.phpresult) {
           setTransactionData(response.data.phpresult);
-          console.log(response.data.phpresult);
+          // console.log(response.data.phpresult);
         }
       }
     } catch (error) {
@@ -694,7 +887,7 @@ const PaymentTransaction = () => {
         if (response.data.phpresult) {
           document.getElementById("totalReceived").innerHTML =
             response.data.phpresult[0]["asum"];
-          console.log(response.data.phpresult);
+          // console.log(response.data.phpresult);
         }
       }
     } catch (error) {
@@ -724,9 +917,9 @@ const PaymentTransaction = () => {
 
       if (response && response.data) {
         if (response.data.phpresult) {
-          document.getElementById("bankReceived").innerHTML =
-            response.data.phpresult[0]["asum"];
-          console.log(response.data.phpresult);
+          // document.getElementById("bankReceived").innerHTML =
+          //   response.data.phpresult[0]["asum"];
+          // console.log(response.data.phpresult);
         }
       }
     } catch (error) {
@@ -756,9 +949,9 @@ const PaymentTransaction = () => {
 
       if (response && response.data) {
         if (response.data.phpresult) {
-          document.getElementById("cashReceived").innerHTML =
-            response.data.phpresult[0]["asum"];
-          console.log(response.data.phpresult);
+          // document.getElementById("cashReceived").innerHTML =
+          //   response.data.phpresult[0]["asum"];
+          // console.log(response.data.phpresult);
         }
       }
     } catch (error) {
@@ -788,20 +981,19 @@ const PaymentTransaction = () => {
       const bankPayable = parseInt(bankPayableElem.innerHTML) || 0;
       const cashPayable = parseInt(cashPayableElem.innerHTML) || 0;
 
-      document.getElementById("totalBalance").innerHTML =
-        totalPayable - totalReceived;
-      document.getElementById("bankBalance").innerHTML =
-        bankPayable - bankReceived;
-      document.getElementById("cashBalance").innerHTML = parseInt(
-        cashPayable - cashReceived
-      );
+      // document.getElementById("totalBalance").innerHTML =
+      //   totalPayable - totalReceived;
+      // document.getElementById("bankBalance").innerHTML =
+      //   bankPayable - bankReceived;
+      // document.getElementById("cashBalance").innerHTML = parseInt(
+      //   cashPayable - cashReceived
+      // );
     } else {
-      console.log("One or more elements not found");
+      // alert("One or more elements not found");
     }
   };
 
   const setData = async (plotName) => {
-  
     let query =
       "SELECT * FROM booking where blockName = '" +
       blockName +
@@ -821,67 +1013,54 @@ const PaymentTransaction = () => {
 
       if (response && response.data) {
         if (response.data.phpresult) {
-          const constructionData = {
-            contractor: response.data.phpresult[0]["constructionContractor"],
-            amount: response.data.phpresult[0]["constructionAmount"],
-            projectName: projectName,
-            blockName: blockName,
-            plotNo: plotName,
-            brokerName: response.data.phpresult[0]["broker"],
-          };
-
-          // setConstructionData(constructionData);
-
+          console.log("if response callllll", response.data);
           setCurrentPlot(response.data.phpresult);
-          console.log(response.data.phpresult);
 
           document.getElementById("plotType").value =
             response.data.phpresult[0]["plotType"];
-          document.getElementById("custName").value =
-            response.data.phpresult[0]["customerName"];
+          setCustName(response.data.phpresult[0]["customerName"]);
+
+          // document.getElementById("custName").value =
+          //   response.data.phpresult[0]["customerName"];
           document.getElementById("custAddress").value =
             response.data.phpresult[0]["customerAddress"];
           //    document.getElementById("customerContact").value = response.data.phpresult[0]['customerContact'];
           document.getElementById("registryGender").value =
             response.data.phpresult[0]["registryGender"];
-          document.getElementById("areaSqmt").value =
-            response.data.phpresult[0]["areaSqft"];
-          document.getElementById("ratePerSqmt").value =
-            response.data.phpresult[0]["rateAreaSqft"];
-          document.getElementById("totalAmount").value =
-            response.data.phpresult[0]["totalAmount"];
-          document.getElementById("discountApplicable").value =
-            response.data.phpresult[0]["discountApplicable"];
-          document.getElementById("discountPercent").value =
-            response.data.phpresult[0]["discountPercent"];
-          document.getElementById("netAmount").value =
-            response.data.phpresult[0]["netAmount"];
-          document.getElementById("registryAmount").value =
-            response.data.phpresult[0]["registryAmount"];
-          document.getElementById("serviceAmount").value =
-            response.data.phpresult[0]["serviceAmount"];
-          document.getElementById("maintenanceAmount").value =
-            response.data.phpresult[0]["maintenanceAmount"];
-          document.getElementById("miscAmount").value =
-            response.data.phpresult[0]["miscAmount"];
-          document.getElementById("grandTotal").value =
-            response.data.phpresult[0]["grandTotal"];
-          document.getElementById("constructionApplicable").value =
-            response.data.phpresult[0]["constructionApplicable"];
+
+          setAreaSqft(response.data.phpresult[0]["areaSqft"]);
+          setRatePerSqft(response.data.phpresult[0]["rateAreaSqft"]);
+          setTotalAmt(response.data.phpresult[0]["totalAmount"]);
+          setDiscount(response.data.phpresult[0]["discountApplicable"]);
+          setDiscountPercent(response.data.phpresult[0]["discountPercent"]);
+          setNetAmt(response.data.phpresult[0]["netAmount"]);
+
+          setRegistryAmt(response.data.phpresult[0]["registryAmount"]);
+
+          setServiceAmt(response.data.phpresult[0]["serviceAmount"]);
+          setMaintenanceAmt(response.data.phpresult[0]["maintenanceAmount"]);
+
+          setMiscAmt(response.data.phpresult[0]["miscAmount"]);
+          setGrandTotal(response.data.phpresult[0]["grandTotal"]);
+
+          setConstYesNo(response.data.phpresult[0]["constructionApplicable"]);
+
           setcontractorName(
             response.data.phpresult[0]["constructionContractor"]
           );
+
           setbrokerName(response.data.phpresult[0]["broker"]);
-          document.getElementById("totalAmountPayable").value =
-            response.data.phpresult[0]["totalAmountPayable"];
-          document.getElementById("guidelineAmount").value =
-            response.data.phpresult[0]["guidelineAmount"];
-          document.getElementById("registryPercent").value =
-            response.data.phpresult[0]["registryPercent"];
-          document.getElementById("bankAmountPayable").value =
-            response.data.phpresult[0]["bankAmountPayable"];
-          document.getElementById("cashAmountPayable").value =
-            response.data.phpresult[0]["cashAmountPayable"];
+
+          setTotalAmtPayable(response.data.phpresult[0]["totalAmountPayable"]);
+          setConstAmt(response.data.phpresult[0]["constructionAmount"]);
+
+          setGuidelineAmt(response.data.phpresult[0]["guidelineAmount"]);
+
+          setRegistryPercent(response.data.phpresult[0]["registryPercent"]);
+
+          setBankAmtPayable(response.data.phpresult[0]["bankAmountPayable"]);
+
+          setCashAmtPayable(response.data.phpresult[0]["cashAmountPayable"]);
           document.getElementById("bookingDate").value =
             response.data.phpresult[0]["bookingDate"];
           document.getElementById("constructionAmount").value =
@@ -891,10 +1070,6 @@ const PaymentTransaction = () => {
             response.data.phpresult[0]["bankAmountPayable"];
           document.getElementById("cashPayable").innerHTML =
             response.data.phpresult[0]["cashAmountPayable"];
-          document.getElementById("totalPayable").innerHTML =
-            response.data.phpresult[0]["totalAmountPayable"];
-
-
           loadAmounts(response.data.phpresult);
           loadAmountsBAR();
           loadAmountsCAR();
@@ -904,29 +1079,116 @@ const PaymentTransaction = () => {
           loadTransaction(response.data.phpresult);
         }
       }
-      // document.getElementById("plotStatus").value =
-      // plotData[0]["plotStatus"];
-      
+      setrenderData((prev) => !prev);
     } catch (error) {
       console.log("Please Select Proper Input");
     }
   };
 
-  const[mode, setMode] = useState('')
+  const setData1 = async (projectName, blockName, plotName) => {
+    let query =
+      "SELECT * FROM booking where blockName = '" +
+      blockName +
+      "' AND projectName ='" +
+      projectName +
+      "' AND plotNo ='" +
+      plotName +
+      "' AND IsActive='1' ;";
+    // alert(query);
+    const url = "http://localhost/backend_lms/getQuery.php";
+    let fData = new FormData();
 
-  const selectMode = (e) => {
-    const {name, value} = e.target
-    if(name==="paymentType" && value=="Cash"){
-      document.getElementById("bankMode").value = "none";
-    setMode(value)
-    }else{
-      document.getElementById("bankMode").value = "";
-      setMode("")
-    }
-    
-    
-    }
+    fData.append("query", query);
 
+    try {
+      const response = await axios.post(url, fData);
+
+      if (response && response.data) {
+        if (response.data.phpresult) {
+          setCurrentPlot(response.data.phpresult);
+
+          document.getElementById("plotType").value =
+            response.data.phpresult[0]["plotType"];
+          document.getElementById("custName").value =
+            response.data.phpresult[0]["customerName"];
+          document.getElementById("custAddress").value =
+            response.data.phpresult[0]["customerAddress"];
+
+          document.getElementById("registryGender").value =
+            response.data.phpresult[0]["registryGender"];
+
+          setAreaSqft(response.data.phpresult[0]["areaSqft"]);
+          setRatePerSqft(response.data.phpresult[0]["rateAreaSqft"]);
+          setTotalAmt(response.data.phpresult[0]["totalAmount"]);
+          setDiscount(response.data.phpresult[0]["discountApplicable"]);
+          setDiscountPercent(response.data.phpresult[0]["discountPercent"]);
+          setNetAmt(response.data.phpresult[0]["netAmount"]);
+
+          setRegistryAmt(response.data.phpresult[0]["registryAmount"]);
+
+          setServiceAmt(response.data.phpresult[0]["serviceAmount"]);
+          setMaintenanceAmt(response.data.phpresult[0]["maintenanceAmount"]);
+
+          setMiscAmt(response.data.phpresult[0]["miscAmount"]);
+          setGrandTotal(response.data.phpresult[0]["grandTotal"]);
+
+          setConstYesNo(response.data.phpresult[0]["constructionApplicable"]);
+
+          setcontractorName(
+            response.data.phpresult[0]["constructionContractor"]
+          );
+
+          setbrokerName(response.data.phpresult[0]["broker"]);
+
+          setTotalAmtPayable(response.data.phpresult[0]["totalAmountPayable"]);
+          setConstAmt(response.data.phpresult[0]["constructionAmount"]);
+
+          setGuidelineAmt(response.data.phpresult[0]["guidelineAmount"]);
+
+          setRegistryPercent(response.data.phpresult[0]["registryPercent"]);
+
+          setBankAmtPayable(response.data.phpresult[0]["bankAmountPayable"]);
+
+          setCashAmtPayable(response.data.phpresult[0]["cashAmountPayable"]);
+          document.getElementById("bookingDate").value =
+            response.data.phpresult[0]["bookingDate"];
+          document.getElementById("constructionAmount").value =
+            response.data.phpresult[0]["constructionAmount"];
+
+          document.getElementById("bankPayable").innerHTML =
+            response.data.phpresult[0]["bankAmountPayable"];
+          document.getElementById("cashPayable").innerHTML =
+            response.data.phpresult[0]["cashAmountPayable"];
+          loadAmounts(response.data.phpresult);
+          loadAmountsBAR();
+          loadAmountsCAR();
+          setTimeout(function () {
+            calcAmounts();
+          }, 3000);
+          loadTransaction(response.data.phpresult);
+        }
+      }
+      setrenderData((prev) => !prev);
+    } catch (error) {
+      console.log("Please Select Proper Input");
+    }
+  };
+  const filterPlotOne = plotData?.filter((item) => item.plotNo === plotName);
+
+  console.log("filter", filterPlotOne);
+
+  const [mode, setMode] = useState("");
+
+  // const selectMode = (e) => {
+  //   const { name, value } = e.target;
+  //   if (name === "paymentType" && value == "Cash") {
+  //     document.getElementById("bankMode").value = "none";
+  //     setMode(value);
+  //   } else {
+  //     document.getElementById("bankMode").value = "";
+  //     setMode("");
+  //   }
+  // };
 
   const addPayment = async () => {
     const url = "http://localhost/backend_lms/setQuery.php";
@@ -948,29 +1210,17 @@ const PaymentTransaction = () => {
         !bankMode ||
         !cheqNo ||
         !bankName ||
-        !transactionStatus ||
-        !statusDate ||
-        !remarks
+        !transactionStatus
       ) {
         alert("Please fill in all required fields.");
-        return; 
+        return;
       }
     }
 
     if (!paymentType || paymentType === "Cash") {
-
-
-      if (
-        !date ||
-        isNaN(amount) ||
-        !statusDate ||
-        !transactionStatus ||
-        !statusDate ||
-        !remarks
-      ) {
-
+      if (!date || isNaN(amount) || !transactionStatus) {
         alert("Please fill in all required fields.");
-        return; 
+        return;
       }
     }
 
@@ -980,7 +1230,7 @@ const PaymentTransaction = () => {
       let totalBalance = parseInt(totalBalanceElem.innerHTML) || 0;
       totalBalance -= amount;
       totalBalanceElem.innerHTML = totalBalance;
-      console.log(`Total Balance: ${totalBalance}`);
+      // console.log(`Total Balance: ${totalBalance}`);
 
       // Subtract payment amount from bank balance if payment type is Bank
       const bankBalanceElem = document.getElementById("bankBalance");
@@ -988,7 +1238,7 @@ const PaymentTransaction = () => {
       if (paymentType === "Bank") {
         bankBalance -= amount;
         bankBalanceElem.innerHTML = bankBalance;
-        console.log(`Bank Balance: ${bankBalance}`);
+        // console.log(`Bank Balance: ${bankBalance}`);
       }
 
       // Subtract payment amount from cash balance if payment type is Cash
@@ -997,7 +1247,7 @@ const PaymentTransaction = () => {
       if (paymentType === "Cash") {
         cashBalance -= amount;
         cashBalanceElem.innerHTML = cashBalance;
-        console.log(`Cash Balance: ${cashBalance}`);
+        // console.log(`Cash Balance: ${cashBalance}`);
       }
 
       // Update total received and bank received
@@ -1010,21 +1260,21 @@ const PaymentTransaction = () => {
 
       totalReceived += amount;
       totalReceivedElem.innerHTML = totalReceived;
-      console.log(`Total Received: ${totalReceived}`);
+      // console.log(`Total Received: ${totalReceived}`);
 
       if (paymentType === "Bank") {
         bankReceived += amount;
         bankReceivedElem.innerHTML = bankReceived;
         // cashReceived = 0;
-        console.log(`Bank Received: ${bankReceived}`);
+        // console.log(`Bank Received: ${bankReceived}`);
       } else if (paymentType === "Cash") {
         cashReceived += amount;
         cashReceivedElem.innerHTML = cashReceived;
         // bankReceived = 0;
-        console.log(`Cash Received: ${cashReceived}`);
+        // console.log(`Cash Received: ${cashReceived}`);
       }
 
-      const query = `INSERT INTO transaction (id, projectName, blockName, plotno, date, paymentType, amount, bankMode, cheqNo, bankName, transactionStatus, statusDate, remarks, totalBalance, bankBalance, cashBalance, totalReceived, bankReceived, cashReceived) VALUES (NULL, '${projectName}', '${blockName}','${plotName}',  '${date}', '${paymentType}', '${amount}', '${bankMode}', '${cheqNo}', '${bankName}', '${transactionStatus}', '${statusDate}', '${remarks}', '${totalBalance}', '${bankBalance}', '${cashBalance}', '${totalReceived}', '${bankReceived}', '${cashReceived}');`;
+      const query = `INSERT INTO transaction (id, projectName, blockName, plotno, date, paymentType, amount, bankMode, cheqNo, bankName, transactionStatus, statusDate, remarks, totalBalance, bankBalance, cashBalance, totalReceived, bankReceived, cashReceived, CustName) VALUES (NULL, '${projectName}', '${blockName}','${plotName}',  '${date}', '${paymentType}', '${amount}', '${bankMode}', '${cheqNo}', '${bankName}', '${transactionStatus}', '${statusDate}', '${remarks}', '${totalBalance}', '${bankBalance}', '${cashBalance}', '${totalReceived}', '${bankReceived}', '${cashReceived}','${custName}');`;
 
       const formData = new FormData();
       formData.append("query", query);
@@ -1059,8 +1309,9 @@ const PaymentTransaction = () => {
       document.getElementById("statusDate").value = "";
       document.getElementById("remarks").value = "";
     } catch (error) {
-      console.log(error.toJSON());
+      console.log(error);
     }
+
   };
 
   useEffect(() => {
@@ -1069,7 +1320,9 @@ const PaymentTransaction = () => {
     loadTransferAllProjects();
     loadBroker();
     loadContractor();
+
   }, []);
+
   const deletePayment = async () => {
     const url = "http://localhost/backend_lms/setQuery.php";
     let query =
@@ -1080,7 +1333,7 @@ const PaymentTransaction = () => {
 
     try {
       const response = await axios.post(url, fData);
-      console.log(fData);
+      // console.log(fData);
       toast({
         title: "Payment deleted successfully!",
         status: "success",
@@ -1136,30 +1389,37 @@ const PaymentTransaction = () => {
     );
 
     // Check if the user confirmed
-    
+
     if (userConfirmed) {
       const url = "http://localhost/backend_lms/setQuery.php";
       let query =
-        "UPDATE plot SET plotStatus = 'Available' WHERE plotNo = '" +
+        "UPDATE plot SET plotStatus = 'Available', isActive = 0, booked = '' WHERE plotNo = '" +
         plotName +
         "';";
 
       const fData = new FormData();
       fData.append("query", query);
 
-
-
       let query1 =
         "UPDATE booking SET IsActive  = '0' WHERE plotNo  = '" +
-        plotName + 
-        "'AND IsActive= '1';" ;
+        plotName +
+        "';";
 
       const fData1 = new FormData();
       fData1.append("query", query1);
 
+      // let query2 =
+      //   "UPDATE plot SET booked = '' WHERE plotNo = '" +
+      //   plotName +
+      //   "';";
+
+      const fData2 = new FormData();
+      // fData.append("query", query2);
+
       try {
         const response = await axios.post(url, fData);
         const response2 = await axios.post(url, fData1);
+        const response23 = await axios.post(url, fData2);
 
         // Update transaction status
         const transactionStatusUpdated = await updateTransactionStatus(
@@ -1340,11 +1600,21 @@ const PaymentTransaction = () => {
 
     if (userConfirmed) {
       const url = "http://localhost/backend_lms/setQuery.php";
-      let query = "DELETE FROM booking WHERE blockName = '" + blockName + "' AND projectName = '" + projectName + "' AND plotNo = '" + plotName + "' ;";
+      let query =
+        "DELETE FROM booking WHERE blockName = '" +
+        blockName +
+        "' AND projectName = '" +
+        projectName +
+        "' AND plotNo = '" +
+        plotName +
+        "' ;";
 
       let fData = new FormData();
       fData.append("query", query);
-      let query1 = "UPDATE plot SET plotStatus='Available' WHERE plotNo = '" + plotName + "' ;";
+      let query1 =
+        "UPDATE plot SET plotStatus='Available' WHERE plotNo = '" +
+        plotName +
+        "' ;";
 
       let fData1 = new FormData();
       fData1.append("query", query1);
@@ -1474,7 +1744,6 @@ const PaymentTransaction = () => {
       // Handle network or other errors
       console.error("Error in handleEditSubmit:", error);
 
-      // Show an error toast message
       toast({
         title: "Error updating project",
         status: "error",
@@ -1490,6 +1759,7 @@ const PaymentTransaction = () => {
     loadAmountsBAR();
     loadAmountsCAR();
     calcAmounts();
+
   };
 
   const updateBalances = (
@@ -1503,7 +1773,7 @@ const PaymentTransaction = () => {
     totalBalance -= amount;
     totalBalance += updatedAmount; // Add the updated amount
     totalBalanceElem.innerHTML = totalBalance;
-    console.log(`Total Balance: ${totalBalance}`);
+    // console.log(`Total Balance: ${totalBalance}`);
 
     const bankBalanceElem = document.getElementById("bankBalance");
     let bankBalance = parseInt(bankBalanceElem.innerHTML) || 0;
@@ -1513,7 +1783,7 @@ const PaymentTransaction = () => {
     if (updatedPaymentType === "Bank") {
       bankBalance += updatedAmount; // Add the updated amount
       bankBalanceElem.innerHTML = bankBalance;
-      console.log(`Bank Balance: ${bankBalance}`);
+      // console.log(`Bank Balance: ${bankBalance}`);
     }
 
     const cashBalanceElem = document.getElementById("cashBalance");
@@ -1524,11 +1794,10 @@ const PaymentTransaction = () => {
     if (updatedPaymentType === "Cash") {
       cashBalance += updatedAmount; // Add the updated amount
       cashBalanceElem.innerHTML = cashBalance;
-      console.log(`Cash Balance: ${cashBalance}`);
+      // console.log(`Cash Balance: ${cashBalance}`);
     }
   };
   const handleTransferButtonClick = (props, index) => {
-   
     let finalTransferData = { ...props, index: index };
     setTransferData(finalTransferData);
     setIsTransferModalOpen(true);
@@ -1575,13 +1844,7 @@ const PaymentTransaction = () => {
       totalBalance,
       totalReceived,
     });
-    console.log("Updated Cash Received:", cashReceived);
-    console.log("Updated Cash Balance:", cashBalance);
-    console.log("Updated Bank Received:", bankReceived);
-    console.log("Updated Bank Balance:", bankBalance);
-    console.log("Updated Total Balance:", totalBalance);
-    console.log("Updated Total Received:", totalReceived);
-    // Return the updated values
+
     return {
       cashReceived,
       cashBalance,
@@ -1594,7 +1857,6 @@ const PaymentTransaction = () => {
 
   // Function to update the UI
   const updateUI = (updatedValues) => {
-    // Update the UI elements with the new values
     if (updatedValues.cashReceived !== undefined) {
       document.getElementById("cashReceived").innerHTML =
         updatedValues.cashReceived;
@@ -1621,6 +1883,7 @@ const PaymentTransaction = () => {
     }
   };
   const insertTransaction = async (
+    CustName,
     projectName,
     blockName,
     plotNo,
@@ -1638,16 +1901,15 @@ const PaymentTransaction = () => {
     cashBalance,
     totalReceived,
     bankReceived,
-    cashReceived
-   
+    cashReceived,
+    TR
   ) => {
     const url = "http://localhost/backend_lms/setQuery.php";
 
     // Construct the query to insert the transaction
-    const query = `INSERT INTO transaction (projectName, blockName, plotno, date, paymentType, amount, bankMode, cheqNo, bankName,transactionStatus,statusDate, remarks,totalBalance,bankBalance,cashBalance,totalReceived,bankReceived,cashReceived) 
-      VALUES ('${projectName}', '${blockName}', '${plotNo}', '${date}', '${paymentType}', ${amount}, '${bankMode}', '${cheqNo}', '${bankName}','${transactionStatus}','${statusDate}','${remarks}','${totalBalance}','${bankBalance}','${cashBalance}','${totalReceived}','${bankReceived}','${cashReceived}')`;
+    const query = `INSERT INTO transaction (CustName,projectName, blockName, plotno,date, paymentType, amount, bankMode, cheqNo, bankName,transactionStatus,statusDate, remarks,totalBalance,bankBalance,cashBalance,totalReceived,bankReceived,cashReceived,TR) 
+      VALUES ('${CustName}','${projectName}', '${blockName}', '${plotNo}','${date}', '${paymentType}', ${amount}, '${bankMode}', '${cheqNo}', '${bankName}','${transactionStatus}','${statusDate}','${remarks}','${totalBalance}','${bankBalance}','${cashBalance}','${totalReceived}','${bankReceived}','${cashReceived}','${TR}')`;
 
-    // Construct the update query to subtract the amount from balances
     const updateQuery = `
       UPDATE transaction
       SET totalReceived = totalReceived + ${amount},
@@ -1664,46 +1926,46 @@ const PaymentTransaction = () => {
     const formData = new FormData();
     formData.append("query", query);
 
-    console.log("formData",formData);
     try {
       const response = await axios.post(url, formData);
 
       formData.set("query", updateQuery);
 
-
-      return response.data; // Return the inserted data or success status
+      return response.data;
     } catch (error) {
       console.error("Error inserting transaction:", error);
-      throw error; // Throw the error for handling in the calling code
+      throw error;
     }
   };
 
-  
-  const handleTransfer = async (ID) => {
+  const handleTransfer = async (ID, rem) => {
     console.log("propsID", ID);
+    console.log("rem", rem);
     if (transferData && transactionData[transferData.index]) {
       const selectedRow = transactionData[transferData.index];
-      const fromProject =selectedRow.projectName;
-      const fromBlock =  selectedRow.blockName;
-      const fromPlot =    selectedRow.plotno;
-
+      const fromProject = selectedRow.projectName;
+      const fromBlock = selectedRow.blockName;
+      const fromPlot = selectedRow.plotno;
+      const Remark = rem;
 
       setTransferProjectName(selectedRow.projectName);
       setTransferBlockName(selectedRow.blockName);
       setTransferPlotName(selectedRow.plotno);
 
-
-
-      const transferRemark = `Transfer to ${transferProjectName} ${transferBlockName} ${transferPlotName}`;
-      const receivedRemark = `Received from ${fromProject} ${fromBlock} ${fromPlot}`;
-
-      // Show confirmation dialog
+      const transferRemark = `Transfer to ${transferProjectName} , ${transferBlockName} , ${transferPlotName} on ${new Date().toISOString().split("T")[0]
+        }`;
+      const receivedRemark = ` Received from ${fromProject} , ${fromBlock} , ${fromPlot} on  ${new Date().toISOString().split("T")[0]
+        }`;
       const confirmed = window.confirm(
         `Do you want to transfer this transaction from ${fromProject} ${fromBlock} ${fromPlot} to ${transferProjectName} ${transferBlockName} ${transferPlotName}?`
       );
-// ******************************************************************************************************************************
+
       if (confirmed) {
-        if (fromProject !== transferProjectName || fromBlock !== transferBlockName || fromPlot != transferPlotName) {
+        if (
+          fromProject !== transferProjectName ||
+          fromBlock !== transferBlockName ||
+          fromPlot != transferPlotName
+        ) {
           selectedRow.remarks = transferRemark;
 
           const transferredRow = {
@@ -1711,12 +1973,13 @@ const PaymentTransaction = () => {
             projectName: transferProjectName,
             blockName: transferBlockName,
             plotno: transferPlotName,
-            remarks: receivedRemark,
+            remarks: Remark,
+            TR: receivedRemark,
           };
-
 
           try {
             await insertTransaction(
+              transferredRow.CustName,
               transferProjectName,
               transferBlockName,
               transferPlotName,
@@ -1735,8 +1998,7 @@ const PaymentTransaction = () => {
               transferredRow.totalReceived,
               transferredRow.bankReceived,
               transferredRow.cashReceived,
-
-
+              transferredRow.TR
             );
           } catch (error) {
             console.error("Error inserting transferred transaction:", error);
@@ -1744,19 +2006,21 @@ const PaymentTransaction = () => {
           }
 
           try {
-            const url = "http://localhost/backend_lms/transferaction.php"
+            const url = "http://localhost/backend_lms/transferaction.php";
             let fData = new FormData();
 
-            fData.append("id",ID);
-            fData.append("action",transferRemark);
-        
+            fData.append("id", ID);
+            fData.append("action", transferRemark);
 
-        const response = await axios.post(url,fData)
-        console.log("response",response);
+            const response = await axios.post(url, fData);
+            console.log("response", response);
 
-      } catch (error) {
-        console.log(error);
-      }
+            if (response) {
+              setRender((prev) => !prev);
+            }
+          } catch (error) {
+            console.log(error);
+          }
         }
 
         const updatedTransactionData = [...transactionData];
@@ -1768,15 +2032,11 @@ const PaymentTransaction = () => {
         const remarksCell = tableRow.cells[tableRow.cells.length - 1];
         remarksCell.textContent = selectedRow.remarks;
 
-        const logMessage = `Payment transaction for row ${
-          transferData.index + 1
-        } has been transferred from ${fromProject} ${fromBlock} ${fromPlot} to ${transferProjectName} ${transferBlockName} ${transferPlotName} with payment type: ${
-          selectedRow.paymentType
-        }, amount: ${selectedRow.amount}, bank mode: ${
-          selectedRow.bankMode
-        }, CHQ/REF NO: ${selectedRow.cheqNo}, bank name: ${
-          selectedRow.bankName
-        }`;
+        const logMessage = `Payment transaction for row ${transferData.index + 1
+          } has been transferred from ${fromProject} ${fromBlock} ${fromPlot} to ${transferProjectName} ${transferBlockName} ${transferPlotName} with payment type: ${selectedRow.paymentType
+          }, amount: ${selectedRow.amount}, bank mode: ${selectedRow.bankMode
+          }, CHQ/REF NO: ${selectedRow.cheqNo}, bank name: ${selectedRow.bankName
+          }`;
         console.log(logMessage);
 
         try {
@@ -1808,6 +2068,7 @@ const PaymentTransaction = () => {
         // window.location.reload();
 
         setIsTransferModalOpen(false);
+        loadTransaction();
       }
     } else {
       console.error("Error: Selected row data is undefined.");
@@ -1815,24 +2076,172 @@ const PaymentTransaction = () => {
   };
 
   const handleContractorButtonClick = () => {
-    navigate("/contractortransaction", { state: { constructionData } });
+    let newData = { ...filterPlotOne[0], contractorName, constAmt };
+    storeData(newData);
+    navigate("/contractortransaction");
   };
   const handleBrokerButtonClick = () => {
-    navigate("/brokertransaction", { state: { constructionData } });
+    let newData = { ...filterPlotOne[0], brokerName };
+    storeData(newData);
+    navigate("/brokertransaction");
   };
   const navigate = useNavigate();
 
-  const filterPlotOne = plotData?.filter((item) => item.plotNo === plotName)
-console.log("filter", filterPlotOne);
-  // useEffect(()=> {
-  //   const filterPlot = plotData?.filter((item)=> item.plotNo === plotName)
-   
-  //   if(filterPlot.length>=0){
-  //     console.log("bkf", filterPlot[0]?.plotStatus);
-  //     setPlotStatus(filterPlot[0]?.plotStatus)
-  //   }
-  //   },[plotName])
+  useEffect(() => {
+    if (goData) {
+      setProjectName(goData.projectName);
+      setBlockname(goData.blockName);
+      setPlotName(goData.plotNo);
 
+      loadBlocks(goData.projectName);
+      console.log("1");
+      loadPlots1(goData.blockName, goData.projectName);
+      console.log("2");
+      if (toggle) {
+        console.log("togglr", toggle);
+        setData1(goData.projectName, goData.blockName, goData.plotNo);
+      }
+    }
+    console.log(filterPlotOne);
+  }, []);
+
+  useEffect(() => {
+    const fetchDate = async () => {
+      try {
+        const response = await fetch(
+          "http://worldtimeapi.org/api/timezone/Etc/UTC"
+        );
+        const data = await response.json();
+        const utcDate = new Date(data.utc_datetime);
+        const formattedDate = utcDate.toISOString().split("T")[0];
+        setCurrentDate(formattedDate);
+      } catch (error) {
+        console.error("Error fetching date:", error);
+      }
+    };
+
+    fetchDate();
+  }, []);
+
+  const HistoryShower = () => {
+    navigate("/Plothistory", {
+      state: {
+        projectName,
+        blockName,
+        plotName,
+      },
+    });
+  };
+
+
+  const approveAction = async () => {
+    let bookedStatus = filterPlotOne[0].booked;
+    let id = filterPlotOne[0].id;
+    console.log(
+      "filterPlotOne[0]",
+      filterPlotOne[0].id,
+      filterPlotOne[0].booked
+    );
+
+    if (bookedStatus == "Approved") {
+      console.log("call");
+      let query = `UPDATE plot SET booked = '', mark = 0 WHERE id = ${id}`;
+      const url = "http://localhost/backend_lms/getQuery.php";
+      let fData = new FormData();
+      fData.append("query", query);
+      try {
+        const response = await axios.post(url, fData);
+        setApprovedPlotIds((prev) => new Set(prev).add(id));
+        // setTimeout(()=>{
+        if (response.data) {
+          toast({
+            title: "Approve Status Change Succesfully",
+            status: "success",
+            duration: 3000,
+            isClosable: true,
+          });
+          // setAPVisible(false);
+          // setAPTickVisible(false);
+          // setIsApprove(false);
+        }
+        // },[5000]);
+      } catch (error) {
+        console.log(error.toJSON());
+      }
+
+    } else {
+      const appro = alert("Do you really want to approve the Registry?")
+      if (appro === true) {
+        let query = `UPDATE plot SET booked = 'Approved' WHERE id = ${id}`;
+        const url = "http://localhost/backend_lms/getQuery.php";
+        let fData = new FormData();
+        fData.append("query", query);
+        try {
+          const response = await axios.post(url, fData);
+          setApprovedPlotIds((prev) => new Set(prev).add(id));
+          if (response.data) {
+            toast({
+              title: "Plot is ready to Register",
+              status: "success",
+              duration: 3000,
+              isClosable: true,
+            });
+            setAPVisible(true);
+            setIsApprove(true);
+          }
+
+        } catch (error) {
+          console.log(error.toJSON());
+        }
+      }
+    }
+
+  };
+
+  const handleMark = async () => {
+    let query =
+      "Update plot SET mark = 1 WHERE  blockName  = '" +
+      blockName +
+      "' AND projectName ='" +
+      projectName +
+      "'AND plotno ='" +
+      plotName +
+      "';";
+    const url = "http://localhost/backend_lms/getQuery.php";
+    let fData = new FormData();
+    fData.append("query", query);
+    try {
+      const response = await axios.post(url, fData);
+
+      if (response.data) {
+        toast({
+          title: "Approve Status Change Succesfully",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+        setAPTickVisible(true);
+      }
+    } catch (error) {
+      console.log(error.toJSON());
+    }
+  };
+  console.log("log", filterPlotOne[0]);
+
+
+
+
+  useEffect(() => {
+    // If there's no registry date in the plot, set today's date as the default
+    if (!currentPlot[0]?.registryDate) {
+      const today = new Date();
+      const formattedDate = today.toISOString().split("T")[0]; // Format to YYYY-MM-DD
+      setRegistryDate(formattedDate);
+    } else {
+      // If there's a registry date in currentPlot, use it
+      setRegistryDate(currentPlot[0]?.registryDate);
+    }
+  }, [currentPlot]);
 
 
   return (
@@ -1848,26 +2257,50 @@ console.log("filter", filterPlotOne);
               <FormLabel htmlFor="projectName" fontSize={"12px"}>
                 Project Name
               </FormLabel>
-              <Select
-                id="projectName"
-                placeholder="Select Project"
-                onChange={(e) => {
-                  setProjectName(e.target.value);
-                  loadBlocks(e.target.value);
-                }}
-                w={"60%"}
-              >
-                {projectsData.map((project) => {
-                  return (
-                    <option
-                      key={project.projectName}
-                      value={project.projectName}
-                    >
-                      {project.projectName}
-                    </option>
-                  );
-                })}
-              </Select>
+              {goData.projectName ? (
+                <Select
+                  id="projectName"
+                  value={projectName || goData.projectName}
+                  onChange={(e) => {
+                    setProjectName(e.target.value);
+                    loadBlocks(e.target.value);
+                  }}
+                  w={"60%"}
+                >
+                  {projectsData.map((project) => {
+                    return (
+                      <option
+                        key={project.projectName}
+                        value={project.projectName}
+                      >
+                        {project.projectName}
+                      </option>
+                    );
+                  })}
+                </Select>
+              ) : (
+                <Select
+                  id="projectName"
+                  // value={constructionData.projectName?constructionData.projectName:""}
+                  placeholder="Select Project"
+                  onChange={(e) => {
+                    setProjectName(e.target.value);
+                    loadBlocks(e.target.value);
+                  }}
+                  w={"60%"}
+                >
+                  {projectsData.map((project) => {
+                    return (
+                      <option
+                        key={project.projectName}
+                        value={project.projectName}
+                      >
+                        {project.projectName}
+                      </option>
+                    );
+                  })}
+                </Select>
+              )}
             </Flex>
           </FormControl>
 
@@ -1880,23 +2313,32 @@ console.log("filter", filterPlotOne);
               <FormLabel htmlFor="blockName" fontSize={"12px"}>
                 Block Name
               </FormLabel>
-              <Select
-                id="blockName"
-                placeholder="Select Block"
-                onChange={(e) => {
-                  setBlockname(e.target.value);
-                  loadPlots(e.target.value);
-                }}
-                w={"60%"}
-              >
-                {blockData.map((block) => {
-                  return (
-                    <option key={block.blockName} value={block.blockName}>
-                      {block.blockName}
-                    </option>
-                  );
-                })}
-              </Select>
+              {goData.blockName ? (
+                <Select
+                  id="blockName"
+                  placeholder="Select Block Name"
+                  value={projectName || goData.projectName}
+                  w={"60%"}
+                ></Select>
+              ) : (
+                <Select
+                  id="blockName"
+                  placeholder="Select Block"
+                  onChange={(e) => {
+                    setBlockname(e.target.value);
+                    loadPlots(e.target.value);
+                  }}
+                  w={"60%"}
+                >
+                  {blockData.map((block, index) => {
+                    return (
+                      <option key={index} value={block.blockName}>
+                        {block.blockName}
+                      </option>
+                    );
+                  })}
+                </Select>
+              )}
             </Flex>
           </FormControl>
 
@@ -1909,23 +2351,32 @@ console.log("filter", filterPlotOne);
               <FormLabel htmlFor="plotNo" fontSize={"12px"}>
                 Plot No
               </FormLabel>
-              <Select
-                id="plotNo"
-                placeholder="Select Plot No"
-                onChange={(e) => {
-                  setPlotName(e.target.value);
-                  setData(e.target.value);
-                }}
-                w={"60%"}
-              >
-                {plotData.map((plot) => {
-                  return (
-                    <option key={plot.plotNo} value={plot.plotNo}>
-                      {plot.plotNo}
-                    </option>
-                  );
-                })}
-              </Select>
+              {goData.plotNo ? (
+                <Select
+                  id="plotNo"
+                  placeholder={plotName || goData.plotNo}
+                  w={"60%"}
+                ></Select>
+              ) : (
+                <Select
+                  id="plotNo"
+                  placeholder="Select Plot No"
+                  // value={constructionData.plotNo?constructionData.plotNo:""}
+                  onChange={(e) => {
+                    setPlotName(e.target.value);
+                    setData(e.target.value);
+                  }}
+                  w={"60%"}
+                >
+                  {plotData.map((plot) => {
+                    return (
+                      <option key={plot.plotNo} value={plot.plotNo}>
+                        {plot.plotNo}
+                      </option>
+                    );
+                  })}
+                </Select>
+              )}
             </Flex>
           </FormControl>
 
@@ -1963,6 +2414,7 @@ console.log("filter", filterPlotOne);
               <Input
                 id="custName"
                 type="text"
+                value={custName}
                 placeholder="Enter Cust name"
                 w={"60%"}
               />
@@ -1994,12 +2446,12 @@ console.log("filter", filterPlotOne);
               justifyContent={"space-between"}
               padding={"0px 4px 0px 4px"}
             >
-              <FormLabel htmlFor="areaSqft" fontSize={"12px"}>
-                Ares Sqft
-              </FormLabel>
+              <FormLabel fontSize={"12px"}>Ares Sqft</FormLabel>
               <Input
                 id="areaSqmt"
-                type="text"
+                type="number"
+                value={areaSqft}
+                onChange={(e) => setAreaSqft(Number(e.target.value))}
                 placeholder="Enter Area Sqft"
                 w={"60%"}
               />
@@ -2017,7 +2469,9 @@ console.log("filter", filterPlotOne);
               </FormLabel>
               <Input
                 id="ratePerSqmt"
-                type="text"
+                type="number"
+                value={ratePerSqft}
+                onChange={(e) => setRatePerSqft(Number(e.target.value))}
                 placeholder="Enter Rate Sqft"
                 w={"60%"}
               />
@@ -2035,7 +2489,8 @@ console.log("filter", filterPlotOne);
               </FormLabel>
               <Input
                 id="totalAmount"
-                type="text"
+                type="number"
+                value={totalAmt}
                 placeholder="Enter Amount"
                 w={"60%"}
               />
@@ -2053,6 +2508,11 @@ console.log("filter", filterPlotOne);
               </FormLabel>
               <Select
                 id="discountApplicable"
+                value={discount}
+                onChange={(e) => {
+                  setDiscount(e.target.value);
+
+                }}
                 placeholder="Select Discount"
                 w={"60%"}
               >
@@ -2074,7 +2534,13 @@ console.log("filter", filterPlotOne);
               </FormLabel>
               <Input
                 id="discountPercent"
-                type="text"
+                type="number"
+                value={discountPercent}
+                onChange={(e) => {
+                  // Multiple statements need to be wrapped inside {}
+                  setDiscountPercent(Number(e.target.value));
+                  // updateOnChange();
+                }}
                 placeholder="Enter Discount%"
                 w={"60%"}
               />
@@ -2092,7 +2558,9 @@ console.log("filter", filterPlotOne);
               </FormLabel>
               <Input
                 id="netAmount"
-                type="text"
+                type="number"
+                value={Math.floor(netAmt)}
+                onChange={(e) => setNetAmt(Number(e.target.value))}
                 placeholder="Enter Amount"
                 w={"60%"}
               />
@@ -2110,7 +2578,9 @@ console.log("filter", filterPlotOne);
               </FormLabel>
               <Input
                 id="registryAmount"
-                type="text"
+                type="number"
+                value={registryAmt}
+                onChange={(e) => setRegistryAmt(Number(e.target.value))}
                 placeholder="Enter Registry"
                 w={"60%"}
               />
@@ -2128,7 +2598,9 @@ console.log("filter", filterPlotOne);
               </FormLabel>
               <Input
                 id="serviceAmount"
-                type="text"
+                type="number"
+                value={serviceAmt}
+                onChange={(e) => setServiceAmt(Number(e.target.value))}
                 placeholder="Enter Amount"
                 w={"60%"}
               />
@@ -2146,7 +2618,9 @@ console.log("filter", filterPlotOne);
               </FormLabel>
               <Input
                 id="maintenanceAmount"
-                type="text"
+                type="number"
+                value={maintenanceAmt}
+                onChange={(e) => setMaintenanceAmt(Number(e.target.value))}
                 placeholder="Enter Amount"
                 w={"60%"}
               />
@@ -2164,7 +2638,9 @@ console.log("filter", filterPlotOne);
               </FormLabel>
               <Input
                 id="miscAmount"
-                type="text"
+                type="number"
+                value={miscAmt}
+                onChange={(e) => setMiscAmt(Number(e.target.value))}
                 placeholder="Enter Amount"
                 w={"60%"}
               />
@@ -2182,7 +2658,9 @@ console.log("filter", filterPlotOne);
               </FormLabel>
               <Input
                 id="grandTotal"
-                type="text"
+                type="number"
+                value={grandTotal}
+                onChange={(e) => setGrandTotal(Number(e.target.value))}
                 placeholder="Enter Amount"
                 w={"60%"}
               />
@@ -2201,6 +2679,7 @@ console.log("filter", filterPlotOne);
               <Select
                 id="constructionApplicable"
                 placeholder="Select"
+                value={constYesNo}
                 w={"60%"}
               >
                 <option value="Yes">Yes</option>
@@ -2281,7 +2760,9 @@ console.log("filter", filterPlotOne);
               </FormLabel>
               <Input
                 id="constructionAmount"
-                type="text"
+                type="number"
+                value={constAmt}
+                onChange={(e) => setConstAmt(Number(e.target.value))}
                 placeholder="Enter Amount"
                 w={"60%"}
               />
@@ -2299,7 +2780,9 @@ console.log("filter", filterPlotOne);
               </FormLabel>
               <Input
                 id="totalAmountPayable"
-                type="text"
+                type="number"
+                value={totalAmtPayable}
+                onChange={(e) => setTotalAmtPayable(Number(e.target.value))}
                 placeholder="Enter Amount"
                 w={"60%"}
               />
@@ -2317,7 +2800,9 @@ console.log("filter", filterPlotOne);
               </FormLabel>
               <Input
                 id="guidelineAmount"
-                type="text"
+                type="number"
+                value={guidelineAmt}
+                onChange={(e) => setGuidelineAmt(Number(e.target.value))}
                 placeholder="Enter Amount"
                 w={"60%"}
               />
@@ -2335,7 +2820,9 @@ console.log("filter", filterPlotOne);
               </FormLabel>
               <Input
                 id="registryPercent"
-                type="text"
+                type="number"
+                value={registryPercent}
+                onChange={(e) => setRegistryPercent(Number(e.target.value))}
                 placeholder="Enter Amount"
                 w={"60%"}
               />
@@ -2353,9 +2840,11 @@ console.log("filter", filterPlotOne);
               </FormLabel>
               <Input
                 id="bankAmountPayable"
-                type="text"
+                type="number"
                 placeholder="Enter Amount"
                 w={"60%"}
+                value={bankAmtPayable}
+                onChange={(e) => setBankAmtPayable(Number(e.target.value))}
               />
             </Flex>
           </FormControl>
@@ -2371,7 +2860,9 @@ console.log("filter", filterPlotOne);
               </FormLabel>
               <Input
                 id="cashAmountPayable"
-                type="text"
+                type="number"
+                value={cashAmtPayable}
+                onChange={(e) => setCashAmtPayable(Number(e.target.value))}
                 placeholder="Enter Amount"
                 w={"60%"}
               />
@@ -2382,20 +2873,10 @@ console.log("filter", filterPlotOne);
             {showAction && (
               <>
                 <HStack>
-                  <Button
-                    as={Link}
-                    to="/contractortransaction"
-                    onClick={handleContractorButtonClick}
-                  >
+                  <Button onClick={handleContractorButtonClick}>
                     Contractor
                   </Button>
-                  <Button
-                    as={Link}
-                    to="/brokertransaction"
-                    onClick={handleBrokerButtonClick}
-                  >
-                    Broker
-                  </Button>
+                  <Button onClick={handleBrokerButtonClick}>Broker</Button>
                   <Button colorScheme="blue" onClick={editPlot}>
                     {" "}
                     Save
@@ -2410,6 +2891,8 @@ console.log("filter", filterPlotOne);
         </VStack>
       </Box>
 
+
+
       <Box flex={"80%"} maxW={"80%"}>
         <Box borderBottom={"1px solid black"} w={"100%"} p={2} pb={4}>
           <HStack justifyContent={"space-between"}>
@@ -2418,18 +2901,23 @@ console.log("filter", filterPlotOne);
                 <FormControl>
                   <Flex
                     align="center"
-                    // justifyContent={"space-between"}
-                    // padding={"0px 4px 0px 4px"}
+                  // justifyContent={"space-between"}
+                  // padding={"0px 4px 0px 4px"}
                   >
                     <FormLabel fontSize={"sm"}>Plot Status</FormLabel>
-                    <Input type="text" value={filterPlotOne[0]?.plotStatus} id="plotStatus"  w={"60%"} />
+                    <Input
+                      type="text"
+                      value={filterPlotOne[0]?.plotStatus}
+                      id="plotStatus"
+                      w={"60%"}
+                    />
                   </Flex>
                 </FormControl>
                 <FormControl>
                   <Flex
                     align="center"
-                    // justifyContent={"space-between"}
-                    // padding={"0px 4px 0px 4px"}
+                  // justifyContent={"space-between"}
+                  // padding={"0px 4px 0px 4px"}
                   >
                     <FormLabel fontSize={"sm"}> Gender</FormLabel>
                     <Input type="text" id="registryGender" w={"60%"} />
@@ -2438,23 +2926,77 @@ console.log("filter", filterPlotOne);
                 <FormControl>
                   <Flex
                     align="center"
-                    // justifyContent={"space-between"}
-                    // padding={"0px 4px 0px 4px"}
+                  // justifyContent={"space-between"}
+                  // padding={"0px 4px 0px 4px"}
                   >
                     <FormLabel fontSize={"sm"}>Booking </FormLabel>
                     <Input type="date" id="bookingDate" w={"60%"} />
                   </Flex>
                 </FormControl>
                 <FormControl>
-                  <Flex
-                    align="center"
-                    // justifyContent={"space-between"}
-                    // padding={"0px 4px 0px 4px"}
-                  >
-                    <FormLabel fontSize={"sm"}>Registry Date</FormLabel>
-                    <Input type="date" id="registryD" w={"60%"} onChange={(e)=>setRegistryDate(e.target.value)}/>
+
+                  <Flex align="center">
+
+                    {/* <FormLabel fontSize="sm">Registry Date</FormLabel>
+                    <Input
+                      type="date"
+                      value={currentPlot[0]?.registryDate || ""}
+                      id="registryD"
+                      w="60%"
+                      filterPlotOne
+                      onChange={(e) => setRegistryDate(e.target.value)}
+                      disabled={Boolean(currentPlot[0]?.registryDate)}
+                    /> */}
+                    <FormLabel fontSize="sm">Registry Date</FormLabel>
+                    <Input
+                      type="date"
+                      value={registryDate}
+                      id="registryD"
+                      w="60%"
+                      onChange={(e) => setRegistryDate(e.target.value)}
+                      disabled={Boolean(currentPlot[0]?.registryDate)} // Disable input if registryDate already exists
+                    />
+
+                    {APVisible && (
+                      <Button size="md" ml={2} colorScheme="blue" onClick={handleMark}>
+                        AP
+                      </Button>
+                    )}
+                    {/* {filterPlotOne[0]?.booked === "Approved" && (
+                      <Button
+                        size="md"
+                        ml={2}
+                        colorScheme="blue"
+                        onClick={handleMark}
+                      >
+                        AP
+                      </Button>
+                    )} */}
+
+                    {APTickVisible && (
+                      <Button
+                        size="md"
+                        ml={2}
+                        colorScheme="blue"
+                        leftIcon={<span style={{ color: "green" }}>✔️</span>}
+                      >
+                        AP
+                      </Button>
+                    )}
+
+                    {/* {filterPlotOne[0]?.mark === "1" && (
+                      <Button
+                        size="md"
+                        ml={2}
+                        colorScheme="blue"
+                        leftIcon={<span style={{ color: "green" }}>✔️</span>}
+                      >
+                        AP
+                      </Button>
+                    )} */}
                   </Flex>
                 </FormControl>
+
               </HStack>
               <Divider mt={4} />
               <HStack
@@ -2465,35 +3007,42 @@ console.log("filter", filterPlotOne);
               >
                 <VStack>
                   <Text>
-                    Total Payable = <span id="totalPayable">0</span>
+                    Total Payable ={" "}
+                    <span id="totalPayable">{totalPayable}</span>
+                    {console.log(totalPayable)}
+
                   </Text>
                   <Text>
-                    Bank Payable = <span id="bankPayable">0</span>
+                    Bank Payable ={" "}
+                    <span id="bankPayable">{bankAmountPayable}</span>
                   </Text>
                   <Text>
-                    Cash Payable = <span id="cashPayable">0</span>
-                  </Text>
-                </VStack>
-                <VStack>
-                  <Text>
-                    Total Received = <span id="totalReceived">0</span>
-                  </Text>
-                  <Text>
-                    Bank Received = <span id="bankReceived">0</span>
-                  </Text>
-                  <Text>
-                    Cash Received = <span id="cashReceived">0</span>
+                    Cash Payable ={" "}
+                    <span id="cashPayable">{cashAmountPayable}</span>
                   </Text>
                 </VStack>
                 <VStack>
                   <Text>
-                    Total Balance = <span id="totalBalance">0</span>
+                    Total Received = {""}
+                    <span id="totalReceived">{totalAmount}</span>
                   </Text>
                   <Text>
-                    Bank Balance = <span id="bankBalance">0</span>
+                    Bank Received = <span id="bankReceived">{bankreceive}</span>
                   </Text>
                   <Text>
-                    Cash Balance = <span id="cashBalance">0</span>
+                    Cash Received = <span id="cashReceived">{cashReceive}</span>
+                  </Text>
+                </VStack>
+                <VStack>
+                  <Text>
+                    {/* <span id="totalReceived">{totalAmount}</span> */}
+                    Total Balance = <span id="totalBalance">{totalPayable - totalAmount}</span>
+                  </Text>
+                  <Text>
+                    Bank Balance = <span id="bankBalance">{bankAmountPayable - bankreceive}</span>
+                  </Text>
+                  <Text>
+                    Cash Balance = <span id="cashBalance">{cashAmountPayable - cashReceive}</span>
                   </Text>
                 </VStack>
               </HStack>
@@ -2501,25 +3050,51 @@ console.log("filter", filterPlotOne);
             <VStack>
               {showButtons && (
                 <>
-                {plotStatus=== "Registered"? 
-                <Button
-                colorScheme="gray"
-                size={"sm"}
-                onClick={onRegistry}
-                className="hide-on-print"
-              >
-                UnRegistry
-              </Button> :
+                  {/* //filterPlotOne[0]?.booked === "Approved" */}
+                  {isApprove ? (
+                    <Button
+                      colorScheme="blue"
+                      size={"sm"}
+                      ml={"6"}
+                      onClick={approveAction}
+                      className="hide-on-print"
+                    >
+                      Un Approve
+                    </Button>
+                  ) : (
+                    <Button
+                      colorScheme="blue"
+                      size={"sm"}
+                      ml={"20"}
+                      onClick={approveAction}
+
+                      className="hide-on-print"
+                    >
+                      To Approve
+                    </Button>
+                  )}
+                  {filterPlotOne[0]?.plotStatus === "Registered" ? (
+                    <Button
+                      colorScheme="gray"
+                      size={"sm"}
+                      onClick={unRegistry}
+                      className="hide-on-print"
+                    >
+                      UnRegistry
+                    </Button>
+                  ) : (
+                    <Button
+                      colorScheme="gray"
+                      size={"sm"}
+                      onClick={onRegistry}
+                      className="hide-on-print"
+                    >
+                      Registry
+                    </Button>
+                  )}
+
                   <Button
-                    colorScheme="gray"
-                    size={"sm"}
-                    onClick={onRegistry}
-                    className="hide-on-print"
-                  >
-                    Registry
-                  </Button>
-                }
-                  <Button
+                    isDisabled={filterPlotOne[0]?.plotStatus === "Registered"}
                     size={"sm"}
                     onClick={cancelPlot}
                     colorScheme="gray"
@@ -2528,6 +3103,7 @@ console.log("filter", filterPlotOne);
                     Cancel Plot
                   </Button>
                   <Button
+                    isDisabled={filterPlotOne[0]?.plotStatus === "Registered"}
                     size={"sm"}
                     colorScheme="gray"
                     onClick={deletePlot}
@@ -2549,6 +3125,7 @@ console.log("filter", filterPlotOne);
                     size={"sm"}
                     colorScheme="gray"
                     className="hide-on-print"
+                    onClick={HistoryShower}
                   >
                     History
                   </Button>
@@ -2570,8 +3147,11 @@ console.log("filter", filterPlotOne);
                   colorScheme="gray"
                   size="sm"
                   onClick={() => {
-                    setdisplay(!displa);
+
+                    totalPayable > totalAmount ? setdisplay(!display) : setdisplay(display);
+
                   }}
+                  disabled={totalPayable <= totalAmount}
                 >
                   Add Payment
                 </Button>
@@ -2579,7 +3159,7 @@ console.log("filter", filterPlotOne);
             )}
           </HStack>
           <Divider w={"100%"} bg={"#121212"} mt={4} />
-          <Box display={displa == true ? "flex" : "none"}>
+          <Box display={display == true ? "flex" : "none"}>
             <VStack alignItems={"flex-start"}>
               <HStack gap={"15px"} p={3}>
                 <FormControl>
@@ -2596,7 +3176,8 @@ console.log("filter", filterPlotOne);
                       id="date"
                       required
                       type="date"
-                      // w={"60%"}
+                    // w={"60%"}
+                    // value={currentDate}
                     />
                   </Flex>
                 </FormControl>
@@ -2610,7 +3191,13 @@ console.log("filter", filterPlotOne);
                     <FormLabel fontSize={"sm"} margin={0}>
                       Payment Type
                     </FormLabel>
-                    <Select placeholder="Select" name="paymentType" onChange={selectMode}id="paymentType" required>
+                    <Select
+                      placeholder="Select"
+                      id="paymentType"
+                      name="paymentType"
+                      // selectMode,
+                      required
+                    >
                       <option value="Cash">Cash</option>
                       <option value="Bank">Bank</option>
                       {/* Add more projects as needed */}
@@ -2631,21 +3218,19 @@ console.log("filter", filterPlotOne);
                       id="amount"
                       type="number"
                       required
-                      // w={"60%"}
+                    // w={"60%"}
                     />
                   </Flex>
                 </FormControl>
                 <FormControl>
                   <Flex
                     align="flex-start"
-                    // justifyContent={"space-between"}
-                    // padding={"0px 4px 0px 4px"}
                     flexDirection={"column"}
                   >
                     <FormLabel fontSize={"sm"} margin={0}>
                       bank Mode
                     </FormLabel>
-                    <Select placeholder="Select " id="bankMode">
+                    <Select placeholder="Select " id="bankMode" required>
                       <option value="none">None</option>
                       <option value="cheque">Cheque/DD</option>
                       <option value="rtgs">RTGS/NEFT</option>
@@ -2670,7 +3255,7 @@ console.log("filter", filterPlotOne);
                       id="cheqNo"
                       type="text"
                       required
-                      // w={"60%"}
+                    // w={"60%"}
                     />
                   </Flex>
                 </FormControl>
@@ -2688,7 +3273,7 @@ console.log("filter", filterPlotOne);
                       id="bankName"
                       required
                       type="text"
-                      // w={"60%"}
+                    // w={"60%"}
                     />
                   </Flex>
                 </FormControl>
@@ -2702,7 +3287,7 @@ console.log("filter", filterPlotOne);
                     flexDirection={"column"}
                   >
                     <FormLabel fontSize={"sm"} margin={0}>
-                      Trasaction Stat
+                      Trasaction State
                     </FormLabel>
                     <Select id="transactionStatus" placeholder="Select">
                       <option value="Pending">Pending</option>
@@ -2730,7 +3315,7 @@ console.log("filter", filterPlotOne);
                       id="statusDate"
                       type="Date"
                       required
-                      // w={"60%"}
+                    // w={"60%"}
                     />
                   </Flex>
                 </FormControl>
@@ -2748,17 +3333,33 @@ console.log("filter", filterPlotOne);
                   </Flex>
                 </FormControl>
               </HStack>
+              {
+                (totalPayable > totalAmount) ?
+                  <Button
+                    colorScheme="telegram"
+                    alignSelf={"flex-end"}
+                    size={"md"}
+                    m={3}
+                    mt={0}
+                    onClick={
+                      addPayment
+                    }
+                  >
+                    Submit
+                  </Button>
+                  :
+                  <Button
+                    colorScheme="telegram"
+                    alignSelf={"flex-end"}
+                    size={"md"}
+                    m={3}
+                    mt={0}
+                    disabled
+                  >
+                    Submit
+                  </Button>
 
-              <Button
-                colorScheme="telegram"
-                alignSelf={"flex-end"}
-                size={"md"}
-                m={3}
-                mt={0}
-                onClick={addPayment}
-              >
-                Submit
-              </Button>
+              }
             </VStack>
           </Box>
           <Divider w={"100%"} bg={"#121212"} />
@@ -2797,6 +3398,15 @@ console.log("filter", filterPlotOne);
                     <Th color={"white"} border="1px solid black" p={"8px"}>
                       Remarks
                     </Th>
+                    <Th color={"white"} border="1px solid black" p={"8px"}>
+                      TR
+                    </Th>
+                    <Th color={"white"} border="1px solid black" p={"8px"}>
+                      Payment Time
+                    </Th>
+                    <Th color={"white"} border="1px solid black" p={"8px"}>
+                      User Name
+                    </Th>
                     {showAction && (
                       <>
                         <Th
@@ -2821,14 +3431,9 @@ console.log("filter", filterPlotOne);
                         style={{
                           backgroundColor:
                             res.Status === "Transferred" ? "white" : "inherit",
-                          color:
-                          res.action.length>15 
-                              ? "#E53E3E"
-                              : "inherit",
+                          color: res.action.length > 15 ? "#E53E3E" : "inherit",
                           textDecoration:
-                          res.action.length>15 
-                              ? "line-through"
-                              : "none",
+                            res.action.length > 15 ? "line-through" : "none",
                         }}
                       >
                         {index + 1}
@@ -2839,20 +3444,17 @@ console.log("filter", filterPlotOne);
                         style={{
                           backgroundColor:
                             res.Status === "Transferred" ? "white" : "inherit",
-                          color:
-                          res.action.length>15 
-                              ? "#E53E3E"
-                              : "inherit",
+                          color: res.action.length > 15 ? "#E53E3E" : "inherit",
                           textDecoration:
-                          res.action.length>15 
-                              ? "line-through"
-                              : "none",
+                            res.action.length > 15 ? "line-through" : "none",
                         }}
+                        id="date"
                       >
-                        {res.date ? new Date(res.date)
-                                .toLocaleDateString("en-GB")
-                                .replace(/\//g, "/")
-                            : ""}
+                        {res.date
+                          ? new Date(res.date)
+                            .toLocaleDateString("en-GB")
+                            .replace(/\//g, "/")
+                          : ""}
                       </Td>
                       <Td
                         border="1px solid black"
@@ -2860,15 +3462,11 @@ console.log("filter", filterPlotOne);
                         style={{
                           backgroundColor:
                             res.Status === "Transferred" ? "white" : "inherit",
-                          color:
-                          res.action.length>15 
-                              ? "#E53E3E"
-                              : "inherit",
+                          color: res.action.length > 15 ? "#E53E3E" : "inherit",
                           textDecoration:
-                          res.action.length>15 
-                              ? "line-through"
-                              : "none",
+                            res.action.length > 15 ? "line-through" : "none",
                         }}
+                        id="payType"
                       >
                         {res.paymentType}
                       </Td>
@@ -2878,15 +3476,11 @@ console.log("filter", filterPlotOne);
                         style={{
                           backgroundColor:
                             res.Status === "Transferred" ? "white" : "inherit",
-                          color:
-                          res.action.length>15 
-                              ? "#E53E3E"
-                              : "inherit",
+                          color: res.action.length > 15 ? "#E53E3E" : "inherit",
                           textDecoration:
-                          res.action.length>15 
-                              ? "line-through"
-                              : "none",
+                            res.action.length > 15 ? "line-through" : "none",
                         }}
+                        id="amount"
                       >
                         {res.amount}
                       </Td>
@@ -2896,15 +3490,11 @@ console.log("filter", filterPlotOne);
                         style={{
                           backgroundColor:
                             res.Status === "Transferred" ? "white" : "inherit",
-                          color:
-                          res.action.length>15 
-                              ? "#E53E3E"
-                              : "inherit",
+                          color: res.action.length > 15 ? "#E53E3E" : "inherit",
                           textDecoration:
-                          res.action.length>15 
-                              ? "line-through"
-                              : "none",
+                            res.action.length > 15 ? "line-through" : "none",
                         }}
+                        id="bankMode"
                       >
                         {res.bankMode}
                       </Td>
@@ -2914,15 +3504,11 @@ console.log("filter", filterPlotOne);
                         style={{
                           backgroundColor:
                             res.Status === "Transferred" ? "white" : "inherit",
-                          color:
-                          res.action.length>15 
-                              ? "#E53E3E"
-                              : "inherit",
+                          color: res.action.length > 15 ? "#E53E3E" : "inherit",
                           textDecoration:
-                          res.action.length>15 
-                              ? "line-through"
-                              : "none",
+                            res.action.length > 15 ? "line-through" : "none",
                         }}
+                        id="checkRef"
                       >
                         {res.cheqNo}
                       </Td>
@@ -2932,15 +3518,11 @@ console.log("filter", filterPlotOne);
                         style={{
                           backgroundColor:
                             res.Status === "Transferred" ? "white" : "inherit",
-                          color:
-                          res.action.length>15 
-                              ? "#E53E3E"
-                              : "inherit",
+                          color: res.action.length > 15 ? "#E53E3E" : "inherit",
                           textDecoration:
-                          res.action.length>15 
-                              ? "line-through"
-                              : "none",
+                            res.action.length > 15 ? "line-through" : "none",
                         }}
+                        id="bankName"
                       >
                         {res.bankName}
                       </Td>
@@ -2948,25 +3530,24 @@ console.log("filter", filterPlotOne);
                         border="1px solid black"
                         p={"8px"}
                         style={{
-                          backgroundColor:
+                          Color:
                             res.Status === "Transferred" ? "white" : "inherit",
-                          color:
-                          res.action.length>15 
-                              ? "#E53E3E"
-                              : res.transactionStatus === "Clear"
+                          backgroundColor:
+                            res.transactionStatus === "Clear"
                               ? "#22c35e"
                               : res.transactionStatus === "Provisional"
-                              ? "#ECC94B"
-                              : res.transactionStatus === "Pending" ||
-                                res.transactionStatus === "PDC"
-                              ? "#ECC94B"
-                              : "inherit",
+                                ? "#ECC94B"
+                                : res.transactionStatus === "Pending" ||
+                                  res.transactionStatus === "PDC"
+                                  ? "#ECC94B"
+                                  : "inherit",
                           textDecoration:
                             res.transactionStatus === "Bounced" ||
-                            res.action.length>15 
+                              res.action.length > 15
                               ? "line-through"
                               : "none",
                         }}
+                        id="transStat"
                       >
                         {res.transactionStatus}
                       </Td>
@@ -2976,83 +3557,131 @@ console.log("filter", filterPlotOne);
                         style={{
                           backgroundColor:
                             res.Status === "Transferred" ? "white" : "inherit",
-                          color:
-                          res.action.length>15 
-                              ? "#E53E3E"
-                              : "inherit",
+                          color: res.action.length > 15 ? "#E53E3E" : "inherit",
                           textDecoration:
-                          res.action.length>15 
-                              ? "line-through"
-                              : "none",
+                            res.action.length > 15 ? "line-through" : "none",
                         }}
+                        id="statDate"
                       >
-                        {res.statusDate ? new Date(res.statusDate)
-                                .toLocaleDateString("en-GB")
-                                .replace(/\//g, "/")
-                            : ""}
+                        {res.statusDate
+                          ? new Date(res.statusDate)
+                            .toLocaleDateString("en-GB")
+                            .replace(/\//g, "/")
+                          : ""}
                       </Td>
+
                       <Td
                         border="1px solid black"
                         p={"8px"}
                         style={{
                           backgroundColor:
                             res.Status === "Transferred" ? "white" : "inherit",
-                          color:
-                            res.action.length>15 
-                              ? "#E53E3E"
-                              : "inherit",
+                          color: res.action.length > 15 ? "#E53E3E" : "inherit",
                           textDecoration:
-                          res.action.length>15 
-                              ? "line-through"
-                              : "none",
+                            res.action.length > 15 ? "line-through" : "none",
                         }}
+                        id="remarks"
                       >
-                       {res.remarks}
+                        {res.remarks}
                       </Td>
                       {/* Action Cell */}
 
-                       {
-                       res.action.length>15 ?  
-                       <Td border="1px solid black">{res.action }</Td>:<Td
-                          display={"flex"}
-                          gap={"10px"}
-                         border="1px solid black"
-                          p={"8px"}
-                          className="hide-on-print"
+                      <Td border={"1px"}>
+                        <Popover trigger="hover" placement="bottom">
+                          {res.TR.length || res.action.length ? (
+                            <PopoverTrigger>
+                              <Button>TR</Button>
+                            </PopoverTrigger>
+                          ) : (
+                            ""
+                          )}
+                          <PopoverContent
+                            display={"flex"}
+                            alignItems={"center"}
+                            justifyContent={"center"}
+                            fontSize={"18px"}
+                            width={"600px"}
+                            height={"60px"}
+                            bg={"black"}
+                            textColor={"white"}
+                          >
+                            <PopoverArrow />
+                            <PopoverCloseButton />
+                            <PopoverBody>
+                              {res.action.length > 15 ? res.action : res.TR}
+                            </PopoverBody>
+                          </PopoverContent>
+                        </Popover>
+                      </Td>
+
+                      <Td
+                        border="1px solid black"
+                        p={"8px"}
+                        textAlign={"center"}
+                        style={{
+                          backgroundColor:
+                            res.Status === "Transferred" ? "white" : "inherit",
+                          color: res.action.length > 15 ? "#E53E3E" : "inherit",
+                          textDecoration:
+                            res.action.length > 15 ? "line-through" : "none",
+                        }}
+                        id="paymentTime"
+                      >
+                        {res.currentTime.slice(11, 19)}
+                      </Td>
+                      <Td
+                        border="1px solid black"
+                        p={"8px"}
+                        textAlign={"center"}
+                        style={{
+                          backgroundColor:
+                            res.Status === "Transferred" ? "white" : "inherit",
+                          color: res.action.length > 15 ? "#E53E3E" : "inherit",
+                          textDecoration:
+                            res.action.length > 15 ? "line-through" : "none",
+                        }}
+                        id="userName"
+                      ></Td>
+
+                      <Td
+                        // display={"flex"}
+                        gap={"10px"}
+                        border="1px solid black"
+                        p={"8px"}
+                        className="hide-on-print"
+                      >
+                        <Button
+                          marginRight={"15px"}
+                          marginLeft={"10px"}
+                          onClick={() => handleTransferButtonClick(res, index)}
+                          size={"sm"}
+                          isDisabled={res.action.length > 15}
                         >
-                          <Button
-                            onClick={() =>
-                              handleTransferButtonClick(res, index)
-                            }
-                            size={"sm"}
-                            isDisabled={res.Status === "Transferred"}
-                          >
-                            Transfer
-                          </Button>
-                          <Button
-                            colorScheme="green"
-                            size={"sm"}
-                            onClick={() => handleEditClick(res)}
-                            isDisabled={res.Status === "Transferred"}
-                          >
-                            Edit
-                          </Button>
-                          <Button
-                            colorScheme="red"
-                            onClick={() => handleDeletePayment(res.id)}
-                            size={"sm"}
-                            isDisabled={res.Status === "Transferred"}
-                          >
-                            Delete
-                          </Button>
-                          <DeleteConfirmationDialog
-                            isOpen={isDeleteDialogOpen}
-                            onClose={() => setIsDeleteDialogOpen(false)}
-                            onConfirm={deletePayment}
-                          />
-                        </Td>
-                  }
-                          
+                          Transfer
+                        </Button>
+                        <Button
+                          marginRight={"15px"}
+                          colorScheme="green"
+                          size={"sm"}
+                          onClick={() => handleEditClick(res)}
+                          isDisabled={res.action.length > 15}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          colorScheme="red"
+                          onClick={() => handleDeletePayment(res.id)}
+                          size={"sm"}
+                          isDisabled={res.action.length > 15}
+                        >
+                          Delete
+                        </Button>
+                        <DeleteConfirmationDialog
+                          isOpen={isDeleteDialogOpen}
+                          onClose={() => setIsDeleteDialogOpen(false)}
+                          onConfirm={deletePayment}
+                        />
+                      </Td>
                     </tr>
                   ))}
 
@@ -3215,7 +3844,7 @@ console.log("filter", filterPlotOne);
                   >
                     <ModalOverlay />
                     <ModalContent>
-                      <ModalHeader >
+                      <ModalHeader>
                         Transfer Transactions: {transferData.index + 1}
                       </ModalHeader>
                       <ModalCloseButton />
@@ -3335,7 +3964,7 @@ console.log("filter", filterPlotOne);
                                 }}
                                 w={"60%"}
                               >
-                                {transferPlot.map((plot) => {
+                                {/* {transferPlot.map((plot) => {
                                   return (
                                     <option
                                       key={plot.plotNo}
@@ -3344,7 +3973,16 @@ console.log("filter", filterPlotOne);
                                       {plot.plotNo}
                                     </option>
                                   );
-                                })}
+                                })} */}
+
+                                {transferPlot
+                                  .filter((plot) => plot.plotNo !== plotName) // Filter out the given plotNo
+                                  .map((plot) => (
+                                    <option key={plot.plotNo} value={plot.plotNo}>
+                                      {plot.plotNo}
+                                    </option>
+                                  ))}
+
                               </Select>
                             </Box>
                           </Flex>
@@ -3355,7 +3993,12 @@ console.log("filter", filterPlotOne);
                         <Button
                           colorScheme="red"
                           mr={3}
-                          onClick={()=>handleTransfer(transferData.id)}
+                          onClick={() =>
+                            handleTransfer(
+                              transferData.id,
+                              transferData.remarks
+                            )
+                          }
                         >
                           Transfer Transaction
                         </Button>
@@ -3431,6 +4074,7 @@ console.log("filter", filterPlotOne);
                                 onChange={(e) => {
                                   setTransferAllProjectName(e.target.value);
                                   loadTransferAllBlock(e.target.value);
+                                  setnewProjectName(e.target.value);
                                 }}
                                 w={"60%"}
                               >
@@ -3460,6 +4104,7 @@ console.log("filter", filterPlotOne);
                                 onChange={(e) => {
                                   setTransferAllBlockName(e.target.value);
                                   loadTransferAllPlot(e.target.value);
+                                  setnewBlockName(e.target.value);
                                 }}
                                 w={"60%"}
                               >
@@ -3489,6 +4134,7 @@ console.log("filter", filterPlotOne);
                                 onChange={(e) => {
                                   setTransferAllPlotName(e.target.value);
                                   dataTransferAll(e.target.value);
+                                  setnewPlotNo(e.target.value);
                                 }}
                                 w={"60%"}
                               >
@@ -3514,7 +4160,7 @@ console.log("filter", filterPlotOne);
                           mr={3}
                           onClick={confirmTransferAll}
                         >
-                          Transfer Transaction
+                          Transfer All Transaction
                         </Button>
                         <Button onClick={() => setIsTransferModalOpen(false)}>
                           Cancel
@@ -3529,7 +4175,8 @@ console.log("filter", filterPlotOne);
 
           {showAction && (
             <>
-              <Button onClick={handlePrint} className="hide-on-print">
+              {/* className="hide-on-print" */}
+              <Button onClick={handlePrintButton}  >
                 Print
               </Button>
             </>

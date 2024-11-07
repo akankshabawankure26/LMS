@@ -112,9 +112,8 @@ console.log("this is props",props);
           
         }
 
-
-
         }
+        
 
 console.log(data)
     return (
@@ -153,9 +152,9 @@ console.log(data)
               </Thead>
 
               <Tbody>
-                        {data.map((item, index) => (
+                    {data.map((item, index) => (
                       <Tr key={index}>
-                        <Td>{item.ID}</Td>
+                        <Td>{index+1}</Td>
                         <Td>{item.ProjectName}</Td>
                         <Td>{item.BlockName}</Td>
                         <Td>{item.PlotNo}</Td>

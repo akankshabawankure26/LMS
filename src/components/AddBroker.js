@@ -75,8 +75,8 @@ const AddBroker = () => {
     console.log("Form Data:", formData);
   };
   const onAdd = async () => {
-    // const url = "https://lkgexcel.com/backend/setQuery.php";
     const url = "http://localhost/backend_lms/setQuery.php";
+    // const url = "http://localhost/backend_lms/setQuery.php";
     let query =
       "INSERT INTO `broker` (`id`, `companyName`, `brokerName`, `contact`, `emailid`, `address`, `city`, `state`) VALUES (NULL, '" +
       formData.companyName +

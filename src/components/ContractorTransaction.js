@@ -23,14 +23,14 @@ import {
   Button,
   useToast,
 } from "@chakra-ui/react";
-import { useData } from "../Context";
-import { useEffect, useState, useRef } from "react";
+import { DataContext, useData } from "../Context";
+import { useEffect, useState, useRef, useContext } from "react";
 import axios from "axios";
 import { useReactToPrint } from "react-to-print";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const ContractorTransaction = () => {
-  const { constructionData } = useData();
+  // const { constructionData } = useData();
   const [isPrinting, setIsPrinting] = useState(true);
   const componentRef = useRef();
   const [amount, setAmount] = useState("");
@@ -44,6 +44,8 @@ const ContractorTransaction = () => {
   const [fetchData, setFetchData] = useState([""]);
   const toast = useToast();
   const [showEditModal, setShowEditModal] = useState(false);
+  const [constTransData, setConstTransData] = useState("");
+  const {storeData,goData,handleToggle} = useContext(DataContext)
   const [editData, setEditData] = useState({
     amount: "",
     cheqNo: "",
@@ -51,20 +53,11 @@ const ContractorTransaction = () => {
     date: "",
   });
 
+const localData = JSON.parse(localStorage.getItem("send"))
 
-
-
-  // const handlePrint = useReactToPrint({
-  //   content: () => componentRef.current,
-  //   onBeforeGetContent: () => {
-  //     setIsPrinting(false);
-  //   },
-  //   onAfterPrint: () => {
-  //     setIsPrinting(true);
-  //   },
-  // });
+console.log("new", localData);
   const loadAmounts = async () => {
-    const { projectName, blockName, contractor, plotNo } = constructionData;
+    const { projectName, blockName, contractor, plotNo } = goData;
 
     const query = `SELECT lessPercent, totalPaid, totalBalance, totalPayable FROM contractorTransaction WHERE projectName='${projectName}' AND blockName='${blockName}' AND contractor='${contractor}' AND plotNo='${plotNo}'`;
 
@@ -112,7 +105,8 @@ const ContractorTransaction = () => {
       if (response && response.data) {
         if (response.data.phpresult) {
           setFetchData(response.data.phpresult);
-          console.log(response.data.phpresult);
+          console.log("thisis constractor transaction",response.data.phpresult);
+          setConstTransData(response.data.phpresult)
         }
       }
     } catch (error) {
@@ -128,11 +122,11 @@ const ContractorTransaction = () => {
       const updatedTotalBalance = totalPayable - updatedTotalPaid;
 
       const data = {
-        contractor: constructionData.contractor,
-        projectName: constructionData.projectName,
-        blockName: constructionData.blockName,
-        plotNo: constructionData.plotNo,
-        constAmt: constructionData.amount,
+        contractor: goData.contractorName,
+        projectName: goData.projectName,
+        blockName: goData.blockName,
+        plotNo: goData.plotNo,
+        constAmt: goData.amount,
 
         lessPercent: lessPercent,
         date: transactionDate,
@@ -236,18 +230,18 @@ const ContractorTransaction = () => {
   const navigate = useNavigate();
 
   const handlePrevious = () => {
-    localStorage.setItem("data", JSON.stringify(constructionData))
+    handleToggle()
     navigate("/PaymentTransaction")
   }
 
   // Calculate total payable only once when the component mounts
   useEffect(() => {
     const amtPayable =
-      constructionData.amount - (constructionData.amount * lessPercent) / 100;
+    goData.amount - (goData.amount * lessPercent) / 100;
     const updatedTotalBalance = isNaN(amtPayable) ? 0 : amtPayable;
     setTotalPayable(updatedTotalBalance);
     setTotalBalance(updatedTotalBalance); // Initialize total balance with total payable
-  }, [constructionData, lessPercent]);
+  }, [goData, lessPercent]);
   const handleCancelEdit = () => {
     setShowEditModal(false);
   };
@@ -340,6 +334,30 @@ const ContractorTransaction = () => {
     loadAmounts();
   }, []);
 
+const location = useLocation()
+
+console.log("location",location);
+
+console.log("this is pavan data",constTransData);
+console.log("this is pavan data2",goData);
+
+
+// function getAmount(constTransData, goData) {
+//   const matchedItem = constTransData?.find(item => 
+//     item.projectName === goData.projectName &&
+//     item.blockName === goData.blockName &&
+//     item.plotNo === goData.plotNo
+//   );
+  
+//   return matchedItem ? matchedItem.amount : null;
+// }
+
+// const constamount = getAmount(constTransData, goData);
+// console.log(amount);
+
+
+console.log("fetchDataAAAAAAAAAAAAAAAAA",fetchData);
+
 
 
   return (
@@ -347,19 +365,19 @@ const ContractorTransaction = () => {
       <Box flex={"22%"} borderRight={"1px solid grey"}>
         <VStack alignItems={"flex-start"} gap={8}>
           <Text fontSize={"18px"} fontWeight={"semibold"}>
-            Contractor :- {constructionData.contractor}
+            Contractor :- {goData.contractorName}
           </Text>
           <Text fontSize={"18px"} fontWeight={"semibold"}>
-            Project :- {constructionData.projectName}
+            Project Name :- {goData.projectName}
           </Text>{" "}
           <Text fontSize={"18px"} fontWeight={"semibold"}>
-            Block :- {constructionData.blockName}
+            Block Name :- {goData.blockName}
           </Text>{" "}
           <Text fontSize={"18px"} fontWeight={"semibold"}>
-            Plot :- {constructionData.plotNo}
+            Plot No :- {goData.plotNo}
           </Text>
           <Text fontSize={"18px"} fontWeight={"semibold"}>
-            Const Amount :- {constructionData.amount}
+            Const Amount :- {""}
           </Text>
           <FormControl>
             <Flex align="center" justifyContent={"space-between"}>
@@ -419,8 +437,8 @@ const ContractorTransaction = () => {
               <Input
                 id="amount"
                 type="number"
-                value={amount} // Value from state
-                onChange={(e) => setAmount(parseFloat(e.target.value))} // Update state onChange
+                value={amount} 
+                onChange={(e) => setAmount(parseFloat(e.target.value))} 
               />
             </FormControl>
 
@@ -502,10 +520,10 @@ SR NO.
           <Tbody>
             {fetchData.map(
               (data, index) =>
-                constructionData.projectName === data.projectName &&
-                constructionData.blockName === data.blockName &&
-                constructionData.contractor === data.contractor &&
-                constructionData.plotNo === data.plotNo && (
+                goData.projectName === data.projectName &&
+                goData.blockName === data.blockName &&
+                goData.contractorName === data.contractor &&
+                goData.plotNo === data.plotNo && (
                   <Tr key={index}>
                     <Td border="1px solid black">{index+1}</Td>
                     <Td border="1px solid black">{data.contractor}</Td>

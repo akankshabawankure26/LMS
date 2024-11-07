@@ -33,17 +33,15 @@ const UserList = () => {
   const toast = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editFormData, setEditFormData] = useState({});
-const [loginState, setState] = useState(false)
-
-
+  const [loginState, setState] = useState(false);
 
   const fetchData = async () => {
     try {
       const response = await axios.get(
         "http://localhost/backend_lms/getuser.php"
       );
-      // Uncomment to log the response data
-      console.log(response.data);
+
+      
       if (Array.isArray(response.data)) {
         setUsers(response.data);
       } else {
@@ -54,12 +52,12 @@ const [loginState, setState] = useState(false)
       console.error("Error fetching data:", error);
       toast({
         title: "Error fetching data",
-        description: error.message, // Display the error message in the toast
+        description: error.message,
         status: "error",
         duration: 3000,
         isClosable: true,
       });
-      setLoading(false); // Ensure loading state is set to false to stop spinner
+      setLoading(false);
     }
   };
   useEffect(() => {
@@ -155,10 +153,55 @@ const [loginState, setState] = useState(false)
     }
   };
 
+  // const handleUsertoggle =async(e)=>{
 
- const handleUserStatus = (userDetails) => {
-console.log("userDetails", userDetails)
-  }
+  //   const url = "http://localhost/backend_lms/edituser.php";
+  //   const formData = new FormData();
+
+  // }
+  const handleToggle = async (userId, field) => {
+    try {
+      const formData = new FormData();
+      formData.append("userId", userId);
+      formData.append("field", field);
+
+      const response = await axios.post(
+        "http://localhost/backend_lms/toggleadd.php", 
+        formData
+      );
+
+      if (response.data.status === "success") {
+        setUsers((prevUsers) =>
+          prevUsers.map((user) =>
+            user.userId === userId
+              ? { ...user, [field]: response.data.newValue }
+              : user
+          )
+        );
+        toast({
+          title: "Permission updated successfully!",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+      } else {
+        throw new Error(response.data.message);
+      }
+    } catch (error) {
+      console.error("Error toggling permission:", error);
+      toast({
+        title: "Error toggling permission",
+        description: error.message,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const handleUserStatus = (userDetails) => {
+    console.log("userDetails", userDetails);
+  };
 
   return (
     <>
@@ -196,8 +239,20 @@ console.log("userDetails", userDetails)
                   State
                 </Th>
                 <Th bg="black" color="white" fontSize="14px">
+                  Rights
+                </Th>
+                <Th bg="black" color="white" fontSize="14px">
                   Login Status
                 </Th>
+                {/* <Th
+                  bg="black"
+                  textAlign={"center"}
+                  color="white"
+                  fontSize="14px"
+                >
+                  Toggle
+                </Th> */}
+
                 <Th bg="black" color="white" fontSize="14px">
                   Actions
                 </Th>
@@ -213,14 +268,63 @@ console.log("userDetails", userDetails)
                     <Td>{user.userAddress}</Td>
                     <Td>{user.userCity}</Td>
                     <Td>{user.userState}</Td>
-                 
-                  
-                   {loginState ? <Td> <Button colorScheme='green' size='sm' onClick={()=>handleUserStatus(user)}>
-    Active
-  </Button> </Td> : <Td> <Button colorScheme='red' size='sm' onClick={()=>handleUserStatus(user)}>
-   In Active
-  </Button> </Td>}
-                  
+
+                    <Td>{user.userRights}</Td>
+
+                    {user.IsActive === "1" ? (
+                      <Td>
+                        {" "}
+                        <Button
+                          colorScheme="green"
+                          size="sm"
+                          onClick={() => handleUserStatus(user)}
+                        >
+                          Active
+                        </Button>{" "}
+                      </Td>
+                    ) : (
+                      <Td>
+                        {" "}
+                        <Button
+                          colorScheme="red"
+                          size="sm"
+                          onClick={() => handleUserStatus(user)}
+                        >
+                          In Active
+                        </Button>{" "}
+                      </Td>
+                    )}
+                    {/* <Td display={"flex"} gap={2}>
+                      <Button
+                        colorScheme="green"
+                        size="sm"
+                        onClick={() => handleToggle(user.userId, "Add")}
+                      >
+                        Add
+                      </Button>
+                      <Button
+                        colorScheme="green"
+                        size="sm"
+                        onClick={() => handleToggle(user.userId, "Delete")}
+                      >
+                        Delete
+                      </Button>
+                      <Button
+                        colorScheme="green"
+                        size="sm"
+                        onClick={() => handleToggle(user.userId, "Edit")}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        colorScheme="green"
+                        size="sm"
+                        onClick={() => handleToggle(user.userId, "View")}
+                      >
+                        View
+                      </Button>
+                    </Td> */}
+
                     <Td>
                       <HStack>
                         <Button

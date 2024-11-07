@@ -389,7 +389,7 @@ const MasterInputs = () => {
                 onChange={handleChange}
                 placeholder="Select Type"
               >
-                <option value="PerSqmt">Per Sqft</option>
+                <option value="PerSqmt">Per Sqmt</option>
                 <option value="Lumpsum">Lumpsum</option>
                 {/* Add service type options here */}
               </Select>

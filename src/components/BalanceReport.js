@@ -44,7 +44,7 @@
     };
 
     const loadTransaction = async () => {
-      let query = "SELECT * FROM transaction;";
+      let query = "SELECT * FROM transaction WHERE action = ' ' ";
 
       const url = "http://localhost/backend_lms/getQuery.php";
       let fData = new FormData();
@@ -64,6 +64,8 @@
         console.error("Error fetching booking data:", error);
       }
     };
+
+    
     const loadDate = async () => {
       let query = "SELECT registryDate FROM registry;";
 

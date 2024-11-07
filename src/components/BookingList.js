@@ -36,10 +36,6 @@ import axios, { all } from "axios";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import { isDisabled } from "@testing-library/user-event/dist/utils";
 
-
-
-
-
 const BookingList = () => {
   const [selectedBlock, setSelectedBlock] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -50,9 +46,9 @@ const BookingList = () => {
   const [selectedType, setSelectedType] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedEndDate, setSelectedEndDate] = useState(null);
-  const [selectedStatusEndDate,setSelectStatusEndDate] = useState(null);
-const [password, setPassword] = useState("")
-  const [selectedStatusDate,setSelectStatusDate]= useState(null);
+  const [selectedStatusEndDate, setSelectStatusEndDate] = useState(null);
+  const [password, setPassword] = useState("");
+  const [selectedStatusDate, setSelectStatusDate] = useState(null);
   const [plotsData, setPlotsData] = useState([]);
   const [constructionApplicable, setConstructionApplicable] = useState("All");
   const [constructors, setConstructors] = useState([]);
@@ -107,7 +103,7 @@ const [password, setPassword] = useState("")
       if (response && response.data) {
         if (response.data.phpresult) {
           console.log("plot Data : ", response.data.phpresult);
-         
+
           setPlotsData(response.data.phpresult);
         }
       }
@@ -131,8 +127,9 @@ const [password, setPassword] = useState("")
       if (item.bookingDate) {
         itemDate = new Date(item.bookingDate).toISOString().split("T")[0];
       }
-      if (item.registryDate) {
-        regiDate = new Date(item.registryDate).toISOString().split("T")[0];
+      if (item.registryDate !== undefined) {
+        regiDate = new Date(item.registryDate);
+        console.log("111111111", item.registryDate);
       }
 
       return (
@@ -152,16 +149,12 @@ const [password, setPassword] = useState("")
         (!selectedEndDate ||
           !item.bookingDate ||
           itemDate <= selectedEndDate) &&
-
-
-
-        (!selectedStatusDate || !item.registryDate || regiDate >= selectedStatusDate) &&
+        (!selectedStatusDate ||
+          !item.registryDate ||
+          regiDate >= selectedStatusDate) &&
         (!selectedStatusEndDate ||
           !item.registryDate ||
           regiDate <= selectedStatusEndDate) &&
-
-
-
         (constructionApplicable === "All" ||
           item.constructionApplicable === constructionApplicable) &&
         (selectContructor[0] === "All" ||
@@ -172,8 +165,10 @@ const [password, setPassword] = useState("")
     .sort((a, b) => new Date(b.date) - new Date(a.date));
 
   const clearFilters = () => {
-    setSelectedEndDate("")
+    setSelectedEndDate("");
     setSelectedProject([]);
+    setSelectStatusDate("");
+    setSelectStatusEndDate("");
     setSelectedBlock([]);
     setSelectedPlot([]);
     setSelectedDate(null);
@@ -306,7 +301,7 @@ const [password, setPassword] = useState("")
   // const handleTally = async (props) => {
   //   console.log("tallydata", props);
 
-  //   // const url = "https://lkgexcel.com/backend/editplot.php";
+  //   // const url = "http://localhost/backend_lms/editplot.php";
   //   const url = "http://localhost/backend_lms/updateTallyStatus.php";
   //   const formData = new FormData();
 
@@ -345,112 +340,109 @@ const [password, setPassword] = useState("")
   //   }
   // };
 
-  const handletTallyClick = async (props) => {
+  const handletTally = async (props) => {
     console.log("tallydata", props);
 
     const url = "http://localhost/backend_lms/updateTallyStatus.php";
     const data = {
-        id: props.id,
+      id: props.id,
     };
 
     try {
-        const response = await axios.post(url, data, {
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-
-        if (response && response.data && response.data.status === "success") {
-            console.log(" successfully:", response.data.message);
-            toast({
-                title: "Tally successfully!",
-                status: "success",
-                duration: 3000,
-                isClosable: true,
-            });
-            setRender((prev) => !prev);
-        } else {
-            console.error("Error :", response.data.message);
-            toast({
-                title: "Error ",
-                status: "error",
-                duration: 3000,
-                isClosable: true,
-            });
-        }
-    } catch (error) {
-        console.error("Error in handleTally:", error);
-        toast({
-            title: "Error",
-            status: "error",
-            duration: 3000,
-            isClosable: true,
-        });
-    }
-};
-
-
-const  handleNotTally = async (props) => {
-
-  console.log("tallydata", props);
-
-  const url = "http://localhost/backend_lms/ReUpdateTally.php";
-  const formData = new FormData();
-
-  formData.append("id", props.id);
-  formData.append("TallyStatus", "Not Tallied");
-
-  try {
-    const response = await axios.post(url, formData);
-
-    if (response && response.data && response.data.status === "success") {
-      console.log(" successfully:", response.data.message);
-      onClose();
-      setPassword()
-      toast({
-        title: " Not Tally successfully!",
-        status: "success",
-        duration: 3000,
-        isClosable: true,
+      const response = await axios.post(url, data, {
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
-      setRender((prev) => !prev);
-    } else {
-      console.error("Error :", response.data.message);
+
+      if (response && response.data && response.data.status === "success") {
+        console.log(" successfully:", response.data.message);
+        toast({
+          title: "Tally successfully!",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+        onClose();
+        setPassword("");
+        setRender((prev) => !prev);
+      } else {
+        console.error("Error :", response.data.message);
+        toast({
+          title: "Error ",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+    } catch (error) {
+      console.error("Error in handleTally:", error);
       toast({
-        title: "Error ",
+        title: "Error",
         status: "error",
         duration: 3000,
         isClosable: true,
       });
     }
-  } catch (error) {
-    console.error("Error in handleEdit:", error);
-    toast({
-      title: "Error",
-      status: "error",
-      duration: 3000,
-      isClosable: true,
-    });
-  }
-};
+  };
 
-const handleTallyClick= (data) => {
-  setSelectedData(data);
-  onOpen();
-};
+  const handleNotTally = async (props) => {
+    console.log("tallydata", props);
 
+    const url = "http://localhost/backend_lms/ReUpdateTally.php";
+    const formData = new FormData();
 
+    formData.append("id", props.id);
+    formData.append("TallyStatus", "Not Tallied");
 
+    try {
+      const response = await axios.post(url, formData);
 
-const handleConfirm = () => {
-  // Add your password validation logic here
-  if (password === '9022') {
-    handleTallyClick(selectedData);
-  } else {
-    alert('Incorrect password');
-  }
-}
+      if (response && response.data && response.data.status === "success") {
+        console.log(" successfully:", response.data.message);
+        onClose();
+        setPassword("");
+        toast({
+          title: " Not Tally successfully!",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+        setRender((prev) => !prev);
+      } else {
+        console.error("Error :", response.data.message);
+        toast({
+          title: "Error ",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+    } catch (error) {
+      console.error("Error in handleEdit:", error);
+      toast({
+        title: "Error",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
 
+  const handleTallyClick = (data) => {
+    setSelectedData(data);
+    onOpen();
+  };
+
+  const handleConfirm = () => {
+    const isConfirmed = window.confirm("Are you sure you want to confirm?");
+
+    if (isConfirmed) {
+      handletTally(selectedData);
+    } else {
+      alert("Action canceled");
+    }
+  };
 
   useEffect(() => {
     loadBooking();
@@ -586,45 +578,7 @@ const handleConfirm = () => {
               </MenuList>
             </Menu>
           </Box>
-          {/* <Box mb={4}>
-            <Menu>
-              <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-                Select Plots
-              </MenuButton>
-              <MenuList>
-                <MenuItem>
-                  <Checkbox
-                    isChecked={selectedPlot.includes("Select All")}
-                    onChange={() =>
-                      handleCheckboxChange(
-                        "Select All",
-                        selectedPlot,
-                        setSelectedPlot
-                      )
-                    }
-                  >
-                    Select All
-                  </Checkbox>
-                </MenuItem>
-                {filteredPlots.map((plot) => (
-                  <MenuItem key={plot}>
-                    <Checkbox
-                      isChecked={selectedPlot.includes(plot)}
-                      onChange={() =>
-                        handleCheckboxChange(
-                          plot,
-                          selectedPlot,
-                          setSelectedPlot
-                        )
-                      }
-                    >
-                      {plot}
-                    </Checkbox>
-                  </MenuItem>
-                ))}
-              </MenuList>
-            </Menu>
-          </Box> */}
+
           <Box mb={4}>
             <Menu>
               <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
@@ -742,7 +696,7 @@ const handleConfirm = () => {
             <Input
               type="date"
               id="enddate"
-              value={selectedEndDate }
+              value={selectedEndDate}
               onChange={(e) => setSelectedEndDate(e.target.value)}
             />
           </Box>
@@ -772,7 +726,7 @@ const handleConfirm = () => {
             <Input
               type="date"
               id="enddate"
-              value={selectedStatusEndDate }
+              value={selectedStatusEndDate}
               onChange={(e) => setSelectStatusEndDate(e.target.value)}
             />
           </Box>
@@ -853,6 +807,7 @@ const handleConfirm = () => {
                 </Text>
               </Box>
             </Flex>
+
             <Table variant="simple">
               <TableContainer>
                 <Thead>
@@ -950,7 +905,7 @@ const handleConfirm = () => {
                     <Th border="1px solid black" color={"white"}>
                       remarks
                     </Th>
-                    
+
                     <Th border="1px solid black" color={"white"}>
                       registryDate
                     </Th>
@@ -1078,41 +1033,51 @@ const handleConfirm = () => {
                           {data.cashAmountPayable}
                         </Td>
                         <Td border="1px solid black">{data.remarks}</Td>
-                        <Td border="1px solid black" textAlign={"right"}>
-                          {data.registryDate
-                            ? new Date(data.bookingDate)
-                                .toLocaleDateString("en-GB")
-                                .replace(/\//g, "/")
-                            : ""}
-                        </Td>
+                        {data.registryDate && (
+                          <Td border="1px solid black" textAlign={"right"}>
+                            {data.registryDate
+                              ? new Date(data.registryDate)
+                                  .toLocaleDateString("en-GB")
+                                  .replace(/\//g, "/")
+                              : " "}
+                          </Td>
+                        )}
+
+                        {!data.registryDate && (
+                          <Td border="1px solid black" textAlign={"right"}>
+                            {" "}
+                          </Td>
+                        )}
+
                         <Td
                           border="1px solid black"
                           textAlign={"right"}
                           style={{ color: "white" }}
-                          backgroundColor={data.TalliedStatus==="Tallied" ?  "green":"red"}
+                          backgroundColor={
+                            data.TalliedStatus === "Tallied" ? "green" : "red"
+                          }
                         >
-                          {data.TalliedStatus}
+                          {data.TalliedStatus == ""
+                            ? "Not Tallied"
+                            : data.TalliedStatus}
                         </Td>
 
-                        {/* <Td border="1px solid black" color={"red"}>
-                          {"Not Tallied"}
-                        </Td> */}
+                       
 
                         <Td border="1px solid black">
                           {data.TalliedStatus === "Not Tallied" ? (
                             <Button
                               colorScheme="teal"
-                           
                               onClick={() => handleTallyClick(data)}
                             >
-                              Tally
+                              Not Tally
                             </Button>
                           ) : (
                             <Button
                               colorScheme="teal"
-                              onClick={() =>  handleNotTally(data)}
+                              onClick={() => handleNotTally(data)}
                             >
-                             Not  Tally
+                              Tally
                             </Button>
                           )}
                         </Td>
@@ -1144,26 +1109,28 @@ const handleConfirm = () => {
         )}
       </Box>
       <Modal isOpen={isOpen} onClose={onClose}>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Enter Password</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          <Input
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Are you want to Tally</ModalHeader>
+          <ModalCloseButton />
+          {/* <ModalBody> */}
+          {/* <Input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Enter your password"
           />
-        </ModalBody>
-        <ModalFooter>
-          <Button colorScheme="teal" mr={3} onClick={handleConfirm}>
-            Confirm
-          </Button>
-          <Button variant="ghost" onClick={onClose}>Cancel</Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+        </ModalBody> */}
+          <ModalFooter>
+            <Button colorScheme="teal" mr={3} onClick={handleConfirm}>
+              Confirm
+            </Button>
+            <Button variant="ghost" onClick={onClose}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </>
   );
 };

@@ -67,7 +67,7 @@ const PaymentTransaction = () => {
     let query = "SELECT * FROM contractor;";
     // alert(query);
 
-    const url = "https://lkgexcel.com/backend/getQuery.php";
+    const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
 
     fData.append("query", query);
@@ -90,7 +90,7 @@ const PaymentTransaction = () => {
     let query = "SELECT * FROM project;";
     // alert(query);
 
-    const url = "https://lkgexcel.com/backend/getQuery.php";
+    const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
 
     fData.append("query", query);
@@ -113,7 +113,7 @@ const PaymentTransaction = () => {
     let query = "SELECT * FROM block where projectName = '" + pname + "' ;";
     // alert(query);
 
-    const url = "https://lkgexcel.com/backend/getQuery.php";
+    const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
 
     fData.append("query", query);
@@ -141,7 +141,7 @@ const PaymentTransaction = () => {
       "';";
     // alert(query);
 
-    const url = "https://lkgexcel.com/backend/getQuery.php";
+    const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
 
     fData.append("query", query);
@@ -168,7 +168,7 @@ const PaymentTransaction = () => {
     if (!userConfirmed) {
       return;
     }
-    const url = "https://lkgexcel.com/backend/setQuery.php";
+    const url = "http://localhost/backend_lms/setQuery.php";
     let query =
       "INSERT INTO registry (id, projectName, blockName, plotNo, plotType, customerName, customerAddress, customerContact, registryGender, areaSqft, rateAreaSqft, totalAmount, discountApplicable, discountPercent, netAmount, registryAmount, serviceAmount, maintenanceAmount, miscAmount, grandTotal, constructionApplicable, constructionContractor, constructionAmount, totalAmountPayable, guidelineAmount, registryPercent, bankAmountPayable,  cashAmountPayable,  registryDate) VALUES (NULL, '" +
       document.getElementById("projectName").value +
@@ -249,7 +249,7 @@ const PaymentTransaction = () => {
     }
   };
   const updatePlotStatusRegistry = async () => {
-    const url = "https://lkgexcel.com/backend/setQuery.php";
+    const url = "http://localhost/backend_lms/setQuery.php";
     let query =
       "UPDATE plot SET plotStatus = 'Registered' WHERE plotNo = '" +
       plotName +
@@ -276,7 +276,7 @@ const PaymentTransaction = () => {
       "';";
     // alert(query);
 
-    const url = "https://lkgexcel.com/backend/getQuery.php";
+    const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
 
     fData.append("query", query);
@@ -307,7 +307,7 @@ const PaymentTransaction = () => {
 
     //alert(query);
 
-    const url = "https://lkgexcel.com/backend/getQuery.php";
+    const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
 
     fData.append("query", query);
@@ -339,7 +339,7 @@ const PaymentTransaction = () => {
 
     //alert(query);
 
-    const url = "https://lkgexcel.com/backend/getQuery.php";
+    const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
 
     fData.append("query", query);
@@ -371,7 +371,7 @@ const PaymentTransaction = () => {
 
     //alert(query);
 
-    const url = "https://lkgexcel.com/backend/getQuery.php";
+    const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
 
     fData.append("query", query);
@@ -435,7 +435,7 @@ const PaymentTransaction = () => {
       "';";
     // alert(query);
 
-    const url = "https://lkgexcel.com/backend/getQuery.php";
+    const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
 
     fData.append("query", query);
@@ -464,7 +464,7 @@ const PaymentTransaction = () => {
       plotName +
       "'  ;";
     // alert(query);
-    const url = "https://lkgexcel.com/backend/getQuery.php";
+    const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
 
     fData.append("query", query);
@@ -553,7 +553,7 @@ const PaymentTransaction = () => {
   };
 
   const addPayment = async () => {
-    const url = "https://lkgexcel.com/backend/setQuery.php";
+    const url = "http://localhost/backend_lms/setQuery.php";
     const date = document.getElementById("date").value;
     const paymentType = document.getElementById("paymentType").value;
     const amount = parseInt(document.getElementById("amount").value);
@@ -680,7 +680,7 @@ const PaymentTransaction = () => {
     loadContractor();
   }, []);
   const deletePayment = async () => {
-    const url = "https://lkgexcel.com/backend/setQuery.php";
+    const url = "http://localhost/backend_lms/setQuery.php";
     let query =
       "DELETE FROM transaction WHERE id = " + transactionIdToDelete + ";";
 
@@ -728,7 +728,7 @@ const PaymentTransaction = () => {
 
     // Check if the user confirmed
     if (userConfirmed) {
-      const url = "https://lkgexcel.com/backend/setQuery.php";
+      const url = "http://localhost/backend_lms/setQuery.php";
       let query =
         "UPDATE plot SET plotStatus = 'Available' WHERE plotNo = '" +
         plotName +
@@ -770,7 +770,7 @@ const PaymentTransaction = () => {
     );
 
     if (userConfirmed) {
-      const url = "https://lkgexcel.com/backend/setQuery.php";
+      const url = "http://localhost/backend_lms/setQuery.php";
       let query = "DELETE FROM plot WHERE plotNo = '" + plotName + "';";
 
       let fData = new FormData();
@@ -2026,7 +2026,7 @@ const PaymentTransaction = () => {
     let query = "SELECT * FROM contractor;";
     // alert(query);
 
-    const url = "https://lkgexcel.com/backend/getQuery.php";
+    const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
 
     fData.append("query", query);
@@ -2049,7 +2049,7 @@ const PaymentTransaction = () => {
     let query = "SELECT * FROM project;";
     // alert(query);
 
-    const url = "https://lkgexcel.com/backend/getQuery.php";
+    const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
 
     fData.append("query", query);
@@ -2071,7 +2071,7 @@ const PaymentTransaction = () => {
     let query = "SELECT * FROM project;";
     // alert(query);
 
-    const url = "https://lkgexcel.com/backend/getQuery.php";
+    const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
 
     fData.append("query", query);
@@ -2094,7 +2094,7 @@ const PaymentTransaction = () => {
     let query = "SELECT * FROM block where projectName = '" + pname + "' ;";
     // alert(query);
 
-    const url = "https://lkgexcel.com/backend/getQuery.php";
+    const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
 
     fData.append("query", query);
@@ -2117,7 +2117,7 @@ const PaymentTransaction = () => {
     let query = "SELECT * FROM block where projectName = '" + pname + "' ;";
     // alert(query);
 
-    const url = "https://lkgexcel.com/backend/getQuery.php";
+    const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
 
     fData.append("query", query);
@@ -2145,7 +2145,7 @@ const PaymentTransaction = () => {
       "';";
     // alert(query);
 
-    const url = "https://lkgexcel.com/backend/getQuery.php";
+    const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
 
     fData.append("query", query);
@@ -2172,7 +2172,7 @@ const PaymentTransaction = () => {
       "';";
     // alert(query);
 
-    const url = "https://lkgexcel.com/backend/getQuery.php";
+    const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
 
     fData.append("query", query);
@@ -2199,7 +2199,7 @@ const PaymentTransaction = () => {
     if (!userConfirmed) {
       return;
     }
-    const url = "https://lkgexcel.com/backend/setQuery.php";
+    const url = "http://localhost/backend_lms/setQuery.php";
     let query =
       "INSERT INTO registry (id, projectName, blockName, plotNo, plotType, customerName, customerAddress, customerContact, registryGender, areaSqft, rateAreaSqft, totalAmount, discountApplicable, discountPercent, netAmount, registryAmount, serviceAmount, maintenanceAmount, miscAmount, grandTotal, constructionApplicable, constructionContractor, constructionAmount, totalAmountPayable, guidelineAmount, registryPercent, bankAmountPayable,  cashAmountPayable,  registryDate) VALUES (NULL, '" +
       document.getElementById("projectName").value +
@@ -2280,7 +2280,7 @@ const PaymentTransaction = () => {
     }
   };
   const updatePlotStatusRegistry = async () => {
-    const url = "https://lkgexcel.com/backend/setQuery.php";
+    const url = "http://localhost/backend_lms/setQuery.php";
     let query =
       "UPDATE plot SET plotStatus = 'Registered' WHERE plotNo = '" +
       plotName +
@@ -2307,7 +2307,7 @@ const PaymentTransaction = () => {
       "';";
     // alert(query);
 
-    const url = "https://lkgexcel.com/backend/getQuery.php";
+    const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
 
     fData.append("query", query);
@@ -2338,7 +2338,7 @@ const PaymentTransaction = () => {
 
     //alert(query);
 
-    const url = "https://lkgexcel.com/backend/getQuery.php";
+    const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
 
     fData.append("query", query);
@@ -2370,7 +2370,7 @@ const PaymentTransaction = () => {
 
     //alert(query);
 
-    const url = "https://lkgexcel.com/backend/getQuery.php";
+    const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
 
     fData.append("query", query);
@@ -2402,7 +2402,7 @@ const PaymentTransaction = () => {
 
     //alert(query);
 
-    const url = "https://lkgexcel.com/backend/getQuery.php";
+    const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
 
     fData.append("query", query);
@@ -2466,7 +2466,7 @@ const PaymentTransaction = () => {
       "';";
     // alert(query);
 
-    const url = "https://lkgexcel.com/backend/getQuery.php";
+    const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
 
     fData.append("query", query);
@@ -2495,7 +2495,7 @@ const PaymentTransaction = () => {
       plotName +
       "'  ;";
     // alert(query);
-    const url = "https://lkgexcel.com/backend/getQuery.php";
+    const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
 
     fData.append("query", query);
@@ -2584,7 +2584,7 @@ const PaymentTransaction = () => {
   };
 
   const addPayment = async () => {
-    const url = "https://lkgexcel.com/backend/setQuery.php";
+    const url = "http://localhost/backend_lms/setQuery.php";
     const date = document.getElementById("date").value;
     const paymentType = document.getElementById("paymentType").value;
     const amount = parseInt(document.getElementById("amount").value);
@@ -2704,7 +2704,7 @@ const PaymentTransaction = () => {
     loadContractor();
   }, []);
   const deletePayment = async () => {
-    const url = "https://lkgexcel.com/backend/setQuery.php";
+    const url = "http://localhost/backend_lms/setQuery.php";
     let query =
       "DELETE FROM transaction WHERE id = " + transactionIdToDelete + ";";
 
@@ -2752,7 +2752,7 @@ const PaymentTransaction = () => {
 
     // Check if the user confirmed
     if (userConfirmed) {
-      const url = "https://lkgexcel.com/backend/setQuery.php";
+      const url = "http://localhost/backend_lms/setQuery.php";
       let query =
         "UPDATE plot SET plotStatus = 'Available' WHERE plotNo = '" +
         plotName +
@@ -2794,7 +2794,7 @@ const PaymentTransaction = () => {
     );
 
     if (userConfirmed) {
-      const url = "https://lkgexcel.com/backend/setQuery.php";
+      const url = "http://localhost/backend_lms/setQuery.php";
       let query = "DELETE FROM plot WHERE plotNo = '" + plotName + "';";
 
       let fData = new FormData();
@@ -4004,7 +4004,7 @@ export default PaymentTransaction;
   // };
 // const handleEditSubmit = async (e) => {
   //   e.preventDefault();
-  //   const url = "https://lkgexcel.com/backend/editpayment.php";
+  //   const url = "http://localhost/backend_lms/editpayment.php";
   //   const paymentType = document.getElementById("paymentType").value;
   //   const amount = parseInt(document.getElementById("amount").value);
   //   try {

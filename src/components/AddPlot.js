@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef } from "react";
 import {
   Box,
   Grid,
@@ -80,21 +80,24 @@ const AddPlot = () => {
   const fetchDataProject = async () => {
     try {
       const response = await axios.get(
-        // "https://lkgexcel.com/backend/getprojects.php"
         "http://localhost/backend_lms/getprojects.php"
+        // "http://localhost/backend_lms/getprojects.php"
       );
+      //console.log(response);
       setProjects(response.data);
     } catch (error) {
       console.error("Error fetching project data:", error);
     }
   };
 
+
   const fetchDataBlock = async () => {
     try {
       const response = await axios.get(
-        // "https://lkgexcel.com/backend/getblock.php"
+        // "http://localhost/backend_lms/getblock.php"
         "http://localhost/backend_lms/getblock.php"
       );
+      //console.log(response);
       setBlock(response.data);
     } catch (error) {
       console.error("Error fetching block data:", error);
@@ -104,7 +107,7 @@ const AddPlot = () => {
   const fetchDataPlot = async () => {
     try {
       const response = await axios.get(
-        // "https://lkgexcel.com/backend/getplot.php"
+        // "http://localhost/backend_lms/getplot.php"
         "http://localhost/backend_lms/getplot.php"
       );
       setPlot(response.data);
@@ -120,6 +123,7 @@ const AddPlot = () => {
     } else {
       setShow(false);
     }
+    console.log(name)
     // console.log("inside function")
     //  if(name === "blockName"){
     //   console.log("inside block if")
@@ -184,7 +188,6 @@ const AddPlot = () => {
   const onAddPlot = async (e) => {
     e.preventDefault();
 
-    // const url = "https://lkgexcel.com/backend/addplot.php";
     const url = "http://localhost/backend_lms/addplot.php";
     const fData = new FormData();
     fData.append("projectName", formData.projectName);
@@ -196,22 +199,20 @@ const AddPlot = () => {
     fData.append("plotType", formData.plotType);
     fData.append("plotStatus", formData.plotStatus);
 
-    const found = plot.filter((item) => {
-      if (
-        item.projectName == formData.projectName &&
-        item.plotNo == formData.plotNo
-      ) {
-        return item;
+    let filterData = currentItems.filter((el) =>
+      el.plotNo === formData.plotNo && el.blockName === formData.blockName
+    );
+    if (filterData) {
+      if (filterData.length > 0) {
+        toast({
+          title: `Plot with number ${formData.plotNo} already exists in block ${formData.blockName}`,
+          status: "error",
+          isClosable: true,
+        });
+        return;
       }
-    });
-    if (found.length > 0) {
-      toast({
-        title: `Plot already Exist`,
-        status: "error",
-        isClosable: true,
-      });
-      return;
     }
+
     try {
       await axios.post(url, fData);
       toast({
@@ -237,6 +238,8 @@ const AddPlot = () => {
       console.log("Error adding plot:", error);
     }
   };
+
+
 
   useEffect(() => {
     const filteredData = plot.filter((item) =>
@@ -265,7 +268,7 @@ const AddPlot = () => {
   const confirmDelete = async () => {
     try {
       await axios.delete(
-        // `https://lkgexcel.com/backend/deleteplot.php?id=${projectIdToDelete}`
+        // `http://localhost/backend_lms/deleteplot.php?id=${projectIdToDelete}`
         `http://localhost/backend_lms/deleteplot.php?id=${projectIdToDelete}`
       );
 
@@ -310,8 +313,8 @@ const AddPlot = () => {
     setEditLoading(true);
     e.preventDefault();
 
-    // const url = "https://lkgexcel.com/backend/editplot.php";
     const url = "http://localhost/backend_lms/editplot.php";
+    // const url = "http://localhost/backend_lms/editplot.php";
     const formData = new FormData();
 
     formData.append("id", editFormData.id);
@@ -383,58 +386,78 @@ const AddPlot = () => {
   //   const[fData, setfdata] = useState('')
 
   // const handleRateChange = (e)=>{
-  
+
   //   const { name, value } = e.target;
   //   setfdata((prevData) => ({ ...prevData, [name]: value }));
-  
+
   // }
 
 
-  const handleupdatePlotRate = async() => {
-    const availablePlot = currentItems.filter((item) => item.plotStatus === "Available");
-    console.log("availablePlot", availablePlot);
+  const handleupdatePlotRate = async () => {
     
-    if (availablePlot.length > 0) {
+    console.log(formData.projectName);
+    if(!formData.projectName){
+      alert("Please fill in the project name");
+      return;
+    }
+
+    if (!formData.blockName) {
+      alert("Please fill in the block name");
+      return;
+    }
+
+
+    if (formData.projectName !== "" && formData.blockName !== "") {
+      const availablePlot = currentItems.filter((item) => item.plotStatus === "Available");
+      console.log("availablePlot", availablePlot);
+
+      if (availablePlot.length > 0) {
         let projectname = availablePlot[0].projectName;
         let blockname = availablePlot[0].blockName;
 
+        console.log(projectname);
+        console.log(blockname);
         const url = "http://localhost/backend_lms/editPlotRate.php";
         const formData = new FormData();
         formData.append("projectName", projectname);
         formData.append("blockName", blockname);
+        //formData.append("plotno", plotno);
         formData.append("ratePerSqft", updatePlotRate);
-    
+
         try {
-            const response = await axios.post(url, formData);
+          const response = await axios.post(url, formData);
 
-            if (response && response.data && response.data.status === "success") {
-                console.log("Plot ratePerSqft successfully:", response.data.message);
-                toast({
-                    title: "Rate Per Sqft Updated successfully!",
-                    status: "success",
-                    duration: 3000,
-                    isClosable: true,
-                });
-                fetchDataPlot();
-                // fetchDataProject();
-                // fetchDataBlock();
+          if (response && response.data && response.data.status === "success") {
+            console.log("Plot ratePerSqft successfully:", response.data.message);
+            toast({
+              title: "Rate Per Sqft Updated successfully!",
+              status: "success",
+              duration: 3000,
+              isClosable: true,
+            });
+            fetchDataPlot();
+            // fetchDataProject();
+            // fetchDataBlock();
 
-                setUpdatedRates(prev => ({
-                  ...prev,
-                  [`${projectname}-${blockname}`]: true
-              }));
-            
-            }
+            setUpdatedRates(prev => ({
+              ...prev,
+              [`${projectname}-${blockname}`]: true
+            }));
+
+            setUpadtePlotRate("");
+          }
+
         } catch (error) {
-            console.log(error);
+          console.log(error);
         }
-    } else {
+      } else {
         console.log("No available plot found.");
+      }
     }
-};
-
-
-
+    else {
+      console.log("Please select the projectName and Blockname...")
+    }
+  };
 
 
   useEffect(() => {
@@ -477,6 +500,7 @@ const AddPlot = () => {
                 value={formData.blockName}
                 onChange={handleChange}
                 placeholder="Select Block"
+                displayEmpty
                 required
               >
                 {getblock
@@ -606,29 +630,29 @@ const AddPlot = () => {
           </VStack> */}
 
           {/* update plot rate start */}
-         <Box w={"100%"} bg={"blue.300"} p={2}>
-         <Box display={"flex"} gap={5} w={"30%"}>
-            <Input
-              type="number"
-              textColor={"black"}
-           bg={"white"}
-              w={"100%"}
-              placeholder="Enter Plot Rate"
-              name="ratePerSqft"
-              value={updatePlotRate}
-              onChange={(e) => setUpadtePlotRate(e.target.value)}
-            />
-            <Button
-              bg={"black"}
-              colorScheme="none"
-              color={"white"}
-              onClick={handleupdatePlotRate}
-            >
-              Update Rate
-            </Button>
+          <Box w={"100%"} bg={"blue.300"} p={2}>
+            <Box display={"flex"} gap={5} w={"30%"}>
+              <Input
+                type="number"
+                textColor={"black"}
+                bg={"white"}
+                w={"100%"}
+                placeholder="Enter Plot Rate"
+                name="ratePerSqft"
+                value={updatePlotRate}
+                onChange={(e) => setUpadtePlotRate(e.target.value)}
+              />
+              <Button
+                bg={"black"}
+                colorScheme="none"
+                color={"white"}
+                onClick={handleupdatePlotRate}
+              >
+                Update Rate
+              </Button>
+            </Box>
           </Box>
-         </Box>
-          
+
 
           {/* update plot rate end */}
           {/* <Box>
@@ -686,7 +710,7 @@ const AddPlot = () => {
                 <Heading>Select Your Project First</Heading>
               </Box>
             ) : (
-            currentItems.map((plotItem, index) => (
+              currentItems.map((plotItem, index) => (
                 <Tr key={plotItem.id}>
                   <Td>{index + 1}</Td>
                   <Td>{plotItem.projectName}</Td>
@@ -697,16 +721,14 @@ const AddPlot = () => {
                   <Td>{plotItem.areaSqmt}</Td>
 
 
-                  
-              
-              {
-                <Td style={{ backgroundColor: updatedRates[`${plotItem.projectName}-${plotItem.blockName}`] ? "pink" : "white" }}>{plotItem.ratePerSqft }</Td>
-                
-                }
-               
-                
-                
-                
+                  {
+                    <Td style={{ backgroundColor: updatedRates[`${plotItem.projectName}-${plotItem.blockName}`] ? "pink" : "white" }}>{plotItem.ratePerSqft}</Td>
+
+                  }
+
+
+
+
 
 
 
@@ -807,7 +829,7 @@ const AddPlot = () => {
               <FormControl mb={4}>
                 <FormLabel>Block Name</FormLabel>
                 <Select
-                disabled
+                  disabled
                   name="blockName"
                   value={editFormData.blockName}
                   onChange={handleEditPlotChange}
@@ -879,7 +901,7 @@ const AddPlot = () => {
               <FormControl>
                 <FormLabel>Plot Status</FormLabel>
                 <Select
-                disabled
+                  disabled
                   name="plotStatus"
                   value={editFormData.plotStatus}
                   // onChange={handleEditPlotChange}
@@ -887,7 +909,7 @@ const AddPlot = () => {
                   required
                 >
                   <option value={editFormData.plotStatus}>{editFormData.plotStatus}</option>
-                  
+
                 </Select>
               </FormControl>
             </ModalBody>

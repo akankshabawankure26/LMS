@@ -198,8 +198,13 @@ const AddUser = () => {
                 onChange={handleChange}
                 placeholder="Please Select Rights"
               >
+                <option value=" Super Admin">Super Admin</option>
                 <option value="Admin">Admin</option>
-                <option value="User">User</option>
+                <option value="Buyer">Buyer</option>
+                <option value="Contractor">Contractor</option>
+                <option value="Broker">Broker</option>
+
+
               </Select>
             </FormControl>
           </GridItem>

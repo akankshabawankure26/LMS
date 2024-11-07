@@ -23,13 +23,13 @@ import {
   useToast,
   Center,
 } from "@chakra-ui/react";
-import { useData } from "../Context";
-import { useEffect, useState } from "react";
+import { DataContext, useData } from "../Context";
+import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { Navigate, useNavigate } from "react-router-dom";
 
 const BrokerTransaction = () => {
-  const { constructionData } = useData();
+  // const { constructionData } = useData();
   const toast = useToast();
   const [fetchData, setFetchData] = useState([]);
   const [masterData, setMasterData] = useState([]);
@@ -45,15 +45,16 @@ const BrokerTransaction = () => {
   const [cheqNo, setCheqNo] = useState("");
   const [remarks, setRemarks] = useState("");
   const [showEditModal, setShowEditModal] = useState(false);
+  const { storeData, goData, handleToggle } = useContext(DataContext);
   const [editData, setEditData] = useState({
     amount: "",
     cheq: "",
     remarks: "",
     date: "",
   });
-  let navigate =useNavigate()
+  let navigate = useNavigate();
   const loadBrokerAmounts = async () => {
-    const { projectName, blockName, brokerName, plotNo } = constructionData;
+    const { projectName, blockName, brokerName, plotNo } = goData;
 
     const query = `SELECT totalPaid, totalBalance, totalPayable FROM brokerTransaction WHERE projectName='${projectName}' AND blockName='${blockName}' AND broker='${brokerName}' AND plotNo='${plotNo}'`;
 
@@ -111,19 +112,19 @@ const BrokerTransaction = () => {
   useEffect(() => {
     const fetchDataItem = fetchData.find(
       (data) =>
-        data.projectName === constructionData.projectName &&
-        data.blockName === constructionData.blockName &&
-        data.plotNo === constructionData.plotNo
+        data.projectName === goData.projectName &&
+        data.blockName === goData.blockName &&
+        data.plotNo === goData.plotNo
     );
     setNetAmount(fetchDataItem?.netAmount || 0);
-  }, [fetchData, constructionData]);
+  }, [fetchData, goData]);
 
   useEffect(() => {
     const masterDataItem = masterData.find(
-      (data) => data.projectName === constructionData.projectName
+      (data) => data.projectName === goData.projectName
     );
     setBrokerageValue(masterDataItem?.brokerageValue || 0);
-  }, [masterData, constructionData]);
+  }, [masterData, goData]);
 
   useEffect(() => {
     const calculatedTotalPayable = (netAmount * brokerageValue) / 100;
@@ -142,10 +143,10 @@ const BrokerTransaction = () => {
       const updatedAmountBalance = totalPayable - updatedTotalPaid;
 
       const data = {
-        broker: constructionData.brokerName,
-        projectName: constructionData.projectName,
-        blockName: constructionData.blockName,
-        plotNo: constructionData.plotNo,
+        broker: goData.brokerName,
+        projectName: goData.projectName,
+        blockName: goData.blockName,
+        plotNo: goData.plotNo,
         netAmount: netAmount,
         brokerage: brokerageValue,
         amount: paidAmount, // The amount paid in this transaction
@@ -156,19 +157,11 @@ const BrokerTransaction = () => {
         date: transactionDate,
         remarks: remarks,
       };
-
+console.log("laaaaa",data);
       // Prepare the SQL query string
       const query = `INSERT INTO brokerTransaction (projectName, blockName, plotNo, broker, netAmount, brokerage, amount, totalPayable, totalPaid, totalBalance, cheq, date, remarks) VALUES ('${data.projectName}', '${data.blockName}', '${data.plotNo}', '${data.broker}', '${data.netAmount}', '${data.brokerage}', '${data.amount}', '${data.totalPayable}', '${data.totalPaid}', '${data.totalBalance}', '${data.cheq}', '${data.date}', '${data.remarks}')`;
 
-      console.log("Payment submitted:");
-      console.log("Date:", transactionDate);
-      console.log("Cheque/Ref No:", cheqNo);
-      console.log("Remarks:", remarks);
-      console.log("Amount:", amount);
-      console.log("Total Paid:", updatedTotalPaid);
-      console.log("Amount Balance:", updatedAmountBalance);
-      console.log("Query:", query); // Log the SQL query string
-
+     
       // Here you can add logic to save the payment transaction to your backend
       const setQueryUrl = "http://localhost/backend_lms/setQuery.php";
       const formData = new FormData();
@@ -378,17 +371,10 @@ const BrokerTransaction = () => {
     }
   };
 
-  
-const handleBack =()=>{
-  const { projectName, blockName, plotNo } = constructionData;
-  console.log("constructionData",{projectName, blockName, plotNo});
-  // localStorage
-// navigate("/PaymentTransaction")
-}
-
-
-
-
+  const handleBack = () => {
+    handleToggle();
+    navigate("/PaymentTransaction");
+  };
 
   useEffect(() => {
     loadData();
@@ -396,28 +382,25 @@ const handleBack =()=>{
     loadTransaction();
     loadBrokerAmounts();
   }, []);
+
+console.log("data", goData);
+
   return (
     <Box display={"flex"} height={"80vh"} maxW={"100vw"}>
       <Box flex={"15%"} borderRight={"1px solid grey"}>
         <VStack alignItems={"flex-start"} gap={8}>
           <Text fontSize={"18px"} fontWeight={"semibold"}>
-            Broker :- {constructionData.brokerName}
+            Broker :- {goData.brokerName}
           </Text>
           <Text fontSize={"18px"} fontWeight={"semibold"}>
-            Project Name :- {constructionData.projectName}
+            Project Name :- {goData.projectName}
           </Text>{" "}
           <Text fontSize={"18px"} fontWeight={"semibold"}>
-            Block Name :- {constructionData.blockName}
+            Block Name :- {goData.blockName}
           </Text>{" "}
           <Text fontSize={"18px"} fontWeight={"semibold"}>
-            Plot No :- {constructionData.plotNo}
+            Plot No :- {goData.plotNo}
           </Text>
-          {/* <Text fontSize={"18px"} fontWeight={"semibold"}>
-            Net Amount :- {netAmount}
-          </Text>
-          <Text fontSize={"18px"} fontWeight={"semibold"}>
-            Brokerage (%) :- {brokerageValue}
-          </Text> */}
           <Text fontSize={"18px"} fontWeight={"semibold"}>
             Total Payable :- {totalPayable}
           </Text>
@@ -427,22 +410,10 @@ const handleBack =()=>{
           <Text fontSize={"18px"} fontWeight={"semibold"}>
             Amount Balance :- {amountBalance}
           </Text>
-         
-         <Button 
-          colorScheme="teal"
-          onClick={() => handleBack()}
-
-          >Go Back
-
+          <Button colorScheme="teal" onClick={handleBack}>
+            Go Back
           </Button>
-      
-         
         </VStack>
-
-
-     
-
-
       </Box>
       <Box flex={"85%"} maxW={"80%"}>
         <Text marginLeft={"10px"}>Broker Transaction</Text>
@@ -522,7 +493,7 @@ const handleBack =()=>{
         <Table variant="simple" marginTop={"20px"} size="sm">
           <Thead>
             <Tr bg={"#121212"} color={"whitesmoke"}>
-            <Th color={"white"} border="1px solid black">
+              <Th color={"white"} border="1px solid black">
                 SrNo
               </Th>
               <Th color={"white"} border="1px solid black">
@@ -537,12 +508,8 @@ const handleBack =()=>{
               <Th color={"white"} border="1px solid black">
                 Plot
               </Th>
-              {/* <Th color={"white"} border="1px solid black">
-                Net Amount
-              </Th>
+           
               <Th color={"white"} border="1px solid black">
-                Brokerage
-              </Th> */} <Th color={"white"} border="1px solid black">
                 Date
               </Th>
               <Th color={"white"} border="1px solid black">
@@ -551,7 +518,6 @@ const handleBack =()=>{
               <Th color={"white"} border="1px solid black">
                 Cheq
               </Th>
-             
               <Th color={"white"} border="1px solid black">
                 Remarks
               </Th>
@@ -564,21 +530,19 @@ const handleBack =()=>{
           <Tbody>
             {transaction.map(
               (data, index) =>
-                constructionData.projectName === data.projectName &&
-                constructionData.blockName === data.blockName &&
-                constructionData.brokerName === data.broker &&
-                constructionData.plotNo === data.plotNo && (
+                goData.projectName === data.projectName &&
+                goData.blockName === data.blockName &&
+                goData.brokerName === data.broker &&
+                goData.plotNo === data.plotNo && (
                   <Tr key={index}>
+                    <Td border="1px solid black">{index+1}</Td>
                     <Td border="1px solid black">{data.broker}</Td>
                     <Td border="1px solid black">{data.projectName}</Td>
                     <Td border="1px solid black">{data.blockName}</Td>
                     <Td border="1px solid black">{data.plotNo}</Td>
-                    <Td border="1px solid black">{data.netAmount}</Td>
-                    <Td border="1px solid black">{data.brokerage}</Td>
-                    <Td border="1px solid black">{data.amount}</Td>
-
-                    <Td border="1px solid black">{data.cheq}</Td>
                     <Td border="1px solid black">{data.date}</Td>
+                    <Td border="1px solid black">{data.amount}</Td>
+                    <Td border="1px solid black">{data.cheq}</Td>
                     <Td border="1px solid black">{data.remarks}</Td>
 
                     <Td display={"flex"} border="1px solid black" gap={"5px"}>

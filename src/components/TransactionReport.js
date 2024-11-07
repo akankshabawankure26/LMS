@@ -86,7 +86,7 @@ const TransactionReport = () => {
   };
 
   const loadTransaction = async () => {
-    let query = "SELECT * FROM transaction where status='Active';";
+    let query = "SELECT * FROM transaction where status='Active' AND action =' ';";
 
     const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
@@ -191,91 +191,7 @@ const TransactionReport = () => {
     0
   );
 
-  // Temprary
-//   const handleTallyButtonClick = async (props) => {
-//     console.log("tallydata", props);
 
-//     const url = "http://localhost/backend_lms/TransactionTally.php";
-//     const data = {
-//         id: props.id,
-//     };
-
-//     try {
-//         const response = await axios.post(url, data, {
-//             headers: {
-//                 'Content-Type': 'application/json'
-//             }
-//         });
-
-//         if (response && response.data && response.data.status === "success") {
-//             console.log(" successfully:", response.data.message);
-//             toast({
-//                 title: "Tally successfully!",
-//                 status: "success",
-//                 duration: 3000,
-//                 isClosable: true,
-//             });
-//             setRender((prev) => !prev);
-//         } else {
-//             console.error("Error :", response.data.message);
-//             toast({
-//                 title: "Error ",
-//                 status: "error",
-//                 duration: 3000,
-//                 isClosable: true,
-//             });
-//         }
-//     } catch (error) {
-//         console.error("Error in handleTally:", error);
-//         toast({
-//             title: "Error",
-//             status: "error",
-//             duration: 3000,
-//             isClosable: true,
-//         });
-//     }
-// };
-
-// const ThandleNotTally = async (props) => {
-//   console.log("tallydata", props);
-
-//   const url = "http://localhost/backend_lms/ReUpdateTransactionTally.php";
-//   const formData = new FormData();
-
-//   formData.append("id", props.id);
-//   formData.append("TallyStatus", "Not Tallied");
-
-//   try {
-//     const response = await axios.post(url, formData);
-
-//     if (response && response.data && response.data.status === "success") {
-//       console.log(" successfully:", response.data.message);
-//       toast({
-//         title: " Not Tally successfully!",
-//         status: "success",
-//         duration: 3000,
-//         isClosable: true,
-//       });
-//       setRender((prev) => !prev);
-//     } else {
-//       console.error("Error :", response.data.message);
-//       toast({
-//         title: "Error ",
-//         status: "error",
-//         duration: 3000,
-//         isClosable: true,
-//       });
-//     }
-//   } catch (error) {
-//     console.error("Error in handleEdit:", error);
-//     toast({
-//       title: "Error",
-//       status: "error",
-//       duration: 3000,
-//       isClosable: true,
-//     });
-//   }
-// };
 
 const handleTally = async (props) => {
   console.log("tallydata", props);
@@ -364,12 +280,27 @@ const handleNotTally = async (props) => {
 useEffect(() => {
   loadTransaction();
 }, [render]);
-console.log("erter", filteredBookings);
+
+const groupedEntries = filteredBookings.reduce((acc, entry) => {
+  const key = `${entry.projectName}-${entry.blockName}-${entry.plotno}`;
+  if (!acc[key]) {
+    acc[key] = { ...entry, amount: Number(entry.amount) };
+  } else {
+    acc[key].amount += Number(entry.amount); 
+  }
+  return acc;
+}, {});
+
+const showdataOfTable = Object.values(groupedEntries);
+
+
+
   return (
     <>
       <Center>
         <Heading size={"md"}>Transaction Report</Heading>
       </Center>
+      
       <Box maxW={"100%"} overflowX={"scroll"} marginTop={"2rem"}>
         <Flex justifyContent={"space-evenly"} p={"30px"} wrap={"wrap"}>
           <Menu>
@@ -569,8 +500,6 @@ console.log("erter", filteredBookings);
               </MenuItem>
             </MenuList>
           </Menu>
-{/* select paymeny filter end*/}
-
 
 
           {/* select tally filter start*/}
@@ -896,7 +825,7 @@ console.log("erter", filteredBookings);
                   </Tr>
                 </Thead>
                 <Tbody>
-                  {selectedProject.length > 0 && filteredBookings.map((data, index) => (
+                  {selectedProject.length > 0 && showdataOfTable.map((data, index) => (
                     <Tr
                       key={data.srNo}
                       onClick={() => setSelectedRowIndex(index)}

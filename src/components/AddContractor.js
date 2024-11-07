@@ -107,8 +107,8 @@ const AddContractor = () => {
   const toast = useToast();
 
   const onAdd = async () => {
-    // const url = "https://lkgexcel.com/backend/setQuery.php";
     const url = "http://localhost/backend_lms/setQuery.php";
+    // const url = "http://localhost/backend_lms/setQuery.php";
     let query =
       "INSERT INTO `contractor` (`id`, `companyName`, `contractorName`, `contact`, `emailid`, `address`, `city`, `state`) VALUES (NULL, '" +
       formData.companyName +
@@ -156,8 +156,8 @@ const AddContractor = () => {
   };
 
   const editData = async () => {
-    // const url = "https://lkgexcel.com/backend/setQuery.php";
     const url = "http://localhost/backend_lms/setQuery.php";
+    // const url = "http://localhost/backend_lms/setQuery.php";
 
     let query =
       "UPDATE `contractor` SET `companyName` = '" +
@@ -225,8 +225,8 @@ const AddContractor = () => {
     let query = "SELECT * FROM `contractor` where id = '" + index + "';";
     // alert(query);
 
-    // const url = "https://lkgexcel.com/backend/getQuery.php";
     const url = "http://localhost/backend_lms/getQuery.php";
+    // const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
 
     fData.append("query", query);
@@ -264,8 +264,8 @@ const AddContractor = () => {
     let query = "SELECT * FROM `contractor`;";
     // alert(query);
 
-    // const url = "https://lkgexcel.com/backend/getQuery.php";
     const url = "http://localhost/backend_lms/getQuery.php";
+    // const url = "http://localhost/backend_lms/getQuery.php";
     let fData = new FormData();
 
     fData.append("query", query);
@@ -289,8 +289,8 @@ const AddContractor = () => {
       "DELETE FROM `contractor` WHERE id  = " + projectIdToDelete + ";";
 
     /*  alert(query); */
-    // const url = "https://lkgexcel.com/backend/setQuery.php";
     const url = "http://localhost/backend_lms/setQuery.php";
+    // const url = "http://localhost/backend_lms/setQuery.php";
 
     let fData = new FormData();
     fData.append("query", query);
@@ -320,8 +320,8 @@ const AddContractor = () => {
     let query = "";
 
     /*  alert(query); */
-    // const url = "https://lkgexcel.com/backend/setQuery.php";
     const url = "http://localhost/backend_lms/setQuery.php";
+    // const url = "http://localhost/backend_lms/setQuery.php";
 
     let fData = new FormData();
     fData.append("query", query);
