@@ -183,8 +183,10 @@ const AddPlot = () => {
       setEditableAreaSqmt(matchCase.areaSqmt || "");
       setEditableRatePerSqft(matchCase.ratePerSqft || "");
     }
+
   };
 
+  
   const onAddPlot = async (e) => {
     e.preventDefault();
 
@@ -250,6 +252,7 @@ const AddPlot = () => {
 
     setFilteredMaster(sortedData);
     setTotalItems(sortedData.length);
+    
   }, [plot, searchQuery]);
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -294,6 +297,7 @@ const AddPlot = () => {
   };
 
   useEffect(() => {
+
     let valueMatch = getblock.find(
       (i) =>
         i.blockName === formData.blockName &&
@@ -365,6 +369,7 @@ const AddPlot = () => {
       });
 
       setIsModalOpen(false);
+      
     }
   };
 

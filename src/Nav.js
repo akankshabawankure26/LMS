@@ -77,146 +77,150 @@ const Nav = ({ isLoggedIn, handleLogout }) => {
               <MenuButton
                 as={Button}
                 rightIcon={<FaChevronDown />}
-                bg={"transparent"}
+                bg="transparent"
               >
                 Master
               </MenuButton>
               <MenuList>
-                <MenuItem as={Link} to="/addproject">
-                  Add Projects
+                {(userRight !== "SalesPerson" && userRight !== "Manager") && (
+                  <>
+                    <MenuItem as={Link} to="/addproject">
+                      Add Projects
+                    </MenuItem>
+                    <MenuItem as={Link} to="/addblock">
+                      Add Block
+                    </MenuItem>
+                    <MenuItem as={Link} to="/addplot">
+                      Add Plot
+                    </MenuItem>
+                  </>
+                )}
+                <MenuItem as={Link} to="/masterinputs">
+                  Master Inputs
                 </MenuItem>
-                <MenuItem as={Link} to="/addblock">
-                  Add Block
-                </MenuItem>
-                <MenuItem as={Link} to="/addplot">
-                  Add Plot
-                </MenuItem>
-                {(userRight !== "SalesPerson" && userRight !== "Manager" )  ? (
-                  <MenuItem as={Link} to="/masterinputs">
-                    Master Inputs
-                  </MenuItem>
-                ) : null}
-
-
               </MenuList>
             </Menu>
-            {(userRight !== "SalesPerson" && userRight !== "Manager" )  ? (
-              <Menu>
-                <MenuButton
-                  as={Button}
-                  rightIcon={<FaChevronDown />}
-                  bg={"transparent"}
-                >
-                  Booking
-                </MenuButton>
-                <MenuList>
-                  <MenuItem as={Link} to="/bookingstatus">
-                    Booking Status
-                  </MenuItem >
-                  <MenuItem as={Link} to="/holdedplots" >
-                    On-Hold Plots
-                  </MenuItem>
-                  <MenuItem as={Link} to="/newbooking">
-                    New Booking
-                  </MenuItem>
-                  <MenuItem as={Link} to="/PaymentTransaction">
-                    Payment Transaction
-                  </MenuItem>
-                </MenuList>
-              </Menu>
-            ) : null}
 
-            {(userRight !== "SalesPerson" && userRight !== "Manager" ) ? (
-              <Menu>
-                <MenuButton
-                  as={Button}
-                  rightIcon={<FaChevronDown />}
-                  bg={"transparent"}
-                >
-                  Report
-                </MenuButton>
-                <MenuList>
-                  <MenuItem as={Link} to="/bookinglist">
-                    Booking List
-                  </MenuItem>
-                  <MenuItem as={Link} to="/transactionreport">
-                    Transaction Report
-                  </MenuItem>
-                  <MenuItem
-                    as={Link}
-                    to="/balancereport
+
+            <Menu>
+              <MenuButton
+                as={Button}
+                rightIcon={<FaChevronDown />}
+                bg={"transparent"}
+              >
+                Booking
+              </MenuButton>
+              <MenuList>
+                <MenuItem as={Link} to="/bookingstatus">
+                  Booking Status
+                </MenuItem >
+                <MenuItem as={Link} to="/holdedplots" >
+                  On-Hold Plots
+                </MenuItem>
+                <MenuItem as={Link} to="/newbooking">
+                  New Booking
+                </MenuItem>
+                <MenuItem as={Link} to="/PaymentTransaction">
+                  Payment Transaction
+                </MenuItem>
+              </MenuList>
+            </Menu>
+
+
+
+            <Menu>
+              <MenuButton
+                as={Button}
+                rightIcon={<FaChevronDown />}
+                bg={"transparent"}
+              >
+                Report
+              </MenuButton>
+              <MenuList>
+                <MenuItem as={Link} to="/bookinglist">
+                  Booking List
+                </MenuItem>
+                <MenuItem as={Link} to="/transactionreport">
+                  Transaction Report
+                </MenuItem>
+                <MenuItem
+                  as={Link}
+                  to="/balancereport
                 "
+                >
+                  Balance Report
+                </MenuItem>
+                <MenuItem as={Link} to="/historicalreport">
+                  Historical Transaction Report
+                </MenuItem>
+              </MenuList>
+            </Menu>
+            {(userRight !== "SalesPerson" && userRight !== "Manager") && (
+              <>
+                <Menu>
+                  <MenuButton
+                    as={Button}
+                    rightIcon={<FaChevronDown />}
+                    bg={"transparent"}
                   >
-                    Balance Report
-                  </MenuItem>
-                  <MenuItem as={Link} to="/historicalreport">
-                    Historical Transaction Report
-                  </MenuItem>
-                </MenuList>
-              </Menu>
-            ) : null}
-            <Menu>
-              <MenuButton
-                as={Button}
-                rightIcon={<FaChevronDown />}
-                bg={"transparent"}
-              >
-                User
-              </MenuButton>
-              <MenuList>
-                <MenuItem as={Link} to="/adduser">
-                  Add User
-                </MenuItem>
-                <MenuItem as={Link} to="/userlist">
-                  User List
-                </MenuItem>
-                <MenuItem as={Link} to="/rolemanager">User Role</MenuItem>
-                <MenuItem as={Link} to="/rolepermission">User Role Permission</MenuItem>
-                <MenuItem as={Link} to="/addmacaddress">Add MAC Address</MenuItem>
-              </MenuList>
-            </Menu>
-            <Menu>
-              <MenuButton
-                as={Button}
-                rightIcon={<FaChevronDown />}
-                bg={"transparent"}
-              >
-                Contractor
-              </MenuButton>
-              <MenuList>
-                <MenuItem as={Link} to="/addcontractor">
-                  Add Contractor
-                </MenuItem>
-                <MenuItem as={Link} to="/contractorlist">
-                  Contractor List
-                </MenuItem>
-                <MenuItem as={Link} to="/contractorledger">
-                  {" "}
-                  Contractor Ledger
-                </MenuItem>
-              </MenuList>
-            </Menu>
-            <Menu>
-              <MenuButton
-                as={Button}
-                rightIcon={<FaChevronDown />}
-                bg={"transparent"}
-              >
-                Broker
-              </MenuButton>
-              <MenuList>
-                <MenuItem as={Link} to="/addbroker">
-                  {" "}
-                  Add Broker
-                </MenuItem>
-                <MenuItem as={Link} to="/brokerlist">
-                  Broker List
-                </MenuItem>
-                <MenuItem as={Link} to="/brokerledger">
-                  Broker Ledger
-                </MenuItem>
-              </MenuList>
-            </Menu>
+                    User
+                  </MenuButton>
+                  <MenuList>
+                    <MenuItem as={Link} to="/adduser">
+                      Add User
+                    </MenuItem>
+                    <MenuItem as={Link} to="/userlist">
+                      User List
+                    </MenuItem>
+                    <MenuItem as={Link} to="/rolemanager">User Role</MenuItem>
+                    <MenuItem as={Link} to="/rolepermission">User Role Permission</MenuItem>
+                    <MenuItem as={Link} to="/addmacaddress">Add MAC Address</MenuItem>
+                  </MenuList>
+                </Menu>
+                <Menu>
+                  <MenuButton
+                    as={Button}
+                    rightIcon={<FaChevronDown />}
+                    bg={"transparent"}
+                  >
+                    Contractor
+                  </MenuButton>
+                  <MenuList>
+                    <MenuItem as={Link} to="/addcontractor">
+                      Add Contractor
+                    </MenuItem>
+                    <MenuItem as={Link} to="/contractorlist">
+                      Contractor List
+                    </MenuItem>
+                    <MenuItem as={Link} to="/contractorledger">
+                      {" "}
+                      Contractor Ledger
+                    </MenuItem>
+                  </MenuList>
+                </Menu>
+                <Menu>
+                  <MenuButton
+                    as={Button}
+                    rightIcon={<FaChevronDown />}
+                    bg={"transparent"}
+                  >
+                    Broker
+                  </MenuButton>
+                  <MenuList>
+                    <MenuItem as={Link} to="/addbroker">
+                      {" "}
+                      Add Broker
+                    </MenuItem>
+                    <MenuItem as={Link} to="/brokerlist">
+                      Broker List
+                    </MenuItem>
+                    <MenuItem as={Link} to="/brokerledger">
+                      Broker Ledger
+                    </MenuItem>
+                  </MenuList>
+                </Menu>
+              </>
+            )}
             <Box>
               <Text fontWeight={"bold"}>Hello Admin</Text>
             </Box>

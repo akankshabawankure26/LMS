@@ -32,6 +32,7 @@ const MasterInputs = () => {
   const toast = useToast();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [projectIdToDelete, setProjectIdToDelete] = useState(null);
+  const [userRight, setUserRight] = useState(localStorage.getItem("userRight"));
   // const [selectedRows, setSelectedRows] = useState([]);
   const [projects, setProjects] = useState([]);
   const [master, setMaster] = useState([]);
@@ -462,7 +463,9 @@ const MasterInputs = () => {
                 onChange={handleChange}
               />
             </FormControl>
-            <Button colorScheme="blue" type="submit" mt={8}>
+            <Button colorScheme="blue" type="submit" mt={8}
+              isDisabled={userRight === "SalesPerson" || userRight === "Manager"}
+            >
               Submit
             </Button>
           </Grid>
@@ -483,7 +486,7 @@ const MasterInputs = () => {
         >
           <Thead>
             <Tr>
-              
+
               <Th
                 bg="blue.500"
                 color="white"
@@ -596,7 +599,7 @@ const MasterInputs = () => {
           <Tbody>
             {master.map((master, index) => (
               <Tr key={master.id}>
-               
+
                 <Td style={{ padding: "9px" }}>{index + 1}</Td>
                 <Td style={{ padding: "9px" }}>{master.projectName}</Td>
                 <Td style={{ padding: "9px" }}>{master.guideline}</Td>
@@ -616,13 +619,15 @@ const MasterInputs = () => {
                   <HStack>
                     <Button
                       colorScheme="teal"
-                      onClick={() => handleEditClick(master)}
+                      onClick={userRight !== "SalesPerson" && userRight !== "Manager" ? () => handleEditClick(master) : undefined}
                     >
                       Edit
                     </Button>
+
+
                     <Button
                       colorScheme="red"
-                      onClick={() => handleDelete(master.id)}
+                      onClick={userRight !== "SalesPerson" && userRight !== "Manager" ? () => handleDelete(master.id) : undefined}
                     >
                       Delete
                     </Button>

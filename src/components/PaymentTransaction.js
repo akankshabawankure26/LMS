@@ -119,6 +119,7 @@ const PaymentTransaction = () => {
   const [APVisible, setAPVisible] = useState(false);
   const [APTickVisible, setAPTickVisible] = useState(false);
   const [isApprove, setIsApprove] = useState(false);
+  const [userRight, setUserRight] = useState(localStorage.getItem("userRight"));
 
 
   useEffect(() => {
@@ -2417,6 +2418,7 @@ const PaymentTransaction = () => {
                 value={custName}
                 placeholder="Enter Cust name"
                 w={"60%"}
+                isDisabled={userRight === "SalesPerson" || userRight === "Manager"}
               />
             </Flex>
           </FormControl>
@@ -2436,6 +2438,7 @@ const PaymentTransaction = () => {
                 placeholder="Enter Address"
                 w={"60%"}
                 minH={"2.5rem"}
+                isDisabled={userRight === "SalesPerson" || userRight === "Manager"}
               />
             </Flex>
           </FormControl>
@@ -2454,6 +2457,7 @@ const PaymentTransaction = () => {
                 onChange={(e) => setAreaSqft(Number(e.target.value))}
                 placeholder="Enter Area Sqft"
                 w={"60%"}
+                isDisabled={userRight === "SalesPerson" || userRight === "Manager"}
               />
             </Flex>
           </FormControl>
@@ -2474,6 +2478,7 @@ const PaymentTransaction = () => {
                 onChange={(e) => setRatePerSqft(Number(e.target.value))}
                 placeholder="Enter Rate Sqft"
                 w={"60%"}
+                isDisabled={userRight === "SalesPerson" || userRight === "Manager"}
               />
             </Flex>
           </FormControl>
@@ -2493,6 +2498,7 @@ const PaymentTransaction = () => {
                 value={totalAmt}
                 placeholder="Enter Amount"
                 w={"60%"}
+                isDisabled={userRight === "SalesPerson" || userRight === "Manager"}
               />
             </Flex>
           </FormControl>
@@ -2515,6 +2521,7 @@ const PaymentTransaction = () => {
                 }}
                 placeholder="Select Discount"
                 w={"60%"}
+                isDisabled={userRight === "SalesPerson" || userRight === "Manager"}
               >
                 <option value="Yes">Yes</option>
                 <option value="No">No</option>
@@ -2543,6 +2550,7 @@ const PaymentTransaction = () => {
                 }}
                 placeholder="Enter Discount%"
                 w={"60%"}
+                isDisabled={userRight === "SalesPerson" || userRight === "Manager"}
               />
             </Flex>
           </FormControl>
@@ -2563,6 +2571,7 @@ const PaymentTransaction = () => {
                 onChange={(e) => setNetAmt(Number(e.target.value))}
                 placeholder="Enter Amount"
                 w={"60%"}
+                isDisabled={userRight === "SalesPerson" || userRight === "Manager"}
               />
             </Flex>
           </FormControl>
@@ -2583,6 +2592,7 @@ const PaymentTransaction = () => {
                 onChange={(e) => setRegistryAmt(Number(e.target.value))}
                 placeholder="Enter Registry"
                 w={"60%"}
+                isDisabled={userRight === "SalesPerson" || userRight === "Manager"}
               />
             </Flex>
           </FormControl>
@@ -2603,6 +2613,7 @@ const PaymentTransaction = () => {
                 onChange={(e) => setServiceAmt(Number(e.target.value))}
                 placeholder="Enter Amount"
                 w={"60%"}
+                isDisabled={userRight === "SalesPerson" || userRight === "Manager"}
               />
             </Flex>
           </FormControl>
@@ -2623,6 +2634,7 @@ const PaymentTransaction = () => {
                 onChange={(e) => setMaintenanceAmt(Number(e.target.value))}
                 placeholder="Enter Amount"
                 w={"60%"}
+                isDisabled={userRight === "SalesPerson" || userRight === "Manager"}
               />
             </Flex>
           </FormControl>
@@ -2643,6 +2655,7 @@ const PaymentTransaction = () => {
                 onChange={(e) => setMiscAmt(Number(e.target.value))}
                 placeholder="Enter Amount"
                 w={"60%"}
+                isDisabled={userRight === "SalesPerson" || userRight === "Manager"}
               />
             </Flex>
           </FormControl>
@@ -2663,6 +2676,7 @@ const PaymentTransaction = () => {
                 onChange={(e) => setGrandTotal(Number(e.target.value))}
                 placeholder="Enter Amount"
                 w={"60%"}
+                isDisabled={userRight === "SalesPerson" || userRight === "Manager"}
               />
             </Flex>
           </FormControl>
@@ -2681,6 +2695,7 @@ const PaymentTransaction = () => {
                 placeholder="Select"
                 value={constYesNo}
                 w={"60%"}
+                isDisabled={userRight === "SalesPerson"}
               >
                 <option value="Yes">Yes</option>
                 <option value="No">No</option>
@@ -2706,6 +2721,7 @@ const PaymentTransaction = () => {
                   setcontractorName();
                 }}
                 w={"60%"}
+                isDisabled={userRight === "SalesPerson"}
               >
                 {contractorData.map((block) => {
                   return (
@@ -2737,6 +2753,7 @@ const PaymentTransaction = () => {
                   setbrokerName(e.target.value); // Pass the selected value to setbrokerName
                 }}
                 w={"60%"}
+                isDisabled={userRight === "SalesPerson" || userRight === "Manager"}
               >
                 {brokerData.map((block) => {
                   return (
@@ -2805,6 +2822,7 @@ const PaymentTransaction = () => {
                 onChange={(e) => setGuidelineAmt(Number(e.target.value))}
                 placeholder="Enter Amount"
                 w={"60%"}
+                isDisabled={userRight === "SalesPerson" || userRight === "Manager"}
               />
             </Flex>
           </FormControl>
@@ -2825,6 +2843,7 @@ const PaymentTransaction = () => {
                 onChange={(e) => setRegistryPercent(Number(e.target.value))}
                 placeholder="Enter Amount"
                 w={"60%"}
+                isDisabled={userRight === "SalesPerson" || userRight === "Manager"}
               />
             </Flex>
           </FormControl>
@@ -2845,6 +2864,7 @@ const PaymentTransaction = () => {
                 w={"60%"}
                 value={bankAmtPayable}
                 onChange={(e) => setBankAmtPayable(Number(e.target.value))}
+                isDisabled={userRight === "SalesPerson" || userRight === "Manager"}
               />
             </Flex>
           </FormControl>
@@ -2873,10 +2893,10 @@ const PaymentTransaction = () => {
             {showAction && (
               <>
                 <HStack>
-                  <Button onClick={handleContractorButtonClick}>
+                  <Button onClick={handleContractorButtonClick} isDisabled={userRight === "SalesPerson" || userRight === "Manager"}>
                     Contractor
                   </Button>
-                  <Button onClick={handleBrokerButtonClick}>Broker</Button>
+                  <Button onClick={handleBrokerButtonClick} isDisabled={userRight === "SalesPerson" || userRight === "Manager"}>Broker</Button>
                   <Button colorScheme="blue" onClick={editPlot}>
                     {" "}
                     Save
@@ -2920,7 +2940,7 @@ const PaymentTransaction = () => {
                   // padding={"0px 4px 0px 4px"}
                   >
                     <FormLabel fontSize={"sm"}> Gender</FormLabel>
-                    <Input type="text" id="registryGender" w={"60%"} />
+                    <Input type="text" id="registryGender" w={"60%"} isDisabled={userRight === "SalesPerson" || userRight === "Manager"} />
                   </Flex>
                 </FormControl>
                 <FormControl>
@@ -2930,7 +2950,7 @@ const PaymentTransaction = () => {
                   // padding={"0px 4px 0px 4px"}
                   >
                     <FormLabel fontSize={"sm"}>Booking </FormLabel>
-                    <Input type="date" id="bookingDate" w={"60%"} />
+                    <Input type="date" id="bookingDate" w={"60%"} isDisabled={userRight === "SalesPerson" || userRight === "Manager"} />
                   </Flex>
                 </FormControl>
                 <FormControl>
@@ -2954,11 +2974,11 @@ const PaymentTransaction = () => {
                       id="registryD"
                       w="60%"
                       onChange={(e) => setRegistryDate(e.target.value)}
-                      disabled={Boolean(currentPlot[0]?.registryDate)} // Disable input if registryDate already exists
+                      disabled={Boolean(currentPlot[0]?.registryDate) || (userRight === "SalesPerson" || userRight === "Manager")} // Disable input if registryDate already exists
                     />
 
                     {APVisible && (
-                      <Button size="md" ml={2} colorScheme="blue" onClick={handleMark}>
+                      <Button size="md" ml={2} colorScheme="blue" onClick={handleMark} isDisabled={userRight === "SalesPerson" || userRight === "Manager"}>
                         AP
                       </Button>
                     )}
@@ -2978,7 +2998,7 @@ const PaymentTransaction = () => {
                         size="md"
                         ml={2}
                         colorScheme="blue"
-                        leftIcon={<span style={{ color: "green" }}>✔️</span>}
+                        leftIcon={<span style={{ color: "green" }} isDisabled={userRight === "SalesPerson" || userRight === "Manager"}>✔️</span>}
                       >
                         AP
                       </Button>
@@ -3058,6 +3078,7 @@ const PaymentTransaction = () => {
                       ml={"6"}
                       onClick={approveAction}
                       className="hide-on-print"
+                      isDisabled={userRight === "SalesPerson" || userRight === "Manager"}
                     >
                       Un Approve
                     </Button>
@@ -3069,6 +3090,7 @@ const PaymentTransaction = () => {
                       onClick={approveAction}
 
                       className="hide-on-print"
+                      isDisabled={userRight === "SalesPerson" || userRight === "Manager"}
                     >
                       To Approve
                     </Button>
@@ -3079,6 +3101,7 @@ const PaymentTransaction = () => {
                       size={"sm"}
                       onClick={unRegistry}
                       className="hide-on-print"
+                      isDisabled={userRight === "SalesPerson" || userRight === "Manager"}
                     >
                       UnRegistry
                     </Button>
@@ -3088,6 +3111,7 @@ const PaymentTransaction = () => {
                       size={"sm"}
                       onClick={onRegistry}
                       className="hide-on-print"
+                      isDisabled={userRight === "SalesPerson" || userRight === "Manager"}
                     >
                       Registry
                     </Button>
@@ -3099,6 +3123,7 @@ const PaymentTransaction = () => {
                     onClick={cancelPlot}
                     colorScheme="gray"
                     className="hide-on-print"
+                    isDisabled={userRight === "SalesPerson" || userRight === "Manager"}
                   >
                     Cancel Plot
                   </Button>
@@ -3108,6 +3133,7 @@ const PaymentTransaction = () => {
                     colorScheme="gray"
                     onClick={deletePlot}
                     className="hide-on-print"
+                    isDisabled={userRight === "SalesPerson" || userRight === "Manager"}
                   >
                     Delete Plot
                   </Button>
@@ -3118,6 +3144,7 @@ const PaymentTransaction = () => {
                     onClick={() => {
                       setIsTransferAllModalOpen(true);
                     }}
+                    isDisabled={userRight === "SalesPerson" || userRight === "Manager"}
                   >
                     Transfer All
                   </Button>
@@ -3176,6 +3203,7 @@ const PaymentTransaction = () => {
                       id="date"
                       required
                       type="date"
+                      isDisabled={userRight === "SalesPerson" || userRight === "Manager"}
                     // w={"60%"}
                     // value={currentDate}
                     />
@@ -3291,7 +3319,7 @@ const PaymentTransaction = () => {
                     </FormLabel>
                     <Select id="transactionStatus" placeholder="Select">
                       <option value="Pending">Pending</option>
-                      <option value="Clear">Clear</option>
+                      <option value="Clear" isDisabled={userRight === "SalesPerson" || userRight === "Manager"}>Clear</option>
                       <option value="PDC">PDC</option>
                       <option value="Provisional">Provisional</option>
                       <option value="Bounced">Bounced</option>
@@ -3315,6 +3343,7 @@ const PaymentTransaction = () => {
                       id="statusDate"
                       type="Date"
                       required
+                      isDisabled={userRight === "SalesPerson" || userRight === "Manager"}
                     // w={"60%"}
                     />
                   </Flex>
@@ -3655,7 +3684,7 @@ const PaymentTransaction = () => {
                           marginLeft={"10px"}
                           onClick={() => handleTransferButtonClick(res, index)}
                           size={"sm"}
-                          isDisabled={res.action.length > 15}
+                          isDisabled={userRight === "SalesPerson" || userRight === "Manager" || res.action.length > 15}
                         >
                           Transfer
                         </Button>

@@ -52,10 +52,7 @@ const BookingStatus = () => {
   const [selectedPlotstatus, setSelectedPlotstatus] = useState([]);
   const [selectedFromDate, setSelectedFromDate] = useState("");
   const [selectedToDate, setSelectedToDate] = useState("");
-  const[selectedStatusDate ,setSelectStatusDate] = useState("");
-  const[selectedDate,setSelectedDate] =useState("");
- const[selectedEndDate,setSelectedEndDate]= useState("")
-  const [selectedStatusEndDate,setSelectStatusEndDate]= useState("")
+
   const [highlightedRow, setHighlightedRow] = useState(null);
   const [loading, setLoading] = useState(true);
   const [count, setCount] = useState(null);
@@ -99,7 +96,7 @@ const BookingStatus = () => {
   const loadBooking = async () => {
     let query = "SELECT * FROM booking where IsActive='1';";
     const url = "http://localhost/backend_lms/getQuery.php";
-    // const url = "http://localhost/backend_lms/getQuery.php";
+    // const url = "https://lkgexcel.com/backend/getQuery.php";
     let fData = new FormData();
 
     fData.append("query", query);
@@ -129,7 +126,7 @@ const BookingStatus = () => {
   const loadDate = async () => {
     let query = "SELECT registryDate FROM registry;";
 
-    // const url = "http://localhost/backend_lms/getQuery.php";
+    // const url = "https://lkgexcel.com/backend/getQuery.php";
     const url = "http://localhost/backend_lms/getQuery.php";
 
     let fData = new FormData();
@@ -159,7 +156,7 @@ const BookingStatus = () => {
     try {
       const response = await axios.get(
         "http://localhost/backend_lms/getplot.php"
-        // "http://localhost/backend_lms/getplot.php"
+        // "https://lkgexcel.com/backend/getplot.php"
       );
       setBooking(response.data);
       setTemp(response.data);
@@ -297,7 +294,7 @@ const BookingStatus = () => {
   };
 
   const handleEditPlotSubmit = async () => {
-    // const url = "http://localhost/backend_lms/editplot.php";
+    // const url = "https://lkgexcel.com/backend/editplot.php";
     const url = "http://localhost/backend_lms/editplot.php";
     const formData1 = new FormData();
 
@@ -346,6 +343,7 @@ const BookingStatus = () => {
     }
   };
 
+  // **********************************************************************************************
 
   const sendDataToBackend = async (e) => {
     e.preventDefault();
@@ -369,6 +367,8 @@ const BookingStatus = () => {
         }
       );
 
+      console.log(response.data);
+      console.log(response.message);
       if (response.data.status != "error") {
         console.log("this is response", response);
 
@@ -633,7 +633,7 @@ const BookingStatus = () => {
             </MenuList>
           </Menu>
 
-          <Box display={"flex"} mb={4}>
+          {/* <Box display={"flex"} mb={4}>
             <FormLabel
               textAlign={"center"}
               fontSize={"17px"}
@@ -693,12 +693,11 @@ const BookingStatus = () => {
               value={selectedStatusEndDate }
               onChange={(e) => setSelectStatusEndDate(e.target.value)}
             />
-             <Button onClick={handleFind}>Find</Button>
-          </Box> 
+          </Box>  */}
 
 
 
-          {/* <Box display={"flex"}>
+          <Box display={"flex"}>
             <Text mt={2}>From:</Text>
             <Input
               type="date"
@@ -721,7 +720,7 @@ const BookingStatus = () => {
               onChange={(event) => setSelectedToDate(event.target.value)}
             />
             <Button onClick={handleFind}>Find</Button>
-          </Box>  */}
+          </Box> 
 
           <Button ml={2} onClick={clearFilters} colorScheme="red">
             Clear Filters
@@ -913,7 +912,7 @@ const BookingStatus = () => {
         </>
       )}
 
-  
+      {/* ************************************************************************ */}
 
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
@@ -981,7 +980,10 @@ const BookingStatus = () => {
               </FormControl>
             </Box>
             <Box display={"flex"} gap={4}>
-             
+              {/* <FormControl mb={2}>
+              <FormLabel>ADDRESS</FormLabel>
+              <Input placeholder="ADDRESS" />
+            </FormControl> */}
               <FormControl mb={2}>
                 <FormLabel>CONTACT NO.</FormLabel>
                 <Input
@@ -1031,6 +1033,8 @@ const BookingStatus = () => {
     </>
   );
 
+  //   </>
+  // );
 };
 
 export default BookingStatus;

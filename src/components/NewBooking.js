@@ -35,6 +35,7 @@ const NewBooking = () => {
   const genders = ["Male", "Female"]; // Replace with actual gender options
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [discountApplicable, setDiscountApplicable] = useState('No'); // Initial state
+  const [userRight, setUserRight] = useState(localStorage.getItem("userRight"));
 
   const toast = useToast();
   const [formData, setFormData] = useState({
@@ -799,6 +800,7 @@ const NewBooking = () => {
                 name="customerName"
                 onChange={handleChange}
                 required
+                
               />
             </FormControl>
 
@@ -810,6 +812,8 @@ const NewBooking = () => {
                 name="customerAddress"
                 //onChange={handleChange}
                 required
+                          
+
               />
             </FormControl>
 
@@ -870,6 +874,7 @@ const NewBooking = () => {
                 name="areaSqft"
                 //onChange={handleChange}
                 required
+                disabled={userRight === "Manager" || userRight === "SalesPerson"}
               />
             </FormControl>
 
@@ -882,6 +887,7 @@ const NewBooking = () => {
                 name="rateAreaSqft"
                 //onChange={handleChange}
                 required
+                disabled={userRight === "Manager" || userRight === "SalesPerson"}
               />
             </FormControl>
 
@@ -896,6 +902,7 @@ const NewBooking = () => {
                 required
                 bg={"yellow"}
                 color={"black"}
+                disabled={userRight === "Manager" || userRight === "SalesPerson"}
               />
             </FormControl>
             <Box gridColumn="span 1" />
@@ -936,7 +943,7 @@ const NewBooking = () => {
                 id="discountPercent"
                 type="text"
                 name="discountPercent"
-                disabled={discountApplicable === "No"}
+                disabled={discountApplicable === "No" || userRight === "Manager" || userRight === "SalesPerson"}
                 required
               />
             </FormControl>
@@ -950,6 +957,7 @@ const NewBooking = () => {
                 //onChange={handleChange}
                 required
                 bg={"yellow"}
+                
               />
             </FormControl>
             <Box gridColumn="span 1" />
