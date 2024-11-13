@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   FormControl,
@@ -17,6 +17,8 @@ import {
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import AccessDenied from "./AccessDenied";
+import { setDailyAccessTimes } from "../Home";
 
 const Admin = ({ onLogin }) => {
   const [show, setShow] = useState(false);
@@ -27,7 +29,7 @@ const Admin = ({ onLogin }) => {
 
   //mac authentication
   const [macAdd, setMacAdd] = useState(""); // State to store the fetched MAC address
-  
+
   const fetchMacAddress = async () => {
     try {
       const response = await fetch('http://localhost/backend_lms/macfetching.php', {
@@ -61,8 +63,8 @@ const Admin = ({ onLogin }) => {
     }
   };
 
-   // Function to check the MAC address (after fetching it)
-   const checkMac = async (macAdd) => {
+  // Function to check the MAC address (after fetching it)
+  const checkMac = async (macAdd) => {
     console.log("MAC Address in checkMac:", macAdd);
     try {
       const response = await fetch('http://localhost/backend_lms/macauthenticate.php', {
@@ -86,7 +88,7 @@ const Admin = ({ onLogin }) => {
         //     position: "top-right",
         // });
         localStorage.setItem("MacAuthenticate", "true");
-        
+
 
         console.log("Success");
       } else {
@@ -96,7 +98,7 @@ const Admin = ({ onLogin }) => {
           description: "Mac Address not valid",
           status: "error",
           position: "top-right",
-  
+
         });
         localStorage.setItem("MacAuthenticate", "false");
 
@@ -169,6 +171,7 @@ const Admin = ({ onLogin }) => {
           duration: 5000,
           isClosable: true,
         });
+        setDailyAccessTimes();
       } else {
         toast({
           title: "Login Failed",
@@ -205,90 +208,90 @@ const Admin = ({ onLogin }) => {
 
   return (
     <>
-      
+
       <Container maxW="7xl" p={{ base: 5, md: 10 }}>
         {isMacAuthenticated ? (
-        <Center>
-          <Stack spacing={4}>
-            <Heading fontSize="2xl" textAlign="center">
-              Welcome to Layout Management System
-              <br />
-              Admin Login
-            </Heading>
+          <Center>
+            <Stack spacing={4}>
+              <Heading fontSize="2xl" textAlign="center">
+                Welcome to Layout Management System
+                <br />
+                Admin Login
+              </Heading>
 
-            <VStack
-              as="form"
-              boxSize={{ base: "xs", sm: "sm", md: "md" }}
-              h="max-content !important"
-              rounded="lg"
-              boxShadow="lg"
-              p={{ base: 5, sm: 10 }}
-              spacing={8}
-            >
-              <VStack spacing={4} w="100%">
-                <FormControl id="email">
-                  <FormLabel>Enter Your ID</FormLabel>
-                  <Input
-                    rounded="md"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    onKeyDown={handleKeyPressFromEmail}
-                  />
-                </FormControl>
-                <FormControl id="password">
-                  <FormLabel>Password</FormLabel>
-                  <InputGroup size="md">
+              <VStack
+                as="form"
+                boxSize={{ base: "xs", sm: "sm", md: "md" }}
+                h="max-content !important"
+                rounded="lg"
+                boxShadow="lg"
+                p={{ base: 5, sm: 10 }}
+                spacing={8}
+              >
+                <VStack spacing={4} w="100%">
+                  <FormControl id="email">
+                    <FormLabel>Enter Your ID</FormLabel>
                     <Input
                       rounded="md"
-                      type={show ? "text" : "password"}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      onKeyDown={handleKeyPressFromPass}
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      onKeyDown={handleKeyPressFromEmail}
                     />
-                    <InputRightElement width="4.5rem">
-                      <Button h="1.75rem" size="sm" rounded="md" onClick={handleClick}>
-                        {show ? "Hide" : "Show"}
-                      </Button>
-                    </InputRightElement>
-                  </InputGroup>
-                </FormControl>
+                  </FormControl>
+                  <FormControl id="password">
+                    <FormLabel>Password</FormLabel>
+                    <InputGroup size="md">
+                      <Input
+                        rounded="md"
+                        type={show ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        onKeyDown={handleKeyPressFromPass}
+                      />
+                      <InputRightElement width="4.5rem">
+                        <Button h="1.75rem" size="sm" rounded="md" onClick={handleClick}>
+                          {show ? "Hide" : "Show"}
+                        </Button>
+                      </InputRightElement>
+                    </InputGroup>
+                  </FormControl>
+                </VStack>
+                <VStack w="100%">
+                  <Stack direction="row" justifyContent="space-between" w="100%">
+                    <Checkbox colorScheme="green" size="md">
+                      Remember me
+                    </Checkbox>
+                    <Link fontSize={{ base: "md", sm: "md" }}>Forgot password?</Link>
+                  </Stack>
+                  <Button
+                    bg="blue.300"
+                    color="white"
+                    _hover={{ bg: "blue.500" }}
+                    rounded="md"
+                    w="100%"
+                    onClick={() => {
+                      handleLogin();
+                      getUserRole();
+                    }}
+                  >
+                    Log in
+                  </Button>
+                </VStack>
               </VStack>
-              <VStack w="100%">
-                <Stack direction="row" justifyContent="space-between" w="100%">
-                  <Checkbox colorScheme="green" size="md">
-                    Remember me
-                  </Checkbox>
-                  <Link fontSize={{ base: "md", sm: "md" }}>Forgot password?</Link>
-                </Stack>
-                <Button
-                  bg="blue.300"
-                  color="white"
-                  _hover={{ bg: "blue.500" }}
-                  rounded="md"
-                  w="100%"
-                  onClick={() => {
-                    handleLogin();
-                    getUserRole();
-                  }}
-                >
-                  Log in
-                </Button>
-              </VStack>
-            </VStack>
-          </Stack>
-        </Center>
-          ) : (
-           <Center>
-             <Heading fontSize="2xl" textAlign="center">
-               Access Denied
-             </Heading>
-           </Center>
-          )
+            </Stack>
+          </Center>
+        ) : (
+          <Center>
+            <Heading fontSize="2xl" textAlign="center">
+              <AccessDenied />             
+            </Heading>
+          </Center>
+        )
         }
       </Container>
     </>
-          
+
   );
 };
 
@@ -299,4 +302,3 @@ export default Admin;
 
 
 
- 

@@ -173,7 +173,6 @@ function HoldedPlots() {
               <Td>{item.Remark}</Td>
               <Th ><Button bg={"red.400"} onClick={() => releasePlot(item)} isDisabled={userRight === "SalesPerson" || userRight === "Manager"}>Release</Button></Th>
             </Tr>
-
           ))}
         </Tbody>
 
