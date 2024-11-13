@@ -10,10 +10,10 @@ export function setDailyAccessTimes() {
   if (localStorage.getItem('accessDate') !== today) {
     // Create new Date objects for 8 AM and 6 PM
     const startTime = new Date();
-    startTime.setHours(5, 0, 0, 0);
+    startTime.setHours(8, 0, 0, 0);
 
     const endTime = new Date();
-    endTime.setHours(6, 0, 0, 0);
+    endTime.setHours(18, 0, 0, 0);
 
     // Store in localStorage
     localStorage.setItem('startTime', startTime.getTime());
